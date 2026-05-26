@@ -70,7 +70,6 @@ export default function SociosPage() {
             <option value="Fase I">Fase I</option>
             <option value="Fase II">Fase II</option>
             <option value="Fase III">Fase III</option>
-            <option value="Preventa">Preventa</option>
           </select>
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
             <option value="">Todos los estados</option>

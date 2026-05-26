@@ -1,0 +1,1106 @@
+-- Pagos realizados desde pago_realizados.prn
+-- 2026-05-26T21:24:55.254Z
+-- 360 pagos, 119 partners, total: 6,625,240,280
+
+BEGIN;
+
+DELETE FROM pagos;
+
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 259;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 4500000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 259;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 259;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 4500000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 259;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 773;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 38000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 773;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 38000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 773;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 80;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 80;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 92;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 27500000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 92;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 40;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 40;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 40;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 40;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 40;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 245;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 245;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 245;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10937500, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 245;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 48832500, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 245;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5855000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 245;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 38000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 777;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 42000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 777;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 302;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 302;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 302;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 302;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 302;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 112;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 112;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 112;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 112;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 112;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 112;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 112;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 112;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 159;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 159;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9142500, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 159;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 159;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 159;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 16500000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 159;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 159;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 365;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 365;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 7000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 365;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 45;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20005000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 143;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 143;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 143;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 143;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 143;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 143;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 37;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 37;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 192;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 192;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 192;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 192;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8320000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 192;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 11000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 192;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 3830000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 192;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 15000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 32;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 32;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 70;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 70;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 70;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 70;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 70;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 249;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10800000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 249;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10800000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 249;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10800000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 249;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10800000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 249;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10800000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 249;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10800000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 249;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10800000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 249;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 56;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 56;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 56;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 56;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 70000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 56;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 56;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 47;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 47;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 47;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 83;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 4500000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 83;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 13500000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 83;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 203;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 321;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 202;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 202;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 202;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 202;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 202;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 202;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 723;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 723;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 4000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 723;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 16000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 723;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 1000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 723;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 61;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 25000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 689;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 689;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 45000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 575;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 610;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 24000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 610;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 610;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 610;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 610;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 15000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 610;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 163;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 35000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 163;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 34031250, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 306;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9281250, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 306;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9281250, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 306;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9281250, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 306;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9281250, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 306;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9281250, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 306;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 24750000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 297;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 11000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 297;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5500000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 297;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5500000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 297;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5500000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 297;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5500000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 297;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 42000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 309;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 16500000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 309;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 309;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 309;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 309;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 309;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 142;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 142;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 142;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 142;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 142;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 142;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 71;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 21000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 71;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 71;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 50000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 71;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 71;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 242;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 25000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 242;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 341;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 341;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5625000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 341;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 11250000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 341;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5625000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 341;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 621;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 621;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 7500000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 621;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 7500000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 621;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 7500000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 621;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 21;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 21;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 21;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 1000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 21;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 1000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 21;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 1000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 21;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 45000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 222;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 167;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 167;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 167;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 427;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 25000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 427;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 25000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 427;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 90;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 366;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 16000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 366;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 16000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 366;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 16000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 366;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 16000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 366;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 16000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 366;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 744;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 744;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 744;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 744;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 103;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 103;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 103;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 103;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 103;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 50000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 168;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 50000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 168;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 127;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 127;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 127;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 73;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 73;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 32000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 822;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 12000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 822;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 12000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 822;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 12000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 822;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 12000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 822;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 12000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 822;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 12000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 822;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 169;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 216;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 35000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 216;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 59;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 42000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 59;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 42000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 59;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 111;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 55800000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 111;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 18600000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 111;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 275;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 197;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 45000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 197;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 266;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 266;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 98;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 95;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 95;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 95;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 95;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 95;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 779;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 2100000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 779;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 2900000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 779;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 779;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 25000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 172;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 178;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 329;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 188;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 25000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 188;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 23000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 188;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 188;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 14425000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 129;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 25000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 129;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 129;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 129;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 294;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 294;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 339;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 339;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 60000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 339;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 25000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 339;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 24750000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 324;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10900000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 324;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 24750000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 323;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10900000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 323;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 46000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 34;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 26000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 34;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 26000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 34;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 563;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 563;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 563;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 563;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 563;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 18000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 563;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 57;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 57;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 57;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 57;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 555;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 166;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 166;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 50000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 319;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 39000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 319;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 585;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 34031250, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 125;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 25000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 508;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 508;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 508;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 145;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 32000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 145;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 22000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 145;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 32000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 145;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 23500000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 145;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 25701433, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 145;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 16149283, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 145;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 612;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 612;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 7500000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 612;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 7500000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 612;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 7500000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 612;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 33000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 225;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 225;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 225;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 225;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 225;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 225;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2025-10-15', 'cuota', '2025-10'
+FROM socios WHERE certificado_no = 160;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 160;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9142500, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 160;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 160;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 160;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 16500000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 160;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 8250000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 160;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 184;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 33333333, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 184;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 54666667, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 184;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 288;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 288;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 288;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 120;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 21000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 100;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 6000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 100;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 100;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5614836, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 562;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5614836, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 562;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5614836, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 562;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 24000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 296;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 296;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 296;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 296;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 38000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 74;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 18000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 74;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 24000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 230;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 230;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 230;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 15000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 273;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 15000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 273;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 273;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 8;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 24750000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 135;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 18562500, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 135;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 258;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 21000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 258;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 66000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 823;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 50000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 502;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 161;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 161;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 34031250, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 218;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9281250, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 218;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 9281250, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 218;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 18750000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 240;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 18750000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 240;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 18750000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 240;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 12500000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 285;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 12450000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 285;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 12500000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 285;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 80000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 33;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2025-11-15', 'cuota', '2025-11'
+FROM socios WHERE certificado_no = 344;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2025-12-15', 'cuota', '2025-12'
+FROM socios WHERE certificado_no = 344;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 344;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 10000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 344;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 134;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 11000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 134;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 11000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 134;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 11000000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 134;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 3260870, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 267;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 3260870, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 267;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 3260870, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 267;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 3260870, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 23;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 3260870, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 23;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 3260870, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 23;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 276;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 24750000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 72;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2026-03-15', 'cuota', '2026-03'
+FROM socios WHERE certificado_no = 838;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 838;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 24750000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 399;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 20250000, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 399;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 30000000, '2026-01-15', 'cuota', '2026-01'
+FROM socios WHERE certificado_no = 62;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2026-02-15', 'cuota', '2026-02'
+FROM socios WHERE certificado_no = 62;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 40000000, '2026-04-15', 'cuota', '2026-04'
+FROM socios WHERE certificado_no = 62;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto)
+SELECT id, 5614836, '2026-05-15', 'cuota', '2026-05'
+FROM socios WHERE certificado_no = 311;
+
+-- Update plan installments matching by period
+UPDATE planes_pago pp
+SET monto_pagado = COALESCE((
+  SELECT p.monto FROM pagos p 
+  WHERE p.socio_id = pp.socio_id AND p.concepto = pp.periodo
+), 0),
+estado = CASE 
+  WHEN COALESCE((SELECT p.monto FROM pagos p 
+    WHERE p.socio_id = pp.socio_id AND p.concepto = pp.periodo), 0) >= pp.monto_proyectado THEN 'pagado'
+  WHEN COALESCE((SELECT p.monto FROM pagos p 
+    WHERE p.socio_id = pp.socio_id AND p.concepto = pp.periodo), 0) > 0 THEN 'parcial'
+  ELSE 'pendiente'
+END;
+
+COMMIT;
+
+SELECT COUNT(*) AS pagos, SUM(monto) AS total FROM pagos;

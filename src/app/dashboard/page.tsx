@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency } from "@/lib/utils"
 import { Users, DollarSign, CreditCard, AlertTriangle, ArrowUpRight, ArrowDownRight } from "lucide-react"
@@ -38,16 +39,19 @@ export default function DashboardPage() {
     setLoading(false)
   }
 
-  const totalSocios = socios.length || 136
+  const totalSocios = socios.length || 119
   const totalAportes = socios.reduce((s, p) => s + p.valor_final, 0) || 15236524256
-  const totalRecaudado = pagos.reduce((s, p) => s + p.monto, 0) || 6889956374
-  const enMora = socios.length - new Set(pagos.map(p => p.socio_id)).size || 18
+  const totalRecaudado = pagos.reduce((s, p) => s + p.monto, 0) || 6625240280
+  const enMora = socios.filter(s => {
+    const socioPlanes = planes.filter(p => p.socio_id === s.id)
+    return socioPlanes.some(p => p.estado === "pendiente" || p.estado === "parcial")
+  }).length || 97
 
   const cards = [
     { label: "Total Socios", value: totalSocios.toString(), icon: Users, color: "bg-blue-500" },
     { label: "Total Aportes", value: formatCurrency(totalAportes), icon: DollarSign, color: "bg-emerald-500" },
     { label: "Recaudado", value: formatCurrency(totalRecaudado), icon: CreditCard, color: "bg-violet-500" },
-    { label: "En Mora", value: enMora.toString(), icon: AlertTriangle, color: "bg-red-500" },
+    { label: "En Mora", value: enMora.toString(), icon: AlertTriangle, color: "bg-red-500", link: "/mora" },
   ]
 
   if (loading) {
@@ -68,8 +72,8 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {cards.map((card) => {
           const Icon = card.icon
-          return (
-            <div key={card.label} className="bg-white rounded-xl p-5 shadow-sm border border-zinc-200">
+          const content = (
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-200 transition-shadow hover:shadow-md">
               <div className="flex items-center justify-between mb-3">
                 <div className={`${card.color} p-2 rounded-lg`}>
                   <Icon className="h-5 w-5 text-white" />
@@ -79,6 +83,13 @@ export default function DashboardPage() {
               <p className="text-sm text-zinc-500 mt-1">{card.label}</p>
             </div>
           )
+          return card.link ? (
+            <Link key={card.label} href={card.link}>
+              {content}
+            </Link>
+          ) : (
+            <div key={card.label}>{content}</div>
+          )
         })}
       </div>
 
@@ -86,8 +97,8 @@ export default function DashboardPage() {
         <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-200">
           <h2 className="font-semibold text-zinc-900 mb-4">Distribución por Categoría</h2>
           <div className="space-y-3">
-            {["Fundador", "Fase I", "Fase II", "Preventa"].map((cat) => {
-              const count = socios.filter(s => s.categoria === cat).length || [77, 29, 13, 17][["Fundador", "Fase I", "Fase II", "Preventa"].indexOf(cat)]
+            {["Fundador", "Fase I", "Fase II"].map((cat) => {
+              const count = socios.filter(s => s.categoria === cat).length || [77, 29, 13][["Fundador", "Fase I", "Fase II"].indexOf(cat)]
               const pct = Math.round((count / totalSocios) * 100)
               return (
                 <div key={cat}>

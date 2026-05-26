@@ -41,8 +41,8 @@ export default function ReportesPage() {
     URL.revokeObjectURL(url)
   }
 
-  const categorias = ["Fundador", "Fase I", "Fase II", "Preventa"]
-  const fallbackCantidad = [77, 29, 13, 17]
+  const categorias = ["Fundador", "Fase I", "Fase II"]
+  const fallbackCantidad = [77, 29, 13]
   const porCategoria = categorias.map((cat) => {
     const items = socios.filter((s: any) => s.categoria === cat)
     return {
@@ -96,8 +96,7 @@ export default function ReportesPage() {
                       className={`h-2.5 rounded-full ${
                         item.categoria === "Fundador" ? "bg-purple-500" :
                         item.categoria === "Fase I" ? "bg-blue-500" :
-                        item.categoria === "Fase II" ? "bg-amber-500" :
-                        "bg-emerald-500"
+                        "bg-amber-500"
                       }`}
                       style={{ width: `${pct}%` }}
                     />
@@ -120,11 +119,11 @@ export default function ReportesPage() {
           <div className="space-y-3">
             <div className="flex justify-between py-2 border-b border-zinc-100">
               <span className="text-zinc-600">Total Socios</span>
-              <span className="font-bold text-zinc-900">{socios.length || 136}</span>
+              <span className="font-bold text-zinc-900">{socios.length || 119}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-zinc-100">
               <span className="text-zinc-600">Valor Promedio</span>
-              <span className="font-bold text-zinc-900">{formatCurrency(totalGeneral > 0 ? Math.round(totalGeneral / (socios.length || 136)) : 112033267)}</span>
+              <span className="font-bold text-zinc-900">{formatCurrency(totalGeneral > 0 ? Math.round(totalGeneral / (socios.length || 119)) : 112033267)}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-zinc-100">
               <span className="text-zinc-600">Socios Firmados</span>
