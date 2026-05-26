@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency } from "@/lib/utils"
 import { Users, DollarSign, CreditCard, AlertTriangle, ArrowUpRight, ArrowDownRight } from "lucide-react"
-import type { Socio, PlanPago } from "@/types"
+import type { Socio, PlanPago, Pago } from "@/types"
 
 export default function DashboardPage() {
   const router = useRouter()
   const [socios, setSocios] = useState<Socio[]>([])
-  const [pagos, setPagos] = useState<PlanPago[]>([])
+  const [planes, setPlanes] = useState<PlanPago[]>([])
+  const [pagos, setPagos] = useState<Pago[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -23,11 +24,13 @@ export default function DashboardPage() {
 
   async function loadData() {
     try {
-      const [sociosRes, pagosRes] = await Promise.all([
+      const [sociosRes, planesRes, pagosRes] = await Promise.all([
         supabase.from("socios").select("*"),
         supabase.from("planes_pago").select("*"),
+        supabase.from("pagos").select("*"),
       ])
       if (sociosRes.data) setSocios(sociosRes.data)
+      if (planesRes.data) setPlanes(planesRes.data)
       if (pagosRes.data) setPagos(pagosRes.data)
     } catch {
       // Supabase not configured yet — use demo data
@@ -37,9 +40,8 @@ export default function DashboardPage() {
 
   const totalSocios = socios.length || 103
   const totalAportes = socios.reduce((s, p) => s + p.valor_final, 0) || 108846524000
-  const totalRecaudado = pagos.filter(p => p.estado === "pagado" || p.estado === "parcial")
-    .reduce((s, p) => s + p.monto_pagado, 0) || 32800000000
-  const enMora = pagos.filter(p => p.estado === "pendiente" && p.saldo > 0).length || 45
+  const totalRecaudado = pagos.reduce((s, p) => s + p.monto, 0) || 32800000000
+  const enMora = socios.length - new Set(pagos.map(p => p.socio_id)).size || 45
 
   const cards = [
     { label: "Total Socios", value: totalSocios.toString(), icon: Users, color: "bg-blue-500" },

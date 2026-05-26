@@ -1,0 +1,65 @@
+[
+  {
+    "certificado_no": 365,
+    "nombre": "Katerine Gissella Vargas Q",
+    "valor_final": 67500000,
+    "monto": 37500000,
+    "fecha_pago": "2026-02-18",
+    "tipo": "cuota",
+    "concepto": "Abono recibido: 37,500,000"
+  },
+  {
+    "certificado_no": 80,
+    "nombre": "Daniel Santiago Pico Toled",
+    "valor_final": 75000000,
+    "monto": 55000000,
+    "fecha_pago": "2026-02-18",
+    "tipo": "cuota",
+    "concepto": "Abono recibido: 55,000,000"
+  },
+  {
+    "certificado_no": 92,
+    "nombre": "Roberto Clavijo Puyana",
+    "valor_final": 75000000,
+    "monto": 60000000,
+    "fecha_pago": "2026-02-18",
+    "tipo": "cuota",
+    "concepto": "Abono recibido: 60,000,000"
+  },
+  {
+    "certificado_no": 45,
+    "nombre": "Juan Carlos Aycardi Sepulv",
+    "valor_final": 75000000,
+    "monto": 75000000,
+    "fecha_pago": "2026-02-18",
+    "tipo": "cuota",
+    "concepto": "Abono recibido: 75,000,000"
+  },
+  {
+    "certificado_no": 143,
+    "nombre": "Camilo Enmanuel Barajas Pe",
+    "valor_final": 75000000,
+    "monto": 75000000,
+    "fecha_pago": "2026-02-18",
+    "tipo": "cuota",
+    "concepto": "Abono recibido: 75,000,000"
+  },
+  {
+    "certificado_no": 32,
+    "nombre": "Liliana Manjarres Duarte",
+    "valor_final": 75000000,
+    "monto": 75000000,
+    "fecha_pago": "2026-02-18",
+    "tipo": "cuota",
+    "concepto": "Abono recibido: 75,000,000"
+  },
+  {
+    "certificado_no": 70,
+    "nombre": "Leonel Barbosa Mateus",
+    "valor_final": 75000000,
+    "monto": 75000000,
+    "fecha_pago": "2026-02-18",
+    "tipo": "cuota",
+    "concepto": "Abono recibido: 75,000,000"
+  }
+]

@@ -1,0 +1,7 @@
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) SELECT id, 37500000, '2026-02-18', 'cuota', 'Abono recibido: 37,500,000' FROM socios WHERE certificado_no = 365;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) SELECT id, 55000000, '2026-02-18', 'cuota', 'Abono recibido: 55,000,000' FROM socios WHERE certificado_no = 80;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) SELECT id, 60000000, '2026-02-18', 'cuota', 'Abono recibido: 60,000,000' FROM socios WHERE certificado_no = 92;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) SELECT id, 75000000, '2026-02-18', 'cuota', 'Abono recibido: 75,000,000' FROM socios WHERE certificado_no = 45;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) SELECT id, 75000000, '2026-02-18', 'cuota', 'Abono recibido: 75,000,000' FROM socios WHERE certificado_no = 143;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) SELECT id, 75000000, '2026-02-18', 'cuota', 'Abono recibido: 75,000,000' FROM socios WHERE certificado_no = 32;
+INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) SELECT id, 75000000, '2026-02-18', 'cuota', 'Abono recibido: 75,000,000' FROM socios WHERE certificado_no = 70;
