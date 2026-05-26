@@ -8,14 +8,22 @@ import { Search, ChevronDown, ChevronRight, Calculator, DollarSign, CheckCircle2
 import type { Socio, PlanPago, Pago } from "@/types"
 
 const meses = [
-  "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26",
-  "May-26", "Jun-26", "Jul-26", "Aug-26", "Sep-26", "Oct-26",
-  "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27",
-  "May-27", "Jun-27", "Jul-27", "Aug-27", "Sep-27", "Oct-27",
-  "Nov-27", "Dec-27", "Jan-28", "Feb-28", "Mar-28", "Apr-28",
+  "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04",
+  "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10",
+  "2026-11", "2026-12", "2027-01", "2027-02", "2027-03", "2027-04",
+  "2027-05", "2027-06", "2027-07", "2027-08", "2027-09", "2027-10",
+  "2027-11", "2027-12", "2028-01", "2028-02", "2028-03", "2028-04",
 ]
 
-const mockPlanPagos: Record<string, PlanPago[]> = {}
+const nomMeses: Record<string, string> = {
+  "01":"Ene","02":"Feb","03":"Mar","04":"Abr","05":"May","06":"Jun",
+  "07":"Jul","08":"Ago","09":"Sep","10":"Oct","11":"Nov","12":"Dic",
+}
+
+function fmtPeriodo(p: string) {
+  const [y, m] = p.split("-")
+  return `${nomMeses[m] || m} ${y}`
+}
 
 function calcularPlanPagos(socio: Socio): PlanPago[] {
   const plan: PlanPago[] = []
@@ -151,7 +159,7 @@ export default function PagosPage() {
           <h1 className="text-2xl font-bold text-zinc-900">Plan de Pagos</h1>
           <p className="text-zinc-500 text-sm mt-1">
             {view === "plan"
-              ? `Proyección de cuotas con interés del ${tasaInteres}% mensual`
+              ? `Calendario de cuotas pactadas · ${Object.values(planesPago).flat().length} cuotas registradas`
               : `${pagos.length} pagos recibidos registrados`}
           </p>
         </div>
@@ -295,7 +303,7 @@ export default function PagosPage() {
                                   <tbody>
                                     {plan.map((p) => (
                                       <tr key={p.id} className="hover:bg-white border-b border-zinc-100">
-                                        <td className="px-2 py-1.5 text-zinc-700 font-medium">{p.periodo}</td>
+                                        <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
                                         <td className="px-2 py-1.5 text-right text-zinc-700">{formatCurrency(p.monto_proyectado)}</td>
                                         <td className="px-2 py-1.5 text-right">
                                           <input
