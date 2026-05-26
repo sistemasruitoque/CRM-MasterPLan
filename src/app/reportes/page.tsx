@@ -41,11 +41,13 @@ export default function ReportesPage() {
     URL.revokeObjectURL(url)
   }
 
-  const porCategoria = ["Fundador", "Fase I", "Fase II", "Fase III"].map((cat) => {
+  const categorias = ["Fundador", "Fase I", "Fase II", "Preventa"]
+  const fallbackCantidad = [77, 29, 13, 17]
+  const porCategoria = categorias.map((cat) => {
     const items = socios.filter((s: any) => s.categoria === cat)
     return {
       categoria: cat,
-      cantidad: items.length || [60, 25, 12, 6][["Fundador", "Fase I", "Fase II", "Fase III"].indexOf(cat)],
+      cantidad: items.length || fallbackCantidad[categorias.indexOf(cat)],
       total: items.reduce((s: number, p: any) => s + p.valor_final, 0) || 0,
     }
   })
@@ -118,19 +120,19 @@ export default function ReportesPage() {
           <div className="space-y-3">
             <div className="flex justify-between py-2 border-b border-zinc-100">
               <span className="text-zinc-600">Total Socios</span>
-              <span className="font-bold text-zinc-900">{socios.length || 103}</span>
+              <span className="font-bold text-zinc-900">{socios.length || 136}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-zinc-100">
               <span className="text-zinc-600">Valor Promedio</span>
-              <span className="font-bold text-zinc-900">{formatCurrency(totalGeneral > 0 ? Math.round(totalGeneral / (socios.length || 103)) : 1057000000)}</span>
+              <span className="font-bold text-zinc-900">{formatCurrency(totalGeneral > 0 ? Math.round(totalGeneral / (socios.length || 136)) : 112033267)}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-zinc-100">
               <span className="text-zinc-600">Socios Firmados</span>
-              <span className="font-bold text-emerald-600">{socios.filter((s: any) => s.estatus === "Firmado").length || 90}</span>
+              <span className="font-bold text-emerald-600">{socios.filter((s: any) => s.estatus === "Firmado").length || 115}</span>
             </div>
             <div className="flex justify-between py-2">
               <span className="text-zinc-600">Por Firmar</span>
-              <span className="font-bold text-amber-600">{socios.filter((s: any) => s.estatus !== "Firmado").length || 13}</span>
+              <span className="font-bold text-amber-600">{socios.filter((s: any) => s.estatus !== "Firmado").length || 21}</span>
             </div>
           </div>
         </div>

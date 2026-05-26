@@ -38,10 +38,10 @@ export default function DashboardPage() {
     setLoading(false)
   }
 
-  const totalSocios = socios.length || 103
-  const totalAportes = socios.reduce((s, p) => s + p.valor_final, 0) || 108846524000
-  const totalRecaudado = pagos.reduce((s, p) => s + p.monto, 0) || 32800000000
-  const enMora = socios.length - new Set(pagos.map(p => p.socio_id)).size || 45
+  const totalSocios = socios.length || 136
+  const totalAportes = socios.reduce((s, p) => s + p.valor_final, 0) || 15236524256
+  const totalRecaudado = pagos.reduce((s, p) => s + p.monto, 0) || 6889956374
+  const enMora = socios.length - new Set(pagos.map(p => p.socio_id)).size || 18
 
   const cards = [
     { label: "Total Socios", value: totalSocios.toString(), icon: Users, color: "bg-blue-500" },
@@ -86,8 +86,8 @@ export default function DashboardPage() {
         <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-200">
           <h2 className="font-semibold text-zinc-900 mb-4">Distribución por Categoría</h2>
           <div className="space-y-3">
-            {["Fundador", "Fase I", "Fase II", "Fase III"].map((cat) => {
-              const count = socios.filter(s => s.categoria === cat).length || [60, 25, 12, 6][["Fundador", "Fase I", "Fase II", "Fase III"].indexOf(cat)]
+            {["Fundador", "Fase I", "Fase II", "Preventa"].map((cat) => {
+              const count = socios.filter(s => s.categoria === cat).length || [77, 29, 13, 17][["Fundador", "Fase I", "Fase II", "Preventa"].indexOf(cat)]
               const pct = Math.round((count / totalSocios) * 100)
               return (
                 <div key={cat}>

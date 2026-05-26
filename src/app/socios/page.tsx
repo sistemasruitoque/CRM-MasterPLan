@@ -7,22 +7,11 @@ import { formatCurrency } from "@/lib/utils"
 import { Search, Plus, Filter, ChevronDown, Building2, UserCheck } from "lucide-react"
 import type { Socio } from "@/types"
 
-const mockSocios: Socio[] = [
-  { id: "1", certificado_no: 259, cedula: "804004189", nombre: "Inversiones Palermo Y Cia", categoria: "Fundador", estatus: "Firmado", fecha_contrato: "13-Nov-25", admin_fee: 4000000, cuota_especial_nota: "", modalidad: "Corporación", aporte: 150000000, referido: 0, valor_final: 150000000, ap_locker: 0, cabal_cant: 0, cab_locker: 0, dama_cant: 0, responsable: "Diana", observaciones: "", created_at: "" },
-  { id: "2", certificado_no: 773, cedula: "79485762", nombre: "Orlando Lopez Gutierrez", categoria: "Fundador", estatus: "Firmado", fecha_contrato: "30-Oct-25", admin_fee: 2000000, cuota_especial_nota: "Saco a las parejas de los Hijo", modalidad: "Corporación", aporte: 150000000, referido: 0, valor_final: 150000000, ap_locker: 0, cabal_cant: 0, cab_locker: 0, dama_cant: 0, responsable: "Jose Mattos", observaciones: "", created_at: "" },
-  { id: "3", certificado_no: 80, cedula: "1098778566", nombre: "Daniel Santiago Pico Toled", categoria: "Fundador", estatus: "Firmado", fecha_contrato: "27-Oct-25", admin_fee: 2000000, cuota_especial_nota: "", modalidad: "Corporación", aporte: 75000000, referido: 0, valor_final: 75000000, ap_locker: 0, cabal_cant: 0, cab_locker: 0, dama_cant: 0, responsable: "Diana", observaciones: "", created_at: "" },
-  { id: "4", certificado_no: 92, cedula: "91209996", nombre: "Roberto Clavijo Puyana", categoria: "Fundador", estatus: "Firmado", fecha_contrato: "28-Oct-25", admin_fee: 2000000, cuota_especial_nota: "", modalidad: "Corporación", aporte: 75000000, referido: 0, valor_final: 75000000, ap_locker: 0, cabal_cant: 0, cab_locker: 0, dama_cant: 0, responsable: "Diana", observaciones: "", created_at: "" },
-  { id: "5", certificado_no: 40, cedula: "91522585", nombre: "Kleyber Julian Acevedo Car", categoria: "Fundador", estatus: "Firmado", fecha_contrato: "28-Oct-25", admin_fee: 2000000, cuota_especial_nota: "", modalidad: "Corporación", aporte: 150000000, referido: 0, valor_final: 150000000, ap_locker: 0, cabal_cant: 0, cab_locker: 0, dama_cant: 0, responsable: "Diana", observaciones: "", created_at: "" },
-  { id: "6", certificado_no: 245, cedula: "1098636862", nombre: "Silvia Juliana Guerra Rang", categoria: "Fundador", estatus: "Firmado", fecha_contrato: "30-Oct-25", admin_fee: 2000000, cuota_especial_nota: "", modalidad: "Corporación", aporte: 187500000, referido: 0, valor_final: 187500000, ap_locker: 0, cabal_cant: 0, cab_locker: 0, dama_cant: 0, responsable: "Diana", observaciones: "", created_at: "" },
-  { id: "7", certificado_no: 112, cedula: "1095804765", nombre: "Lizeth Calderon Ordoñez", categoria: "Fundador", estatus: "Firmado", fecha_contrato: "30-Oct-25", admin_fee: 2000000, cuota_especial_nota: "", modalidad: "Corporación", aporte: 187500000, referido: 0, valor_final: 187500000, ap_locker: 2000000, cabal_cant: 1, cab_locker: 1, dama_cant: 0, responsable: "Diana", observaciones: "", created_at: "" },
-  { id: "8", certificado_no: 159, cedula: "1098630705", nombre: "Laura Soraya Saba Santiago", categoria: "Fundador", estatus: "Firmado", fecha_contrato: "30-Oct-25", admin_fee: 2000000, cuota_especial_nota: "tiene a favor 3.145.783 por er", modalidad: "Corporación", aporte: 120000000, referido: 7500000, valor_final: 112500000, ap_locker: 2000000, cabal_cant: 1, cab_locker: 1, dama_cant: 0, responsable: "Diana", observaciones: "", created_at: "" },
-  { id: "9", certificado_no: 610, cedula: "18928103", nombre: "Leoncio Picon Rosado", categoria: "Fase I", estatus: "Firmado", fecha_contrato: "06-Nov-25", admin_fee: 2000000, cuota_especial_nota: "", modalidad: "Corporación", aporte: 150000000, referido: 0, valor_final: 150000000, ap_locker: 2000000, cabal_cant: 1, cab_locker: 1, dama_cant: 0, responsable: "Rolando", observaciones: "", created_at: "" },
-  { id: "10", certificado_no: 306, cedula: "1098738126", nombre: "Nicolas Mauricio Grau Prad", categoria: "Fase II", estatus: "Firmado", fecha_contrato: "07-Nov-25", admin_fee: 2000000, cuota_especial_nota: "", modalidad: "Corporación", aporte: 247500000, referido: 0, valor_final: 247500000, ap_locker: 0, cabal_cant: 0, cab_locker: 0, dama_cant: 0, responsable: "Juliana", observaciones: "", created_at: "" },
-]
+
 
 export default function SociosPage() {
   const router = useRouter()
-  const [socios, setSocios] = useState<Socio[]>(mockSocios)
+  const [socios, setSocios] = useState<Socio[]>([])
   const [search, setSearch] = useState("")
   const [filterCat, setFilterCat] = useState("")
   const [filterStatus, setFilterStatus] = useState("")
@@ -81,6 +70,7 @@ export default function SociosPage() {
             <option value="Fase I">Fase I</option>
             <option value="Fase II">Fase II</option>
             <option value="Fase III">Fase III</option>
+            <option value="Preventa">Preventa</option>
           </select>
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
             <option value="">Todos los estados</option>
