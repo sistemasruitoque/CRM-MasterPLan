@@ -1,21 +1,53 @@
 const fs = require("fs")
-const lines = fs.readFileSync("C:\\Users\\Usuario\\Downloads\\2026 02 18 Base de Datos Master Plan.prn", "utf8").split("\n")
-const rows = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 33, 36, 45, 55]
-for (const ri of rows) {
-  const l = lines[ri]
-  if (!l) continue
-  console.log("Row " + (ri + 1))
-  console.log("  cert[4-7]:      [" + l.substring(4, 7) + "]")
-  console.log("  chars13-22:     [" + l.substring(13, 23) + "]")
-  console.log("  chars22-48:     [" + l.substring(22, 48) + "]")
-  console.log("  cat[48-58]:     [" + l.substring(48, 58) + "]")
-  console.log("  est[59-68]:     [" + l.substring(59, 68) + "]")
-  console.log("  date[68-83]:    [" + l.substring(68, 83) + "]")
-  console.log("  contrat[83-90]: [" + l.substring(83, 90) + "]")
-  console.log("  aporte[146-162]:[" + l.substring(146, 162) + "]")
-  console.log("  refer[164-176]: [" + l.substring(164, 176) + "]")
-  console.log("  vfinal[174-188]:[" + l.substring(174, 188) + "]")
-  console.log("  alocker[186-196]:[" + l.substring(186, 196) + "]")
-  console.log("  modal[139-147]: [" + l.substring(139, 147) + "]")
-  console.log("")
+const content = fs.readFileSync("C:\\Users\\Usuario\\Downloads\\2026 02 18 Base de Datos Master Plan.prn", "utf8")
+const lines = content.split("\n").map(l => l.replace(/\r$/, ""))
+
+// Show recaudo header and first data row
+console.log("=== HEADER (line 1532) ===")
+console.log(lines[1531])
+
+console.log("\n=== FIRST DATA ROW (line 1533) ===")
+console.log(lines[1532])
+
+// Show first data row with character index markers
+const line = lines[1532]
+for (let i = 0; i < line.length; i += 15) {
+  const chunk = line.substring(i, Math.min(i + 15, line.length))
+  console.log(i.toString().padStart(4) + ': "' + chunk + '"')
 }
+
+// Extract all tokens
+const tokens = line.trim().split(/\s+/)
+console.log("\n=== TOKENS (" + tokens.length + ") ===")
+tokens.forEach((t, i) => console.log(i + ': "' + t + '"'))
+
+// Token types
+console.log("\n=== TOKEN TYPES ===")
+tokens.forEach((t, i) => {
+  const hasComma = /^\d{1,3}(?:,\d{3})+$/.test(t)
+  const isZero = /^0+$/.test(t)
+  console.log(i + ': "' + t + '" ' + (hasComma ? "COMMA" : isZero ? "ZERO" : "OTHER"))
+})
+
+// Analyze more data rows for pattern
+for (let ri = 1532; ri < 1545; ri++) {
+  const l = lines[ri]
+  if (!l || l.trim().length < 10) continue
+  const tkns = l.trim().split(/\s+/)
+  const commaVals = tkns.filter(t => /^\d{1,3}(?:,\d{3})+$/.test(t))
+  const zeros = tkns.filter(t => /^0+$/.test(t))
+  console.log("Row " + (ri + 1) + ": tokens=" + tkns.length + ", comma=" + commaVals.length + ", zeros=" + zeros.length + ", vals=" + commaVals.join(","))
+}
+
+// Now count how many rows in total recaudo section
+let dataRowCount = 0
+for (let ri = 1532; ri < 1900; ri++) {
+  const l = lines[ri]
+  if (!l || l.trim().length < 10) continue
+  const tkns = l.trim().split(/\s+/)
+  const commaVals = tkns.filter(t => /^\d{1,3}(?:,\d{3})+$/.test(t))
+  if (commaVals.length > 0 && !/^(Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Check|Total)/i.test(l.trim())) {
+    dataRowCount++
+  }
+}
+console.log("\nTotal recaudo data rows (non-header, non-total): " + dataRowCount)

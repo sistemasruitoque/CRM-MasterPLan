@@ -1,0 +1,56 @@
+[
+  {
+    "index": 0,
+    "certificado_no": 259,
+    "nombre": "Inversiones Palermo Y Cia",
+    "saldo": 86850000,
+    "totalRecaudoLocal": 0,
+    "pago100": 0,
+    "responsable": "Diana"
+  },
+  {
+    "index": 1,
+    "certificado_no": 773,
+    "nombre": "Orlando Lopez Gutierrez",
+    "saldo": 52000000,
+    "totalRecaudoLocal": 0,
+    "pago100": 0,
+    "responsable": "Diana"
+  },
+  {
+    "index": 2,
+    "certificado_no": 80,
+    "nombre": "Daniel Santiago Pico Toled",
+    "saldo": 61000000,
+    "totalRecaudoLocal": 0,
+    "pago100": 0,
+    "responsable": ""
+  },
+  {
+    "index": 3,
+    "certificado_no": 92,
+    "nombre": "Roberto Clavijo Puyana",
+    "saldo": 90000000,
+    "totalRecaudoLocal": 0,
+    "pago100": 0,
+    "responsable": "Rolando"
+  },
+  {
+    "index": 4,
+    "certificado_no": 40,
+    "nombre": "Kleyber Julian Acevedo Car",
+    "saldo": 15000000,
+    "totalRecaudoLocal": 0,
+    "pago100": 0,
+    "responsable": "Juliana"
+  },
+  {
+    "index": 5,
+    "certificado_no": 245,
+    "nombre": "Silvia Juliana Guerra Rang",
+    "saldo": 202500000,
+    "totalRecaudoLocal": 0,
+    "pago100": 0,
+    "responsable": "paola"
+  }
+]
