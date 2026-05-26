@@ -8,19 +8,7 @@ const MONTHS = {
 
 function parseCop(str) {
   if (!str || !str.trim()) return 0
-  const cleaned = str.trim().replace(/\./g, "").replace(/,/g, "")
-  const num = Number.parseInt(cleaned, 10)
-  return Number.isNaN(num) ? 0 : num
-}
-
-function findAllCopAmounts(str) {
-  const amounts = []
-  const re = /\d{1,3}(?:\.\d{3})*(?:,\d+)?/g
-  let m
-  while ((m = re.exec(str)) !== null) {
-    amounts.push(parseCop(m[0]))
-  }
-  return amounts
+  return Number.parseInt(str.trim().replace(/[,.]/g, ""), 10) || 0
 }
 
 function findDate(str) {
@@ -33,117 +21,121 @@ function findDate(str) {
   return `${day}/${mon}/${yr}`
 }
 
-function extractCedulaAndName(line) {
-  // Positions 13-22 contain the start of cedula/name area
-  // The cedula, if present, contains only digits starting at position 13
+function extractCedula(line) {
+  let s = ""
+  for (let i = 13; i < Math.min(35, line.length); i++) {
+    if (/\d/.test(line[i])) s += line[i]
+    else if (s.length > 0) break
+  }
+  return s
+}
+
+function extractName(line) {
   let cedEnd = 13
   for (let i = 13; i < Math.min(35, line.length); i++) {
     if (!/\d/.test(line[i])) {
-      cedEnd = i
-      break
+      if (i > 13) { cedEnd = i; break }
+      cedEnd = i + 1
+    } else {
+      cedEnd = i + 1
     }
-    cedEnd = i + 1
   }
-  const cedula = line.substring(13, cedEnd).trim()
-  const nombre = line.substring(cedEnd, 48).trim()
-  return { cedula, nombre }
+  return line.substring(cedEnd, 48).trim()
 }
 
 function parseLine(line) {
-  const certStr = line.substring(4, 8).trim()
-  const certNo = Number.parseInt(certStr, 10)
+  const certRaw = line.substring(4, 8).trim()
+  const certNo = Number.parseInt(certRaw, 10)
   if (!certNo || certNo <= 0) return null
 
-  // Name and cedula
-  const { cedula, nombre } = extractCedulaAndName(line)
-  if (!nombre) return null // placeholder row
+  const nombre = extractName(line)
+  if (!nombre) return null
+  const cedula = extractCedula(line)
 
-  // Categoria: positions 48-58
+  // Category
   const catRaw = line.substring(48, 58).trim()
-  // Normalize category
-  let categoria = catRaw
-  if (/fundador/i.test(catRaw)) categoria = "Fundador"
-  else if (/fase\s*i/i.test(catRaw)) categoria = "Fase I"
-  else if (/fase\s*ii/i.test(catRaw)) categoria = "Fase II"
-  else if (/fase\s*iii/i.test(catRaw)) categoria = "Fase III"
+  let categoria = ""
+  if (/^fundador$/i.test(catRaw)) categoria = "Fundador"
+  else if (/^fase\s*i$/i.test(catRaw)) categoria = "Fase I"
+  else if (/^fase\s*ii$/i.test(catRaw)) categoria = "Fase II"
+  else if (/^fase\s*iii$/i.test(catRaw)) categoria = "Fase III"
+  if (!categoria) return null
 
-  // Estatus: positions 60-66
-  const estRaw = line.substring(60, 67).trim()
-  let estatus = estRaw
-  // Check for "Por Firmar" which may be split across columns
-  if (line.substring(60, 90).includes("Por Firmar")) {
-    estatus = "Por Firmar"
-  } else if (!estatus || estatus.length < 3) {
-    estatus = "Pendiente"
-  }
+  // Status
+  const statusArea = line.substring(58, 90)
+  let estatus = "Pendiente"
+  if (/por\s*firmar/i.test(statusArea)) estatus = "Por Firmar"
+  else if (/firmado/i.test(statusArea)) estatus = "Firmado"
 
-  // Contract date - find anywhere in the line
-  const fechaContrato = findDate(line)
+  // Date
+  const fechaContrato = findDate(line.substring(68, 90))
 
   // Modalidad
-  const modRaw = line.substring(139, 147).trim()
-  let modalidad = "Corporación"
-  if (/avalfid/i.test(modRaw) || /avalf/i.test(modRaw)) {
-    modalidad = "AvalFiduciari"
+  const modRaw = line.substring(139, 147)
+  const modalidad = /avalf/i.test(modRaw) ? "AvalFiduciari" : "Corporación"
+
+  // Extract monetary values with commas (e.g. 150,000,000)
+  const monArea = line.substring(147)
+  const amounts = []
+  const re = /\d{1,3}(?:,\d{3})+/g
+  let m
+  while ((m = re.exec(monArea)) !== null) {
+    amounts.push(parseCop(m[0]))
   }
 
-  // Find all monetary values in this line
-  const allAmounts = findAllCopAmounts(line)
+  // Separate small values (likely admin/clubes ≤ 10M) and large values
+  const allLarge = amounts.filter(a => a > 10000000)
+  const small = amounts.filter(a => a > 0 && a <= 10000000)
 
-  // Filter meaningful amounts (> 1000000) and sort descending
-  const largeAmounts = allAmounts.filter(a => a > 1000000).sort((a, b) => b - a)
-  const smallAmounts = allAmounts.filter(a => a > 0 && a <= 1000000)
+  let aporte = 0, referido = 0, valorFinal = 0, apLocker = 0
 
-  // Determine referido: it should be present in the line near position 164-176
-  // and typically matches a value that when subtracted from aporte gives valor_final
-  let aporte = 0
-  let referido = 0
-  let valorFinal = 0
+  if (allLarge.length >= 1) {
+    aporte = allLarge[0]
 
-  if (largeAmounts.length >= 2) {
-    // The largest amounts are typically aporte and valor_final
-    // In some rows, valor_final = aporte - referido
-    // Heuristic: find three values where third = first - second
-    const sorted = [...largeAmounts].sort((a, b) => a - b)
-
-    // Try to find a trio where a - b = c
-    let foundTrio = false
-    for (let i = 0; i < sorted.length && !foundTrio; i++) {
-      for (let j = 0; j < sorted.length && !foundTrio; j++) {
-        if (i === j) continue
-        const diff = sorted[i] - sorted[j]
-        if (sorted.includes(diff) && diff > 0) {
-          aporte = sorted[i]
-          referido = sorted[j]
-          valorFinal = diff
-          foundTrio = true
+    if (allLarge.length >= 2) {
+      // Find the best (referido, valorFinal) pair where aporte - ref = vf
+      // and where ref < vf (referido is the smaller deduction)
+      const candidates = []
+      for (let i = 1; i < allLarge.length; i++) {
+        const candidateRef = aporte - allLarge[i]
+        if (candidateRef > 0 && candidateRef < aporte) {
+          const refExists = amounts.indexOf(candidateRef) !== -1 || small.indexOf(candidateRef) !== -1
+          if (refExists) candidates.push({ ref: candidateRef, vf: allLarge[i] })
         }
       }
+      // Pick candidate where ref < vf (referido is smaller than valor final)
+      // Among those, prefer smallest ref
+      const valid = candidates.filter(c => c.ref <= c.vf)
+      if (valid.length > 0) {
+        valid.sort((a, b) => a.ref - b.ref)
+        referido = valid[0].ref
+        valorFinal = valid[0].vf
+      } else if (candidates.length > 0) {
+        // No valid pair with ref < vf, use the first candidate
+        referido = candidates[0].ref
+        valorFinal = candidates[0].vf
+      } else {
+        // Fallback: no referido detected
+        valorFinal = allLarge[0]
+        referido = 0
+      }
+    } else {
+      valorFinal = aporte
     }
 
-    if (!foundTrio) {
-      // Fallback: pick largest as aporte, check if another matches "aporte - X"
-      aporte = Math.max(...largeAmounts)
-      const remaining = largeAmounts.filter(a => a !== aporte)
-      valorFinal = Math.max(...remaining)
-      referido = aporte - valorFinal
-      if (referido <= 0 || referido > aporte) referido = 0
-    }
-  } else if (largeAmounts.length === 1) {
-    aporte = largeAmounts[0]
-    valorFinal = aporte
+    // ApLocker: small values not used as referido
+    const leftover = small.filter(a => a !== referido)
+    apLocker = leftover.length > 0 ? leftover[leftover.length - 1] : 0
   }
 
-  // ApLocker: find 2,000,000 values that appear after valor_final in the line
-  const vfEnd = line.lastIndexOf(String(valorFinal).replace(/,/g, ""))
-  // Actually, just look for amounts around 2,000,000
-  const lockerAmounts = allAmounts.filter(a =>
-    a === 2000000 || a === 4000000 || (a > 0 && a <= 10000000)
-  )
-  const apLocker = lockerAmounts.length > 0 ? lockerAmounts[lockerAmounts.length - 1] : 0
-
-  // Observaciones: extract free-form text from the notes area
-  const obsArea = line.substring(83, 139).replace(/#/g, "").trim()
+  // Observaciones
+  const obsArea = line.substring(83, 139)
+    .replace(/#{2,}/g, "")
+    .replace(/\s+/g, " ").trim()
+  const observaciones = obsArea
+    .replace(/^(2|4),0\s*/, "")
+    .replace(/Activo\s*\d+\s*de\s*\d+/gi, "")
+    .trim()
 
   return {
     certificado_no: certNo,
@@ -157,7 +149,7 @@ function parseLine(line) {
     referido,
     valor_final: valorFinal,
     ap_locker: apLocker,
-    observaciones: obsArea || "",
+    observaciones: observaciones || "",
   }
 }
 
@@ -172,46 +164,64 @@ function main() {
   for (let i = 5; i < lines.length; i++) {
     const line = lines[i]
     if (!line || line.length < 180) continue
-
     const record = parseLine(line)
-    if (record) {
-      socios.push(record)
+    if (record) socios.push(record)
+    else if (socios.length > 10) {
+      // Once we've found some partners and start seeing non-matching rows, stop
+      const catCheck = line.substring(48, 58).trim()
+      const certCheck = line.substring(4, 8).trim()
+      if (!certCheck && /fase/i.test(catCheck)) break
     }
   }
 
   console.log(`Parsed ${socios.length} socios`)
 
-  if (socios.length === 0) {
-    console.log("Debug first rows:")
-    for (let i = 5; i < Math.min(10, lines.length); i++) {
-      const line = lines[i]
-      console.log(`Row ${i + 1}: cert='${line.substring(4, 8).trim()}' name='${line.substring(22, 48).trim()}' cat='${line.substring(48, 58).trim()}'`)
-    }
-    return
-  }
-
   // Print first 3
   for (let i = 0; i < 3 && i < socios.length; i++) {
-    console.log(`\n--- Socio ${i + 1} (cert=${socios[i].certificado_no}) ---`)
+    console.log(`\n--- ${i+1}. cert=${socios[i].certificado_no} ${socios[i].nombre} ---`)
     console.log(JSON.stringify(socios[i], null, 2))
   }
 
+  // Spot-check rows with referido
+  const withRef = socios.filter(s => s.referido > 0)
+  console.log(`\nSocios con referido: ${withRef.length}`)
+  for (const s of withRef.slice(0, 5)) {
+    console.log(`  #${s.certificado_no} ${s.nombre}: aporte=${s.aporte.toLocaleString()}, ref=${s.referido.toLocaleString()}, vf=${s.valor_final.toLocaleString()}`)
+  }
+
+  // Check some rows with ap_locker
+  const withLocker = socios.filter(s => s.ap_locker > 0)
+  console.log(`\nSocios con ap_locker: ${withLocker.length}`)
+
   // Summary
   const cats = {}
-  for (const s of socios) { cats[s.categoria] = (cats[s.categoria] || 0) + 1 }
-  console.log("\nBy category:", cats)
-  const totalVF = socios.reduce((s, x) => s + x.valor_final, 0)
-  const totalAp = socios.reduce((s, x) => s + x.aporte, 0)
-  const totalRef = socios.reduce((s, x) => s + x.referido, 0)
-  console.log(`Total aporte: ${totalAp.toLocaleString("en-US")}`)
-  console.log(`Total referido: ${totalRef.toLocaleString("en-US")}`)
-  console.log(`Total valor final: ${totalVF.toLocaleString("en-US")}`)
+  for (const s of socios) cats[s.categoria] = (cats[s.categoria] || 0) + 1
+  console.log(`\nBy category:`, cats)
+
+  const totals = { ap: 0, ref: 0, vf: 0 }
+  for (const s of socios) { totals.ap += s.aporte; totals.ref += s.referido; totals.vf += s.valor_final }
+  console.log(`Total aporte: ${totals.ap.toLocaleString("en-US")}`)
+  console.log(`Total referido: ${totals.ref.toLocaleString("en-US")}`)
+  console.log(`Total valor final: ${totals.vf.toLocaleString("en-US")}`)
 
   // Write JSON
   const outDir = path.dirname(outputPath)
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true })
   fs.writeFileSync(outputPath, JSON.stringify(socios, null, 2), "utf8")
   console.log(`\nWritten: ${outputPath}`)
+
+  // Write SQL
+  const sqlPath = outputPath.replace(/\.json$/, ".sql")
+  const sqlLines = []
+  for (const s of socios) {
+    const fc = s.fecha_contrato ? `'${s.fecha_contrato}'` : "NULL"
+    const obs = s.observaciones ? `'${s.observaciones.replace(/'/g, "''")}'` : "''"
+    sqlLines.push(
+      `INSERT INTO socios (certificado_no, cedula, nombre, categoria, estatus, fecha_contrato, modalidad, aporte, referido, valor_final, ap_locker, observaciones) VALUES (${s.certificado_no}, '${s.cedula.replace(/'/g, "''")}', '${s.nombre.replace(/'/g, "''")}', '${s.categoria}', '${s.estatus}', ${fc}, '${s.modalidad.replace(/'/g, "''")}', ${s.aporte}, ${s.referido}, ${s.valor_final}, ${s.ap_locker}, ${obs});`
+    )
+  }
+  fs.writeFileSync(sqlPath, sqlLines.join("\n"), "utf8")
+  console.log(`SQL written: ${sqlPath}`)
 }
 
 main()
