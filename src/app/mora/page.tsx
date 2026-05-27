@@ -4,15 +4,15 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, normalizePeriod, currentPeriod } from "@/lib/utils"
-import { AlertTriangle, ArrowLeft, Clock, CheckCircle2, XCircle } from "lucide-react"
+import { AlertTriangle, ArrowLeft, Clock, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 import type { Socio, PlanPago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
 interface SocioMora extends Socio {
-  planesVencidos: PlanPago[]
-  totalVencido: number
-  totalPagado: number
+  debeTenerPagado: number
+  haPagado: number
+  mora: number
 }
 
 const pactadoMap = new Map(pactadoPlanes.map(p => [p.certificado_no, p.schedules as unknown as Record<string, number>]))
@@ -70,21 +70,23 @@ export default function MoraPage() {
 
       for (const socio of sociosData) {
         const socioPlanes = grouped[socio.id] || []
-        const planesVencidos = socioPlanes.filter(p =>
-          normalizePeriod(p.periodo) <= nowPeriod &&
-          p.estado !== "pagado"
-        )
-        const totalVencido = planesVencidos.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)
-        const totalPagado = socioPlanes.reduce((s, p) => s + p.monto_pagado, 0)
+        if (socioPlanes.length === 0) continue
 
-        if (planesVencidos.length > 0) {
-          enMora.push({ ...socio, planesVencidos, totalVencido, totalPagado } as SocioMora)
-        } else if (socioPlanes.length > 0) {
+        const debeTenerPagado = socioPlanes
+          .filter(p => normalizePeriod(p.periodo) <= nowPeriod)
+          .reduce((s, p) => s + p.monto_proyectado, 0)
+        const haPagado = socioPlanes
+          .reduce((s, p) => s + p.monto_pagado, 0)
+        const mora = Math.max(0, debeTenerPagado - haPagado)
+
+        if (mora > 0) {
+          enMora.push({ ...socio, debeTenerPagado, haPagado, mora } as SocioMora)
+        } else {
           alDia++
         }
       }
 
-      enMora.sort((a, b) => b.totalVencido - a.totalVencido)
+      enMora.sort((a, b) => b.mora - a.mora)
       setSociosMora(enMora)
       setSociosAlDia(alDia)
     } catch {
@@ -101,7 +103,9 @@ export default function MoraPage() {
     )
   }
 
-  const totalMora = sociosMora.reduce((s, p) => s + p.totalVencido, 0)
+  const totalMora = sociosMora.reduce((s, p) => s + p.mora, 0)
+  const totalDebe = sociosMora.reduce((s, p) => s + p.debeTenerPagado, 0)
+  const totalPagado = sociosMora.reduce((s, p) => s + p.haPagado, 0)
 
   return (
     <div className="p-6">
@@ -112,7 +116,7 @@ export default function MoraPage() {
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">Socios en Mora</h1>
           <p className="text-zinc-500 text-sm mt-1">
-            {sociosMora.length} socios con pagos pendientes &middot; {sociosAlDia} al d&iacute;a
+            {sociosMora.length} socios con mora &middot; {sociosAlDia} al d&iacute;a
           </p>
         </div>
       </div>
@@ -149,53 +153,45 @@ export default function MoraPage() {
                 <th className="px-4 py-3 font-medium">No.</th>
                 <th className="px-4 py-3 font-medium">Nombre</th>
                 <th className="px-4 py-3 font-medium">Categor&iacute;a</th>
-                <th className="px-4 py-3 font-medium text-right">Cuotas Vencidas</th>
-                <th className="px-4 py-3 font-medium text-right">Total Pagado</th>
-                <th className="px-4 py-3 font-medium text-right">Saldo en Mora</th>
+                <th className="px-4 py-3 font-medium text-right">Debe Tener Pagado</th>
+                <th className="px-4 py-3 font-medium text-right">Ha Pagado</th>
+                <th className="px-4 py-3 font-medium text-right">Mora</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {sociosMora.map((socio) => {
-                const hasParcial = socio.planesVencidos.some(p => p.estado === "parcial")
-                return (
-                  <tr key={socio.id} className="hover:bg-zinc-50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-zinc-900">{socio.certificado_no}</td>
-                    <td className="px-4 py-3">
-                      <span className="font-medium text-zinc-900">{socio.nombre}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        socio.categoria === "Fundador" ? "bg-purple-100 text-purple-700" :
-                        socio.categoria === "Fase I" ? "bg-blue-100 text-blue-700" :
-                        "bg-amber-100 text-amber-700"
-                      }`}>
-                        {socio.categoria}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium text-zinc-900">
-                      {socio.planesVencidos.length}
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium text-emerald-600">
-                      {formatCurrency(socio.totalPagado)}
-                    </td>
-                    <td className="px-4 py-3 text-right font-bold text-red-600">
-                      {formatCurrency(socio.totalVencido)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 text-xs font-medium ${
-                        hasParcial ? "text-amber-600" : "text-red-600"
-                      }`}>
-                        {hasParcial ? (
-                          <><Clock className="h-3.5 w-3.5" /> Parcial</>
-                        ) : (
-                          <><XCircle className="h-3.5 w-3.5" /> Sin pago</>
-                        )}
-                      </span>
-                    </td>
-                  </tr>
-                )
-              })}
+              {sociosMora.map((socio) => (
+                <tr key={socio.id} className="hover:bg-zinc-50 transition-colors">
+                  <td className="px-4 py-3 font-medium text-zinc-900">{socio.certificado_no}</td>
+                  <td className="px-4 py-3">
+                    <span className="font-medium text-zinc-900">{socio.nombre}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      socio.categoria === "Fundador" ? "bg-purple-100 text-purple-700" :
+                      socio.categoria === "Fase I" ? "bg-blue-100 text-blue-700" :
+                      "bg-amber-100 text-amber-700"
+                    }`}>
+                      {socio.categoria}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right font-medium text-zinc-900">
+                    {formatCurrency(socio.debeTenerPagado)}
+                  </td>
+                  <td className="px-4 py-3 text-right font-medium text-emerald-600">
+                    {formatCurrency(socio.haPagado)}
+                  </td>
+                  <td className="px-4 py-3 text-right font-bold text-red-600">
+                    {formatCurrency(socio.mora)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      En Mora
+                    </span>
+                  </td>
+                </tr>
+              ))}
               {sociosMora.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-zinc-400">
@@ -209,8 +205,8 @@ export default function MoraPage() {
             <tfoot>
               <tr className="bg-zinc-50 font-medium text-zinc-900">
                 <td colSpan={3} className="px-4 py-3 text-right">Totales:</td>
-                <td className="px-4 py-3 text-right">{sociosMora.reduce((s, p) => s + p.planesVencidos.length, 0)}</td>
-                <td className="px-4 py-3 text-right text-emerald-600">{formatCurrency(sociosMora.reduce((s, p) => s + p.totalPagado, 0))}</td>
+                <td className="px-4 py-3 text-right">{formatCurrency(totalDebe)}</td>
+                <td className="px-4 py-3 text-right text-emerald-600">{formatCurrency(totalPagado)}</td>
                 <td className="px-4 py-3 text-right text-red-600">{formatCurrency(totalMora)}</td>
                 <td />
               </tr>

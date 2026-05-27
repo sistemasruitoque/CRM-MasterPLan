@@ -70,7 +70,13 @@ export default function DashboardPage() {
   }
   const enMora = socios.filter(s => {
     const socioPlanes = grouped[s.id] || []
-    return socioPlanes.some(p => normalizePeriod(p.periodo) <= nowPeriod && p.estado !== "pagado")
+    if (socioPlanes.length === 0) return false
+    const debe = socioPlanes
+      .filter(p => normalizePeriod(p.periodo) <= nowPeriod)
+      .reduce((sum, p) => sum + p.monto_proyectado, 0)
+    const haPagado = socioPlanes
+      .reduce((sum, p) => sum + p.monto_pagado, 0)
+    return debe > haPagado
   }).length || 97
 
   const cards = [
