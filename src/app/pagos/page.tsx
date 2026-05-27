@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase"
 import { formatCurrency } from "@/lib/utils"
 import { Search, ChevronDown, ChevronRight, Calculator, DollarSign, CheckCircle2, Clock, AlertCircle, Receipt } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
+import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
 function generarMeses(): string[] {
   const meses: string[] = []
@@ -68,6 +69,22 @@ function getStatusIcon(estado: string) {
   }
 }
 
+const pactadoMap = new Map(pactadoPlanes.map(p => [p.certificado_no, p.schedules as unknown as Record<string, number>]))
+
+function pactadoToPlanPagos(socio: Socio, schedules: Record<string, number>): PlanPago[] {
+  return Object.entries(schedules).map(([periodo, monto]) => ({
+    id: `${socio.id}-${periodo}`,
+    socio_id: socio.id,
+    periodo,
+    monto_proyectado: monto,
+    monto_pagado: 0,
+    saldo: 0,
+    estado: "pendiente" as const,
+    fecha_pago: null,
+    created_at: "",
+  }))
+}
+
 export default function PagosPage() {
   const router = useRouter()
   const [socios, setSocios] = useState<Socio[]>([])
@@ -97,14 +114,19 @@ export default function PagosPage() {
 
       if (sociosData && sociosData.length > 0) {
         setSocios(sociosData as Socio[])
+        const grouped: Record<string, PlanPago[]> = {}
         if (planesData && planesData.length > 0) {
-          const grouped: Record<string, PlanPago[]> = {}
           for (const p of planesData as PlanPago[]) {
             if (!grouped[p.socio_id]) grouped[p.socio_id] = []
             grouped[p.socio_id].push(p)
           }
-          setPlanesPago(grouped)
         }
+        for (const socio of sociosData as Socio[]) {
+          if (!grouped[socio.id] && pactadoMap.has(socio.certificado_no)) {
+            grouped[socio.id] = pactadoToPlanPagos(socio, pactadoMap.get(socio.certificado_no)!)
+          }
+        }
+        setPlanesPago(grouped)
       }
       if (pagosData && pagosData.length > 0) {
         setPagos(pagosData as Pago[])
