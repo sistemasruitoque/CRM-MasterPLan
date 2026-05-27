@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import type { PlanPago, Pago } from "@/types"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -39,4 +40,33 @@ export function parseDate(d: string): string {
     return `${parts[2]}-${MONTH_MAP[parts[0]]}-${parts[1]}`
   }
   return d
+}
+
+export function distributePagos(plan: PlanPago[], pagos: Pago[], socioId: string): PlanPago[] {
+  const result: PlanPago[] = plan.map(c => ({ ...c, monto_pagado: 0, estado: "pendiente" as PlanPago["estado"], fecha_pago: null }))
+  const socioPagos = pagos
+    .filter(p => p.socio_id === socioId)
+    .sort((a, b) => a.fecha_pago.localeCompare(b.fecha_pago))
+  if (socioPagos.length === 0) return result
+  let resto = 0
+  for (const pago of socioPagos) {
+    let porAplicar = pago.monto + resto
+    resto = 0
+    for (const cuota of result) {
+      if (porAplicar <= 0) break
+      const pendiente = cuota.monto_proyectado - cuota.monto_pagado
+      if (pendiente <= 0) continue
+      const aplicar = Math.min(porAplicar, pendiente)
+      cuota.monto_pagado += aplicar
+      porAplicar -= aplicar
+      if (cuota.monto_pagado >= cuota.monto_proyectado) {
+        cuota.estado = "pagado"
+        cuota.fecha_pago = pago.fecha_pago
+      } else if (cuota.monto_pagado > 0) {
+        cuota.estado = "parcial"
+      }
+    }
+    resto = porAplicar
+  }
+  return result
 }

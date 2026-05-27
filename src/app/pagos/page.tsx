@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency } from "@/lib/utils"
+import { formatCurrency, distributePagos } from "@/lib/utils"
 import { Search, ChevronDown, ChevronRight, Calculator, DollarSign, CheckCircle2, Clock, AlertCircle, Receipt } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
@@ -71,23 +71,26 @@ function getStatusIcon(estado: string) {
 
 const pactadoMap = new Map(pactadoPlanes.map(p => [p.certificado_no, p.schedules as unknown as Record<string, number>]))
 
-function pactadoToPlanPagos(socio: Socio, schedules: Record<string, number>): PlanPago[] {
+function pactadoToPlanPagos(socio: Socio, schedules: Record<string, number>, pagos: Pago[] = []): PlanPago[] {
   let saldo = socio.valor_final
-  return Object.entries(schedules).map(([periodo, monto]) => {
-    const entry: PlanPago = {
-      id: `${socio.id}-${periodo}`,
-      socio_id: socio.id,
-      periodo,
-      monto_proyectado: monto,
-      monto_pagado: 0,
-      saldo,
-      estado: "pendiente",
-      fecha_pago: null,
-      created_at: "",
-    }
-    saldo -= monto
-    return entry
-  })
+  const plan: PlanPago[] = Object.entries(schedules)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([periodo, monto]) => {
+      const entry: PlanPago = {
+        id: `${socio.id}-${periodo}`,
+        socio_id: socio.id,
+        periodo,
+        monto_proyectado: monto,
+        monto_pagado: 0,
+        saldo,
+        estado: "pendiente",
+        fecha_pago: null,
+        created_at: "",
+      }
+      saldo -= monto
+      return entry
+    })
+  return distributePagos(plan, pagos, socio.id)
 }
 
 export default function PagosPage() {
@@ -122,15 +125,9 @@ export default function PagosPage() {
       if (sociosData && sociosData.length > 0) {
         setSocios(sociosData as Socio[])
         const grouped: Record<string, PlanPago[]> = {}
-        if (planesData && planesData.length > 0) {
-          for (const p of planesData as PlanPago[]) {
-            if (!grouped[p.socio_id]) grouped[p.socio_id] = []
-            grouped[p.socio_id].push(p)
-          }
-        }
         for (const socio of sociosData as Socio[]) {
-          if (!grouped[socio.id] && pactadoMap.has(socio.certificado_no)) {
-            grouped[socio.id] = pactadoToPlanPagos(socio, pactadoMap.get(socio.certificado_no)!)
+          if (pactadoMap.has(socio.certificado_no)) {
+            grouped[socio.id] = pactadoToPlanPagos(socio, pactadoMap.get(socio.certificado_no)!, pagosData as Pago[])
           }
         }
         setPlanesPago(grouped)
@@ -199,7 +196,7 @@ export default function PagosPage() {
   })
 
   const totalProyectado = socios.reduce((s, socio) => s + socio.valor_final, 0)
-  const totalPagado = Object.values(planesPago).flat().filter(p => p.estado === "pagado" || p.estado === "parcial").reduce((s, p) => s + p.monto_pagado, 0)
+  const totalPagado = Object.values(planesPago).flat().reduce((s, p) => s + p.monto_pagado, 0)
 
   return (
     <div className="p-6">

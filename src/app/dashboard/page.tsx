@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency, normalizePeriod, currentPeriod } from "@/lib/utils"
+import { formatCurrency, normalizePeriod, currentPeriod, distributePagos } from "@/lib/utils"
 import { Users, DollarSign, CreditCard, AlertTriangle, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
@@ -55,17 +55,19 @@ export default function DashboardPage() {
   for (const socio of socios) {
     if (!grouped[socio.id] && pactadoMap.has(socio.certificado_no)) {
       const schedules = pactadoMap.get(socio.certificado_no)!
-      grouped[socio.id] = Object.entries(schedules).map(([periodo, monto]) => ({
+      let plan: PlanPago[] = Object.entries(schedules).map(([periodo, monto]) => ({
         id: `${socio.id}-${periodo}`,
         socio_id: socio.id,
         periodo,
         monto_proyectado: monto,
         monto_pagado: 0,
         saldo: 0,
-        estado: "pendiente" as const,
+        estado: "pendiente",
         fecha_pago: null,
         created_at: "",
       }))
+      plan = distributePagos(plan, pagos, socio.id)
+      grouped[socio.id] = plan
     }
   }
   const enMora = socios.filter(s => {

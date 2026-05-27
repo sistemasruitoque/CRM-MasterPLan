@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency, normalizePeriod, currentPeriod } from "@/lib/utils"
+import { formatCurrency, normalizePeriod, currentPeriod, distributePagos } from "@/lib/utils"
 import { AlertTriangle, ArrowLeft, Clock, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
-import type { Socio, PlanPago } from "@/types"
+import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
 interface SocioMora extends Socio {
@@ -33,13 +33,15 @@ export default function MoraPage() {
 
   async function loadData() {
     try {
-      const [sociosRes, planesRes] = await Promise.all([
+      const [sociosRes, planesRes, pagosRes] = await Promise.all([
         supabase.from("socios").select("*"),
         supabase.from("planes_pago").select("*"),
+        supabase.from("pagos").select("*"),
       ])
 
       const sociosData: Socio[] = sociosRes.data || []
       const planesData: PlanPago[] = planesRes.data || []
+      const pagosData: Pago[] = pagosRes.data || []
 
       const nowPeriod = currentPeriod()
 
@@ -51,17 +53,19 @@ export default function MoraPage() {
       for (const socio of sociosData) {
         if (!grouped[socio.id] && pactadoMap.has(socio.certificado_no)) {
           const schedules = pactadoMap.get(socio.certificado_no)!
-          grouped[socio.id] = Object.entries(schedules).map(([periodo, monto]) => ({
+          let plan: PlanPago[] = Object.entries(schedules).map(([periodo, monto]) => ({
             id: `${socio.id}-${periodo}`,
             socio_id: socio.id,
             periodo,
             monto_proyectado: monto,
             monto_pagado: 0,
             saldo: 0,
-            estado: "pendiente" as const,
+            estado: "pendiente",
             fecha_pago: null,
             created_at: "",
           }))
+          plan = distributePagos(plan, pagosData, socio.id)
+          grouped[socio.id] = plan
         }
       }
 
