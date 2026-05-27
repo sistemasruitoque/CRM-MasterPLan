@@ -155,7 +155,11 @@ export default function PagosPage() {
 
   function calcularPlan(socio: Socio) {
     const plan = calcularPlanPagos(socio)
-    setPlanesPago((prev) => ({ ...prev, [socio.id]: plan }))
+    setPlanesPago((prev) => {
+      const next: Record<string, PlanPago[]> = { ...prev, [socio.id]: plan }
+      planesPagoRef.current = next
+      return next
+    })
   }
 
   async function guardarPlan(socioId: string) {
@@ -350,12 +354,18 @@ export default function PagosPage() {
                                             value={p.monto_pagado}
                                             onChange={(e) => {
                                               const val = Number(e.target.value)
-                                              setPlanesPago((prev) => ({
-                                                ...prev,
-                                                [socio.id]: (prev[socio.id] || []).map((pp) =>
-                                                  pp.id === p.id ? { ...pp, monto_pagado: val, estado: val >= pp.monto_proyectado ? "pagado" : val > 0 ? "parcial" : "pendiente" } : pp
-                                                ),
-                                              }))
+                                              setPlanesPago((prev) => {
+                                                const next: Record<string, PlanPago[]> = {
+                                                  ...prev,
+                                                  [socio.id]: (prev[socio.id] || []).map((pp) =>
+                                                    pp.id === p.id
+                                                      ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
+                                                      : pp
+                                                  ),
+                                                }
+                                                planesPagoRef.current = next
+                                                return next
+                                              })
                                             }}
                                             className="w-28 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
                                           />
@@ -374,12 +384,18 @@ export default function PagosPage() {
                                         <td className="px-2 py-1.5">
                                           <button
                                             onClick={() => {
-                                              setPlanesPago((prev) => ({
-                                                ...prev,
-                                                [socio.id]: (prev[socio.id] || []).map((pp) =>
-                                                  pp.id === p.id ? { ...pp, estado: pp.estado === "exonerado" ? "pendiente" : "exonerado" } : pp
-                                                ),
-                                              }))
+                                              setPlanesPago((prev) => {
+                                                const next: Record<string, PlanPago[]> = {
+                                                  ...prev,
+                                                  [socio.id]: (prev[socio.id] || []).map((pp) =>
+                                                    pp.id === p.id
+                                                      ? { ...pp, estado: (pp.estado === "exonerado" ? "pendiente" : "exonerado") as PlanPago["estado"] }
+                                                      : pp
+                                                  ),
+                                                }
+                                                planesPagoRef.current = next
+                                                return next
+                                              })
                                             }}
                                             className="text-[10px] text-blue-600 hover:text-blue-800"
                                           >
