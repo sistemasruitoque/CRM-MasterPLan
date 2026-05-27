@@ -124,9 +124,18 @@ export default function PagosPage() {
 
       if (sociosData && sociosData.length > 0) {
         setSocios(sociosData as Socio[])
+        const dbPlanBySocio: Record<string, PlanPago[]> = {}
+        if (planesData) {
+          for (const p of planesData as PlanPago[]) {
+            if (!dbPlanBySocio[p.socio_id]) dbPlanBySocio[p.socio_id] = []
+            dbPlanBySocio[p.socio_id].push(p)
+          }
+        }
         const grouped: Record<string, PlanPago[]> = {}
         for (const socio of sociosData as Socio[]) {
-          if (pactadoMap.has(socio.certificado_no)) {
+          if (dbPlanBySocio[socio.id]) {
+            grouped[socio.id] = dbPlanBySocio[socio.id]
+          } else if (pactadoMap.has(socio.certificado_no)) {
             grouped[socio.id] = pactadoToPlanPagos(socio, pactadoMap.get(socio.certificado_no)!, pagosData as Pago[])
           }
         }
