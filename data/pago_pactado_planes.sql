@@ -1,5 +1,4 @@
--- Planes de pago pactados desde pago_pactado.prn
--- 2026-05-26T21:06:42.968Z
+-- Planes de pago pactados (actualizado 2026-05-27)
 -- 119 partners, 951 rows, total: 12,859,974,256
 
 BEGIN;
