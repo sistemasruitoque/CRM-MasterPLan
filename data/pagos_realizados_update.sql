@@ -1,54 +1,7 @@
--- Pagos realizados extracted from pago_realizados.prn
--- 187 partners, 9 with payments
--- Total payments: 17 rows, $ 48,000,000
-
-BEGIN;
-
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 159), 2000000, '2026-01-31', 'cuota', 'Pago realizado 2026-01-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 159), 2000000, '2026-05-31', 'cuota', 'Pago realizado 2026-05-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 192), 2000000, '2026-03-31', 'cuota', 'Pago realizado 2026-03-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 192), 2000000, '2026-05-31', 'cuota', 'Pago realizado 2026-05-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 339), 4000000, '2026-03-31', 'cuota', 'Pago realizado 2026-03-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 339), 4000000, '2026-05-31', 'cuota', 'Pago realizado 2026-05-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 34), 2000000, '2026-01-31', 'cuota', 'Pago realizado 2026-01-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 34), 2000000, '2026-05-31', 'cuota', 'Pago realizado 2026-05-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 319), 2000000, '2026-01-31', 'cuota', 'Pago realizado 2026-01-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 319), 2000000, '2026-05-31', 'cuota', 'Pago realizado 2026-05-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 160), 2000000, '2026-01-31', 'cuota', 'Pago realizado 2026-01-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 160), 2000000, '2026-05-31', 'cuota', 'Pago realizado 2026-05-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 161), 8000000, '2026-05-31', 'cuota', 'Pago realizado 2026-05-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 344), 2000000, '2026-03-31', 'cuota', 'Pago realizado 2026-03-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 344), 2000000, '2026-05-31', 'cuota', 'Pago realizado 2026-05-31');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 399), 4000000, '2026-04-30', 'cuota', 'Pago realizado 2026-04-30');
-INSERT INTO pagos (socio_id, monto, fecha_pago, tipo, concepto) VALUES
-  ((SELECT id FROM socios WHERE certificado_no = 399), 4000000, '2026-05-31', 'cuota', 'Pago realizado 2026-05-31');
-
-COMMIT;
-
-SELECT 'OK' AS resultado, COUNT(*) AS pagos, SUM(monto) AS total FROM pagos;
-
-
--- =============================================
--- Update planes_pago with actual payments
--- =============================================
 -- Update planes_pago with actual payments received
 -- Matching payments to plan periods by year-month
+
+BEGIN;
 
 UPDATE planes_pago
 SET monto_pagado = monto_pagado + 2000000,
