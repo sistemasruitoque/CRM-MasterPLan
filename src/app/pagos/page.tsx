@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, distributePagos } from "@/lib/utils"
-import { Search, ChevronDown, ChevronRight, Calculator, DollarSign, CheckCircle2, Clock, AlertCircle, Receipt } from "lucide-react"
+import { Search, ChevronDown, ChevronRight, Calculator, DollarSign, CheckCircle2, Clock, AlertCircle, Receipt, FileDown } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
@@ -198,6 +198,27 @@ export default function PagosPage() {
   const totalProyectado = socios.reduce((s, socio) => s + socio.valor_final, 0)
   const totalPagado = Object.values(planesPago).flat().reduce((s, p) => s + p.monto_pagado, 0)
 
+  function exportToExcel() {
+    const bom = "\uFEFF"
+    const sep = ";"
+    const rows = [["No.", "Socio", "Categoría", "Valor Final", "Cuotas", "Proyectado", "Pagado", "Saldo"].join(sep)]
+    for (const socio of filtered) {
+      const plan = planesPago[socio.id] || []
+      const totalCuotas = plan.length
+      const pagado = plan.filter(p => p.estado === "pagado" || p.estado === "parcial").reduce((s, p) => s + p.monto_pagado, 0)
+      const proyectado = plan.reduce((s, p) => s + p.monto_proyectado, 0)
+      const saldo = proyectado - pagado
+      rows.push([socio.certificado_no, `"${socio.nombre}"`, socio.categoria, socio.valor_final, totalCuotas, proyectado, pagado, saldo].join(sep))
+    }
+    const blob = new Blob([bom + rows.join("\n")], { type: "text/csv;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "plan_de_pagos.csv"
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -238,6 +259,15 @@ export default function PagosPage() {
               />
               <span className="text-sm text-zinc-600">%</span>
             </div>
+          )}
+          {view === "plan" && (
+            <button
+              onClick={exportToExcel}
+              className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
+            >
+              <FileDown className="h-4 w-4" />
+              Exportar Excel
+            </button>
           )}
         </div>
       </div>
