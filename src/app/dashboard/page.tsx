@@ -4,9 +4,12 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency } from "@/lib/utils"
+import { formatCurrency, normalizePeriod, currentPeriod } from "@/lib/utils"
 import { Users, DollarSign, CreditCard, AlertTriangle, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
+import pactadoPlanes from "@/../data/pago_pactado_planes.json"
+
+const pactadoMap = new Map(pactadoPlanes.map(p => [p.certificado_no, p.schedules as unknown as Record<string, number>]))
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -42,9 +45,32 @@ export default function DashboardPage() {
   const totalSocios = socios.length || 119
   const totalAportes = socios.reduce((s, p) => s + p.valor_final, 0) || 15236524256
   const totalRecaudado = pagos.reduce((s, p) => s + p.monto, 0) || 6625240280
+
+  const nowPeriod = currentPeriod()
+  const grouped: Record<string, PlanPago[]> = {}
+  for (const p of planes) {
+    if (!grouped[p.socio_id]) grouped[p.socio_id] = []
+    grouped[p.socio_id].push(p)
+  }
+  for (const socio of socios) {
+    if (!grouped[socio.id] && pactadoMap.has(socio.certificado_no)) {
+      const schedules = pactadoMap.get(socio.certificado_no)!
+      grouped[socio.id] = Object.entries(schedules).map(([periodo, monto]) => ({
+        id: `${socio.id}-${periodo}`,
+        socio_id: socio.id,
+        periodo,
+        monto_proyectado: monto,
+        monto_pagado: 0,
+        saldo: 0,
+        estado: "pendiente" as const,
+        fecha_pago: null,
+        created_at: "",
+      }))
+    }
+  }
   const enMora = socios.filter(s => {
-    const socioPlanes = planes.filter(p => p.socio_id === s.id)
-    return socioPlanes.some(p => p.estado === "pendiente" || p.estado === "parcial")
+    const socioPlanes = grouped[s.id] || []
+    return socioPlanes.some(p => normalizePeriod(p.periodo) <= nowPeriod && p.estado !== "pagado")
   }).length || 97
 
   const cards = [

@@ -3,16 +3,19 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency } from "@/lib/utils"
+import { formatCurrency, normalizePeriod, currentPeriod } from "@/lib/utils"
 import { AlertTriangle, ArrowLeft, Clock, CheckCircle2, XCircle } from "lucide-react"
 import Link from "next/link"
 import type { Socio, PlanPago } from "@/types"
+import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
 interface SocioMora extends Socio {
   planesVencidos: PlanPago[]
   totalVencido: number
   totalPagado: number
 }
+
+const pactadoMap = new Map(pactadoPlanes.map(p => [p.certificado_no, p.schedules as unknown as Record<string, number>]))
 
 export default function MoraPage() {
   const router = useRouter()
@@ -38,24 +41,45 @@ export default function MoraPage() {
       const sociosData: Socio[] = sociosRes.data || []
       const planesData: PlanPago[] = planesRes.data || []
 
-      const now = new Date()
-      const currentPeriod = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
+      const nowPeriod = currentPeriod()
+
+      const grouped: Record<string, PlanPago[]> = {}
+      for (const p of planesData) {
+        if (!grouped[p.socio_id]) grouped[p.socio_id] = []
+        grouped[p.socio_id].push(p)
+      }
+      for (const socio of sociosData) {
+        if (!grouped[socio.id] && pactadoMap.has(socio.certificado_no)) {
+          const schedules = pactadoMap.get(socio.certificado_no)!
+          grouped[socio.id] = Object.entries(schedules).map(([periodo, monto]) => ({
+            id: `${socio.id}-${periodo}`,
+            socio_id: socio.id,
+            periodo,
+            monto_proyectado: monto,
+            monto_pagado: 0,
+            saldo: 0,
+            estado: "pendiente" as const,
+            fecha_pago: null,
+            created_at: "",
+          }))
+        }
+      }
 
       const enMora: SocioMora[] = []
       let alDia = 0
 
       for (const socio of sociosData) {
-        const socioPlanes = planesData.filter(p => p.socio_id === socio.id)
+        const socioPlanes = grouped[socio.id] || []
         const planesVencidos = socioPlanes.filter(p =>
-          p.periodo <= currentPeriod &&
-          (p.estado === "pendiente" || p.estado === "parcial")
+          normalizePeriod(p.periodo) <= nowPeriod &&
+          p.estado !== "pagado"
         )
         const totalVencido = planesVencidos.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)
         const totalPagado = socioPlanes.reduce((s, p) => s + p.monto_pagado, 0)
 
         if (planesVencidos.length > 0) {
           enMora.push({ ...socio, planesVencidos, totalVencido, totalPagado } as SocioMora)
-        } else {
+        } else if (socioPlanes.length > 0) {
           alDia++
         }
       }
