@@ -48,7 +48,7 @@ function mapValuesToMonths(values, months) {
         bestMonth = m.period;
       }
     }
-    if (bestDist <= 10) {
+    if (bestDist <= 22) {
       schedule[bestMonth] = (schedule[bestMonth] || 0) + v.val;
     }
   }

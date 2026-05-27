@@ -24,10 +24,10 @@
     "index": 1,
     "certificado_no": 773,
     "nombre": "Orlando Lopez Gutierrez",
-    "flag": 19000000,
+    "flag": 39000000,
     "separacion": 19000000,
     "monthlyAmounts": [
-      19000000,
+      39000000,
       19000000,
       19000000,
       19000000,
@@ -39,10 +39,10 @@
     "index": 2,
     "certificado_no": 80,
     "nombre": "Daniel Santiago Pico Toledo",
-    "flag": 5000000,
+    "flag": 25000000,
     "separacion": 5000000,
     "monthlyAmounts": [
-      5000000,
+      25000000,
       5000000,
       20000000,
       25000000
@@ -52,10 +52,10 @@
     "index": 3,
     "certificado_no": 92,
     "nombre": "Roberto Clavijo Puyana",
-    "flag": 13750000,
+    "flag": 33750000,
     "separacion": 13750000,
     "monthlyAmounts": [
-      13750000,
+      33750000,
       13750000,
       13750000,
       13750000
@@ -65,10 +65,10 @@
     "index": 4,
     "certificado_no": 40,
     "nombre": "Kleyber Julian Acevedo Cardo",
-    "flag": 20000000,
+    "flag": 40000000,
     "separacion": 0,
     "monthlyAmounts": [
-      20000000,
+      40000000,
       5000000,
       5000000,
       30000000,
@@ -79,10 +79,10 @@
     "index": 5,
     "certificado_no": 245,
     "nombre": "Silvia Juliana Guerra Rangel",
-    "flag": 40000000,
+    "flag": 60000000,
     "separacion": 40000000,
     "monthlyAmounts": [
-      40000000,
+      60000000,
       40000000,
       10937500,
       10937500,
@@ -117,10 +117,10 @@
     "index": 7,
     "certificado_no": 302,
     "nombre": "Luis Eduardo Jaramillo Gelve",
-    "flag": 10000000,
+    "flag": 30000000,
     "separacion": 10000000,
     "monthlyAmounts": [
-      10000000,
+      30000000,
       10000000,
       10000000,
       10000000,
@@ -138,10 +138,10 @@
     "index": 8,
     "certificado_no": 112,
     "nombre": "Lizeth Calderon Ordoñez",
-    "flag": 20000000,
+    "flag": 40000000,
     "separacion": 20000000,
     "monthlyAmounts": [
-      20000000,
+      40000000,
       20000000,
       20000000,
       20000000,
@@ -155,10 +155,10 @@
     "index": 9,
     "certificado_no": 159,
     "nombre": "Laura Soraya Saba Santiago",
-    "flag": 8250000,
+    "flag": 38250000,
     "separacion": 8250000,
     "monthlyAmounts": [
-      8250000,
+      38250000,
       8250000,
       8250000,
       8250000,
@@ -174,10 +174,10 @@
     "index": 10,
     "certificado_no": 365,
     "nombre": "Katerine Gissella Vargas Qui",
-    "flag": 25000000,
+    "flag": 45000000,
     "separacion": 22500000,
     "monthlyAmounts": [
-      25000000,
+      45000000,
       22500000
     ]
   },
@@ -185,10 +185,10 @@
     "index": 11,
     "certificado_no": 45,
     "nombre": "Juan Carlos Aycardi Sepulved",
-    "flag": 25000000,
+    "flag": 45000000,
     "separacion": 30000000,
     "monthlyAmounts": [
-      25000000,
+      45000000,
       30000000
     ]
   },
@@ -196,9 +196,10 @@
     "index": 12,
     "certificado_no": 143,
     "nombre": "Camilo Enmanuel Barajas Pert",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 15000000,
     "monthlyAmounts": [
+      20000000,
       15000000,
       20000000,
       20000000
@@ -224,9 +225,10 @@
     "index": 14,
     "certificado_no": 192,
     "nombre": "Inversiones de Santander SAS",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 5000000,
     "monthlyAmounts": [
+      20000000,
       5000000,
       5000000,
       10000000,
@@ -258,10 +260,10 @@
     "index": 16,
     "certificado_no": 70,
     "nombre": "Leonel Barbosa Mateus",
-    "flag": 10000000,
+    "flag": 20000000,
     "separacion": 10000000,
     "monthlyAmounts": [
-      10000000,
+      20000000,
       10000000,
       10000000,
       10000000,
@@ -273,10 +275,10 @@
     "index": 17,
     "certificado_no": 249,
     "nombre": "Janeth Quintero de Pacheco",
-    "flag": 10800000,
+    "flag": 30800000,
     "separacion": 10800000,
     "monthlyAmounts": [
-      10800000,
+      30800000,
       10800000,
       10800000,
       10800000,
@@ -294,10 +296,10 @@
     "index": 18,
     "certificado_no": 56,
     "nombre": "Carolina Buitrago Aguilar",
-    "flag": 20000000,
+    "flag": 40000000,
     "separacion": 20000000,
     "monthlyAmounts": [
-      20000000,
+      40000000,
       20000000,
       20000000,
       20000000,
@@ -308,10 +310,10 @@
     "index": 19,
     "certificado_no": 47,
     "nombre": "Nubia Lorena Medina Herrera",
-    "flag": 30000000,
+    "flag": 50000000,
     "separacion": 30000000,
     "monthlyAmounts": [
-      30000000,
+      50000000,
       30000000,
       30000000,
       40000000
@@ -370,9 +372,10 @@
     "index": 23,
     "certificado_no": 202,
     "nombre": "Olga Juliana Ardila Ospina",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 20000000,
     "monthlyAmounts": [
+      20000000,
       20000000,
       20000000,
       20000000,
@@ -385,10 +388,10 @@
     "index": 24,
     "certificado_no": 723,
     "nombre": "Alejandro Alberto Olano Luna",
-    "flag": 25000000,
+    "flag": 45000000,
     "separacion": 30000000,
     "monthlyAmounts": [
-      25000000,
+      45000000,
       30000000
     ]
   },
@@ -396,10 +399,10 @@
     "index": 25,
     "certificado_no": 61,
     "nombre": "Gersson Enrique Joya Rodrigu",
-    "flag": 8000000,
+    "flag": 28000000,
     "separacion": 8000000,
     "monthlyAmounts": [
-      8000000,
+      28000000,
       8000000,
       8000000,
       8000000,
@@ -427,10 +430,10 @@
     "index": 27,
     "certificado_no": 575,
     "nombre": "Oscar Mauricio Moreno Rodrig",
-    "flag": 25000000,
+    "flag": 45000000,
     "separacion": 30000000,
     "monthlyAmounts": [
-      25000000,
+      45000000,
       30000000
     ]
   },
@@ -438,10 +441,10 @@
     "index": 28,
     "certificado_no": 610,
     "nombre": "Leoncio Picon Rosado",
-    "flag": 20000000,
+    "flag": 40000000,
     "separacion": 22000000,
     "monthlyAmounts": [
-      20000000,
+      40000000,
       22000000,
       22000000,
       22000000,
@@ -465,9 +468,10 @@
     "index": 30,
     "certificado_no": 306,
     "nombre": "Nicolas Mauricio Grau Prada",
-    "flag": 0,
+    "flag": 24750000,
     "separacion": 9281250,
     "monthlyAmounts": [
+      24750000,
       9281250,
       9281250,
       9281250,
@@ -498,9 +502,10 @@
     "index": 31,
     "certificado_no": 297,
     "nombre": "Juan Camilo Perez Parra",
-    "flag": 0,
+    "flag": 24750000,
     "separacion": 5500000,
     "monthlyAmounts": [
+      24750000,
       5500000,
       5500000,
       5500000,
@@ -531,9 +536,10 @@
     "index": 32,
     "certificado_no": 309,
     "nombre": "Andres Felipe Rey Rodriguez",
-    "flag": 0,
+    "flag": 42000000,
     "separacion": 0,
     "monthlyAmounts": [
+      42000000,
       16500000,
       8250000,
       8250000,
@@ -594,10 +600,10 @@
     "index": 35,
     "certificado_no": 242,
     "nombre": "Silvia Bibiana Pedraza Torre",
-    "flag": 25000000,
+    "flag": 45000000,
     "separacion": 0,
     "monthlyAmounts": [
-      25000000,
+      45000000,
       30000000
     ]
   },
@@ -640,9 +646,10 @@
     "index": 38,
     "certificado_no": 21,
     "nombre": "Jose Alfredo Mattos Chacon",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 10000000,
     "monthlyAmounts": [
+      20000000,
       10000000,
       20000000,
       1000000,
@@ -673,10 +680,10 @@
     "index": 39,
     "certificado_no": 222,
     "nombre": "Elba Lucia Estevez Contreras",
-    "flag": 25000000,
+    "flag": 45000000,
     "separacion": 30000000,
     "monthlyAmounts": [
-      25000000,
+      45000000,
       30000000
     ]
   },
@@ -684,9 +691,10 @@
     "index": 40,
     "certificado_no": 167,
     "nombre": "Paola Lizeth Ulloa Ferreira",
-    "flag": 0,
+    "flag": 40000000,
     "separacion": 0,
     "monthlyAmounts": [
+      40000000,
       60000000,
       50000000
     ]
@@ -695,10 +703,10 @@
     "index": 41,
     "certificado_no": 427,
     "nombre": "Nerthink Mauricio Aguilar Hu",
-    "flag": 25000000,
+    "flag": 45000000,
     "separacion": 25000000,
     "monthlyAmounts": [
-      25000000,
+      45000000,
       25000000,
       25000000,
       25000000
@@ -721,9 +729,10 @@
     "index": 43,
     "certificado_no": 366,
     "nombre": "Henry Alexander Vargas Quint",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 0,
     "monthlyAmounts": [
+      20000000,
       16000000,
       16000000,
       16000000,
@@ -757,9 +766,10 @@
     "index": 45,
     "certificado_no": 103,
     "nombre": "Gisela Karina Aguilar Villa",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 5000000,
     "monthlyAmounts": [
+      20000000,
       5000000,
       10000000,
       8000000,
@@ -817,10 +827,10 @@
     "index": 49,
     "certificado_no": 822,
     "nombre": "SILVA RESTREPO MP",
-    "flag": 12000000,
+    "flag": 32000000,
     "separacion": 12000000,
     "monthlyAmounts": [
-      12000000,
+      32000000,
       12000000,
       12000000,
       12000000,
@@ -854,10 +864,10 @@
     "index": 51,
     "certificado_no": 216,
     "nombre": "GRUPO SAMSARA S.A.S.",
-    "flag": 25000000,
+    "flag": 45000000,
     "separacion": 30000000,
     "monthlyAmounts": [
-      25000000,
+      45000000,
       30000000
     ]
   },
@@ -865,10 +875,10 @@
     "index": 52,
     "certificado_no": 59,
     "nombre": "Allen Yamith Moreno Escobar",
-    "flag": 42000000,
+    "flag": 62000000,
     "separacion": 42000000,
     "monthlyAmounts": [
-      42000000,
+      62000000,
       42000000,
       42000000,
       19000000
@@ -910,10 +920,10 @@
     "index": 55,
     "certificado_no": 197,
     "nombre": "Sanin Gomez Torrado",
-    "flag": 30000000,
+    "flag": 50000000,
     "separacion": 30000000,
     "monthlyAmounts": [
-      30000000,
+      50000000,
       30000000,
       30000000,
       40000000
@@ -944,9 +954,10 @@
     "index": 57,
     "certificado_no": 98,
     "nombre": "Enrique Alexander Joya Rodri",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 18000000,
     "monthlyAmounts": [
+      20000000,
       18000000,
       18000000,
       19000000
@@ -956,9 +967,10 @@
     "index": 58,
     "certificado_no": 95,
     "nombre": "Catalina Parra Sepulveda",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 120000000,
     "monthlyAmounts": [
+      20000000,
       120000000,
       47500000
     ]
@@ -1015,9 +1027,10 @@
     "index": 62,
     "certificado_no": 329,
     "nombre": "Cesar Augusto Gomez Delgado",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 0,
     "monthlyAmounts": [
+      20000000,
       167500000
     ]
   },
@@ -1264,9 +1277,10 @@
     "index": 78,
     "certificado_no": 145,
     "nombre": "DOCTORES ANDRES NARANJO SAS",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 30000000,
     "monthlyAmounts": [
+      20000000,
       30000000,
       22000000,
       32000000,
@@ -1331,10 +1345,10 @@
     "index": 81,
     "certificado_no": 160,
     "nombre": "Selim Alberto Saba Santiago",
-    "flag": 8250000,
+    "flag": 38250000,
     "separacion": 8250000,
     "monthlyAmounts": [
-      8250000,
+      38250000,
       8250000,
       8250000,
       8250000,
@@ -1350,10 +1364,10 @@
     "index": 82,
     "certificado_no": 184,
     "nombre": "Libia Clemencia Laiton ulloa",
-    "flag": 25000000,
+    "flag": 45000000,
     "separacion": 25000000,
     "monthlyAmounts": [
-      25000000,
+      45000000,
       25000000,
       25000000,
       25000000
@@ -1761,9 +1775,10 @@
     "index": 102,
     "certificado_no": 344,
     "nombre": "Fosion Mujica Jaimes",
-    "flag": 0,
+    "flag": 20000000,
     "separacion": 10000000,
     "monthlyAmounts": [
+      20000000,
       10000000,
       10000000,
       10000000,
@@ -2046,10 +2061,10 @@
     "index": 115,
     "certificado_no": 303,
     "nombre": "Nancy Andrea Monoga Torres",
-    "flag": 25000000,
+    "flag": 45000000,
     "separacion": 30000000,
     "monthlyAmounts": [
-      25000000,
+      45000000,
       30000000
     ]
   },
