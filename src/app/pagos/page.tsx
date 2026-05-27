@@ -392,7 +392,7 @@ export default function PagosPage() {
                                                   ...prev,
                                                   [socio.id]: (prev[socio.id] || []).map((pp) =>
                                                     pp.id === p.id
-                                                      ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
+                                                      ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado - val ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
                                                       : pp
                                                   ),
                                                 }
