@@ -205,9 +205,8 @@ export default function PagosPage() {
     for (const socio of filtered) {
       const plan = planesPago[socio.id] || []
       const totalCuotas = plan.length
-      const pagado = plan.filter(p => p.estado === "pagado" || p.estado === "parcial").reduce((s, p) => s + p.monto_pagado, 0)
+      const pagado = plan.reduce((s, p) => s + p.monto_pagado, 0)
       const proyectado = plan.reduce((s, p) => s + p.monto_proyectado, 0)
-      const saldo = proyectado - pagado
       rows.push([socio.certificado_no, `"${socio.nombre}"`, socio.categoria, socio.valor_final, totalCuotas, proyectado, pagado, saldo].join(sep))
     }
     const blob = new Blob([bom + rows.join("\n")], { type: "text/csv;charset=utf-8" })
@@ -308,7 +307,7 @@ export default function PagosPage() {
                   const plan = planesPago[socio.id] || []
                   const isExpanded = expanded.has(socio.id)
                   const totalCuotas = plan.length
-                  const pagado = plan.filter(p => p.estado === "pagado" || p.estado === "parcial").reduce((s, p) => s + p.monto_pagado, 0)
+                  const pagado = plan.reduce((s, p) => s + p.monto_pagado, 0)
                   const proyectado = plan.reduce((s, p) => s + p.monto_proyectado, 0)
                   const saldo = proyectado - pagado
 
