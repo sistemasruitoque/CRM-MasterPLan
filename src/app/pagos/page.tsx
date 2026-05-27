@@ -198,7 +198,7 @@ export default function PagosPage() {
     return s.nombre.toLowerCase().includes(q) || String(s.certificado_no).includes(q)
   })
 
-  const totalProyectado = Object.values(planesPago).flat().reduce((s, p) => s + p.monto_proyectado, 0)
+  const totalProyectado = socios.reduce((s, socio) => s + socio.valor_final, 0)
   const totalPagado = Object.values(planesPago).flat().filter(p => p.estado === "pagado" || p.estado === "parcial").reduce((s, p) => s + p.monto_pagado, 0)
 
   return (
