@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency } from "@/lib/utils"
@@ -72,17 +72,22 @@ function getStatusIcon(estado: string) {
 const pactadoMap = new Map(pactadoPlanes.map(p => [p.certificado_no, p.schedules as unknown as Record<string, number>]))
 
 function pactadoToPlanPagos(socio: Socio, schedules: Record<string, number>): PlanPago[] {
-  return Object.entries(schedules).map(([periodo, monto]) => ({
-    id: `${socio.id}-${periodo}`,
-    socio_id: socio.id,
-    periodo,
-    monto_proyectado: monto,
-    monto_pagado: 0,
-    saldo: 0,
-    estado: "pendiente" as const,
-    fecha_pago: null,
-    created_at: "",
-  }))
+  let saldo = socio.valor_final
+  return Object.entries(schedules).map(([periodo, monto]) => {
+    const entry: PlanPago = {
+      id: `${socio.id}-${periodo}`,
+      socio_id: socio.id,
+      periodo,
+      monto_proyectado: monto,
+      monto_pagado: 0,
+      saldo,
+      estado: "pendiente",
+      fecha_pago: null,
+      created_at: "",
+    }
+    saldo -= monto
+    return entry
+  })
 }
 
 export default function PagosPage() {
@@ -95,6 +100,8 @@ export default function PagosPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [selectedSocio, setSelectedSocio] = useState<string | null>(null)
   const [tasaInteres, setTasaInteres] = useState(1)
+  const planesPagoRef = useRef(planesPago)
+  planesPagoRef.current = planesPago
 
   useEffect(() => {
     if (typeof window !== "undefined" && !localStorage.getItem("club-auth")) {
@@ -153,7 +160,7 @@ export default function PagosPage() {
 
   async function guardarPlan(socioId: string) {
     try {
-      const plan = planesPago[socioId]
+      const plan = planesPagoRef.current[socioId]
       if (!plan) return
       const rows = plan.map((p: PlanPago) => ({
         socio_id: p.socio_id,
@@ -164,8 +171,12 @@ export default function PagosPage() {
         estado: p.estado,
       }))
       const { error } = await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
-      if (error) console.error(error)
-      else alert("Plan guardado exitosamente")
+      if (error) {
+        alert("Error al guardar: " + error.message)
+      } else {
+        alert("Plan guardado exitosamente")
+        await loadData()
+      }
     } catch {
       alert("Conecta Supabase para guardar (funciona en demo)")
     }
