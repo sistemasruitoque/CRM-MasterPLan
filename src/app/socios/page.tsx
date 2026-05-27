@@ -31,7 +31,7 @@ export default function SociosPage() {
   }
 
   const filtered = socios.filter((s) => {
-    const matchSearch = !search || s.nombre.toLowerCase().includes(search.toLowerCase()) || s.cedula.includes(search) || s.certificado_no.toString().includes(search)
+    const matchSearch = !search || s.nombre.toLowerCase().includes(search.toLowerCase()) || s.certificado_no.toString().includes(search)
     const matchCat = !filterCat || s.categoria === filterCat
     const matchStatus = !filterStatus || s.estatus === filterStatus
     return matchSearch && matchCat && matchStatus
