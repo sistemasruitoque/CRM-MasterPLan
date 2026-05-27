@@ -149,10 +149,7 @@ const d3 = readSectionData(H3, m3, partners.length);
 
 console.log(`Data rows: s1=${d1.filter(Boolean).length}, s2=${d2.filter(Boolean).length}, s3=${d3.filter(Boolean).length}`);
 
-// Build per-partner plans
-// Section 1: first month (2025-11) is the FLAG value, exclude from schedule
-const FLAG_MONTH = "2025-11";
-
+// Build per-partner plans - include ALL months (Nov-25 and Dec-25 are part of schedule)
 const allPlans = [];
 let totalPartnerPlans = 0;
 let totalRows = 0;
@@ -163,9 +160,8 @@ for (let pi = 0; pi < partners.length; pi++) {
   const s2 = d2[pi] ? mapValuesToMonths(d2[pi].values, m2) : {};
   const s3 = d3[pi] ? mapValuesToMonths(d3[pi].values, m3) : {};
 
-  // Merge all, but exclude the flag month from the schedule
+  // Merge all months
   const merged = { ...s1, ...s2, ...s3 };
-  delete merged[FLAG_MONTH];
 
   const total = Object.values(merged).reduce((s, v) => s + v, 0);
   const count = Object.keys(merged).length;
@@ -196,18 +192,15 @@ for (let pi = 0; pi < partners.length; pi++) {
   const info = partnerInfo[pi];
   if (!info) continue;
 
-  // Extract flag from section 1 data: the value that maps to 2025-11
+  // Flag = value for Nov-25, separacion = value for Dec-25
   const s1 = d1[pi] ? mapValuesToMonths(d1[pi].values, m1) : {};
-  const flag = s1[FLAG_MONTH] || 0;
-
-  // For separation, use the first value that maps to 2025-12 (Dec-25 column)
+  const flag = s1["2025-11"] || 0;
   const separacion = s1["2025-12"] || 0;
 
-  // Monthly amounts = sorted schedule values (excluding flag month)
+  // Monthly amounts = sorted schedule values (all months including Nov-25 and Dec-25)
   const s2v = d2[pi] ? mapValuesToMonths(d2[pi].values, m2) : {};
   const s3v = d3[pi] ? mapValuesToMonths(d3[pi].values, m3) : {};
   const merged = { ...s1, ...s2v, ...s3v };
-  delete merged[FLAG_MONTH];
 
   const monthlyAmounts = Object.keys(merged).sort().map(k => merged[k]);
 
