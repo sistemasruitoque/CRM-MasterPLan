@@ -7,13 +7,19 @@ import { formatCurrency } from "@/lib/utils"
 import { Search, ChevronDown, ChevronRight, Calculator, DollarSign, CheckCircle2, Clock, AlertCircle, Receipt } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 
-const meses = [
-  "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04",
-  "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10",
-  "2026-11", "2026-12", "2027-01", "2027-02", "2027-03", "2027-04",
-  "2027-05", "2027-06", "2027-07", "2027-08", "2027-09", "2027-10",
-  "2027-11", "2027-12", "2028-01", "2028-02", "2028-03", "2028-04",
-]
+function generarMeses(): string[] {
+  const meses: string[] = []
+  let year = 2025, month = 11
+  const endYear = 2031, endMonth = 1
+  while (year < endYear || (year === endYear && month <= endMonth)) {
+    meses.push(`${year}-${String(month).padStart(2, "0")}`)
+    month++
+    if (month > 12) { month = 1; year++ }
+  }
+  return meses
+}
+
+const meses = generarMeses()
 
 const nomMeses: Record<string, string> = {
   "01":"Ene","02":"Feb","03":"Mar","04":"Abr","05":"May","06":"Jun",
