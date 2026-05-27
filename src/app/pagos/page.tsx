@@ -195,7 +195,7 @@ export default function PagosPage() {
   const filtered = socios.filter((s) => {
     if (!search) return true
     const q = search.toLowerCase()
-    return s.nombre.toLowerCase().includes(q) || s.cedula.includes(q)
+    return s.nombre.toLowerCase().includes(q) || String(s.certificado_no).includes(q)
   })
 
   const totalProyectado = Object.values(planesPago).flat().reduce((s, p) => s + p.monto_proyectado, 0)
