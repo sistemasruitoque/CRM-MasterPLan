@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency, normalizePeriod, currentPeriod, distributePagos, fetchAllPlanesPago } from "@/lib/utils"
+import { formatCurrency, normalizePeriod, currentPeriod, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos } from "@/lib/utils"
 import { AlertTriangle, Clock, CheckCircle2, Search } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
@@ -23,6 +23,17 @@ export default function MoraPage() {
   const [sociosAlDia, setSociosAlDia] = useState(0)
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const [ibr, setIbr] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("ibr-rate")
+      return saved ? Number(saved) : 9.53
+    }
+    return 9.53
+  })
+
+  useEffect(() => {
+    localStorage.setItem("ibr-rate", String(ibr))
+  }, [ibr])
 
   useEffect(() => {
     if (typeof window !== "undefined" && !localStorage.getItem("club-auth")) {
@@ -83,7 +94,13 @@ export default function MoraPage() {
         const debeTenerPagado = vencidas.reduce((s, p) => s + p.monto_proyectado, 0)
         const haPagado = socioPlanes.reduce((s, p) => s + p.monto_pagado, 0)
         const mora = Math.max(0, debeTenerPagado - haPagado)
-        const intereses = vencidas.reduce((s, p) => s + (p.interes_mora || 0), 0)
+        const intereses = vencidas.reduce((s, p) => {
+          const acumulado = p.interes_mora || 0
+          if (acumulado > 0) return s + acumulado
+          const saldo = p.monto_proyectado - p.monto_pagado
+          const dias = diasVencidos(p.periodo)
+          return s + calcularInteresMora(saldo, dias, ibr)
+        }, 0)
 
         if (mora > 0) {
           enMora.push({ ...socio, debeTenerPagado, haPagado, mora, intereses } as SocioMora)
@@ -122,12 +139,26 @@ export default function MoraPage() {
 
   return (
     <div className="p-6">
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">Socios en Mora</h1>
           <p className="text-zinc-500 text-sm mt-1">
             {sociosMora.length} socios con mora &middot; {sociosAlDia} al d&iacute;a
           </p>
+        </div>
+        <div className="flex items-center gap-1.5 text-sm">
+          <label className="text-zinc-500 font-medium">IBR:</label>
+          <input
+            type="text"
+            inputMode="decimal"
+            value={ibr}
+            onChange={(e) => {
+              const val = parseFloat(e.target.value)
+              if (!isNaN(val)) setIbr(val)
+            }}
+            className="w-16 px-2 py-1 border border-zinc-300 rounded text-right text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+          />
+          <span className="text-zinc-400">%</span>
         </div>
       </div>
 
