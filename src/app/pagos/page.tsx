@@ -441,6 +441,11 @@ export default function PagosPage() {
                                               onChange={(e) => {
                                                 const raw = e.target.value.replace(/[^0-9]/g, "")
                                                 setEditPagado(raw)
+                                                const pagadoVal = raw === "" ? 0 : Number(raw)
+                                                const nuevoSaldo = Math.max(0, p.monto_proyectado - pagadoVal)
+                                                const dias = diasVencidos(p.periodo)
+                                                const nuevoInteres = calcularInteresMora(nuevoSaldo, dias, ibr)
+                                                setEditMora(String(nuevoInteres))
                                               }}
                                               onBlur={() => commitEditRow(p, socio.id)}
                                               onKeyDown={(e) => {
