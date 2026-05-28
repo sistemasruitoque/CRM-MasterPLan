@@ -104,9 +104,8 @@ export default function PagosPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [selectedSocio, setSelectedSocio] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editingMoraId, setEditingMoraId] = useState<string | null>(null)
-  const [editValue, setEditValue] = useState("")
-  const [editMoraValue, setEditMoraValue] = useState("")
+  const [editPagado, setEditPagado] = useState("")
+  const [editMora, setEditMora] = useState("")
   const editingRef = useRef<HTMLInputElement | null>(null)
   const [ibr, setIbr] = useState<number>(() => {
     if (typeof window !== "undefined") {
@@ -226,6 +225,28 @@ export default function PagosPage() {
   }
 
   function guardarPlan(socioId: string) { savePlan(socioId, false) }
+
+  function startEditRow(p: PlanPago) {
+    setEditingId(p.id)
+    setEditPagado(String(p.monto_pagado))
+    setEditMora(String(p.interes_mora || 0))
+  }
+
+  function commitEditRow(p: PlanPago, socioId: string) {
+    const pagadoVal = editPagado === "" ? 0 : Number(editPagado)
+    const moraVal = editMora === "" ? 0 : Number(editMora)
+    setPlanesPago((prev) => {
+      const next = { ...prev, [socioId]: (prev[socioId] || []).map((pp) =>
+        pp.id === p.id
+          ? { ...pp, monto_pagado: pagadoVal, interes_mora: moraVal, estado: (pagadoVal >= pp.monto_proyectado ? "pagado" : pagadoVal > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
+          : pp
+      )}
+      planesPagoRef.current = next
+      return next
+    })
+    setEditingId(null)
+    savePlan(socioId, true)
+  }
 
   const filtered = socios.filter((s) => {
     if (!search) return true
@@ -402,39 +423,24 @@ export default function PagosPage() {
                                     const dias = diasVencidos(p.periodo)
                                     const moraCalculada = calcularInteresMora(saldoActual, dias, ibr)
                                     const vencida = dias > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
+                                    const isEditing = editingId === p.id
                                     return (
                                       <tr key={p.id} className={`hover:bg-white border-b border-zinc-100 ${vencida ? "bg-red-50" : ""}`}>
                                         <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
                                         <td className="px-2 py-1.5 text-right text-zinc-700">{formatCurrency(p.monto_proyectado)}</td>
                                         <td className="px-2 py-1.5 text-right">
-                                          {editingId === p.id ? (
+                                          {isEditing ? (
                                             <input
                                               ref={(el) => { editingRef.current = el }}
                                               type="text"
                                               inputMode="numeric"
-                                              value={editValue}
+                                              value={editPagado}
                                               autoFocus
                                               onChange={(e) => {
                                                 const raw = e.target.value.replace(/[^0-9]/g, "")
-                                                setEditValue(raw)
+                                                setEditPagado(raw)
                                               }}
-                                              onBlur={() => {
-                                                const val = editValue === "" ? 0 : Number(editValue)
-                                                setPlanesPago((prev) => {
-                                                  const next: Record<string, PlanPago[]> = {
-                                                    ...prev,
-                                                    [socio.id]: (prev[socio.id] || []).map((pp) =>
-                                                      pp.id === p.id
-                                                        ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
-                                                        : pp
-                                                    ),
-                                                  }
-                                                  planesPagoRef.current = next
-                                                  return next
-                                                })
-                                                setEditingId(null)
-                                                savePlan(socio.id, true)
-                                              }}
+                                              onBlur={() => commitEditRow(p, socio.id)}
                                               onKeyDown={(e) => {
                                                 if (e.key === "Enter") (e.target as HTMLInputElement).blur()
                                                 if (e.key === "Escape") { setEditingId(null) }
@@ -443,7 +449,7 @@ export default function PagosPage() {
                                             />
                                           ) : (
                                             <span
-                                              onClick={() => { setEditingId(p.id); setEditValue(String(p.monto_pagado)) }}
+                                              onClick={() => startEditRow(p)}
                                               className="cursor-pointer text-zinc-700 hover:bg-zinc-100 px-2 py-0.5 rounded block text-right text-sm"
                                             >
                                               {formatCurrency(p.monto_pagado)}
@@ -457,40 +463,25 @@ export default function PagosPage() {
                                           </span>
                                         </td>
                                         <td className="px-2 py-1.5 text-right">
-                                          {editingMoraId === p.id ? (
+                                          {isEditing ? (
                                             <input
                                               type="text"
                                               inputMode="numeric"
-                                              value={editMoraValue}
-                                              autoFocus
+                                              value={editMora}
                                               onChange={(e) => {
                                                 const raw = e.target.value.replace(/[^0-9]/g, "")
-                                                setEditMoraValue(raw)
+                                                setEditMora(raw)
                                               }}
-                                              onBlur={() => {
-                                                const val = editMoraValue === "" ? 0 : Number(editMoraValue)
-                                                setPlanesPago((prev) => {
-                                                  const next: Record<string, PlanPago[]> = {
-                                                    ...prev,
-                                                    [socio.id]: (prev[socio.id] || []).map((pp) =>
-                                                      pp.id === p.id ? { ...pp, interes_mora: val } : pp
-                                                    ),
-                                                  }
-                                                  planesPagoRef.current = next
-                                                  return next
-                                                })
-                                                setEditingMoraId(null)
-                                                savePlan(socio.id, true)
-                                              }}
+                                              onBlur={() => commitEditRow(p, socio.id)}
                                               onKeyDown={(e) => {
                                                 if (e.key === "Enter") (e.target as HTMLInputElement).blur()
-                                                if (e.key === "Escape") { setEditingMoraId(null) }
+                                                if (e.key === "Escape") { setEditingId(null) }
                                               }}
                                               className="w-24 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
                                             />
                                           ) : (
                                             <span
-                                              onClick={() => { setEditingMoraId(p.id); setEditMoraValue(String(p.interes_mora || 0)) }}
+                                              onClick={() => startEditRow(p)}
                                               className={`cursor-pointer px-2 py-0.5 rounded block text-right text-sm ${(p.interes_mora || 0) > 0 ? "text-red-600 font-medium" : "text-zinc-400"}`}
                                             >
                                               {(p.interes_mora || 0) > 0 ? formatCurrency(p.interes_mora) : "-"}
