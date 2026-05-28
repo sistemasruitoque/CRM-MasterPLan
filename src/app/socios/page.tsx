@@ -249,19 +249,19 @@ export default function SociosPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">No. Certificado</label>
-                  <input type="number" value={form.certificado_no || ""} onChange={(e) => { const v = Number(e.target.value); setForm({ ...form, certificado_no: v }); checkCertificado(v) }} className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none ${certificadoStatus === "taken" ? "border-red-400" : certificadoStatus === "available" ? "border-emerald-400" : "border-zinc-300"}`} />
+                  <input type="number" required value={form.certificado_no || ""} onChange={(e) => { const v = Number(e.target.value); setForm({ ...form, certificado_no: v }); checkCertificado(v) }} className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none ${certificadoStatus === "taken" ? "border-red-400" : certificadoStatus === "available" ? "border-emerald-400" : "border-zinc-300"}`} />
                   {certificadoStatus === "taken" && <p className="text-xs text-red-500 mt-1">Ya está en uso</p>}
                   {certificadoStatus === "available" && <p className="text-xs text-emerald-500 mt-1">Disponible</p>}
                   {certificadoStatus === "checking" && <p className="text-xs text-zinc-400 mt-1">Verificando...</p>}
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">Cédula</label>
-                  <input type="text" value={form.cedula} onChange={(e) => setForm({ ...form, cedula: e.target.value })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  <input type="text" required value={form.cedula} onChange={(e) => setForm({ ...form, cedula: e.target.value })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-500 mb-1">Nombre</label>
-                <input type="text" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+                <input type="text" required value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -284,7 +284,7 @@ export default function SociosPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">Fecha Contrato</label>
-                  <input type="date" value={form.fecha_contrato} onChange={(e) => setForm({ ...form, fecha_contrato: e.target.value })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  <input type="date" required value={form.fecha_contrato} onChange={(e) => setForm({ ...form, fecha_contrato: e.target.value })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">Modalidad</label>
@@ -297,27 +297,27 @@ export default function SociosPage() {
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">Aporte</label>
-                  <input type="number" value={form.aporte || ""} onChange={(e) => setForm({ ...form, aporte: Number(e.target.value) })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  <input type="number" required value={form.aporte || ""} onChange={(e) => setForm({ ...form, aporte: Number(e.target.value) })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">Referido</label>
-                  <input type="number" value={form.referido || ""} onChange={(e) => setForm({ ...form, referido: Number(e.target.value) })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  <input type="number" required value={form.referido || ""} onChange={(e) => setForm({ ...form, referido: Number(e.target.value) })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">Valor Final</label>
-                  <input type="number" value={form.valor_final || ""} onChange={(e) => setForm({ ...form, valor_final: Number(e.target.value) })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  <input type="number" required value={form.valor_final || ""} onChange={(e) => setForm({ ...form, valor_final: Number(e.target.value) })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-500 mb-1">Responsable</label>
-                <input type="text" value={form.responsable} onChange={(e) => setForm({ ...form, responsable: e.target.value })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+                <input type="text" required value={form.responsable} onChange={(e) => setForm({ ...form, responsable: e.target.value })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
               </div>
             </div>
             <div className="p-6 border-t border-zinc-200 flex justify-end gap-3">
               <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">Cancelar</button>
               <button
                 onClick={handleCreate}
-                disabled={saving || !form.nombre || !form.cedula || certificadoStatus === "taken"}
+                disabled={saving || certificadoStatus === "taken" || !form.certificado_no || !form.cedula || !form.nombre || !form.fecha_contrato || !form.aporte || !form.valor_final || !form.responsable}
                 className="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
               >
                 {saving ? "Guardando..." : "Crear Socio"}
