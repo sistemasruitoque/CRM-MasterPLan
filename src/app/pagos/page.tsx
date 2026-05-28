@@ -210,15 +210,17 @@ export default function PagosPage() {
       }))
       const { error: upsertErr } = await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
       if (upsertErr) { if (!silent) alert("Error al guardar: " + upsertErr.message); return }
-      const { data: freshPlanes } = await supabase.from("planes_pago").select("*").eq("socio_id", socioId)
-      if (freshPlanes) {
-        setPlanesPago((prev) => {
-          const next = { ...prev, [socioId]: freshPlanes as PlanPago[] }
-          planesPagoRef.current = next
-          return next
-        })
+      if (!silent) {
+        const { data: freshPlanes } = await supabase.from("planes_pago").select("*").eq("socio_id", socioId)
+        if (freshPlanes) {
+          setPlanesPago((prev) => {
+            const next = { ...prev, [socioId]: freshPlanes as PlanPago[] }
+            planesPagoRef.current = next
+            return next
+          })
+        }
+        alert("Plan guardado exitosamente")
       }
-      if (!silent) alert("Plan guardado exitosamente")
     } catch {
       if (!silent) alert("Conecta Supabase para guardar (funciona en demo)")
     }
