@@ -12,6 +12,7 @@ interface SocioMora extends Socio {
   debeTenerPagado: number
   haPagado: number
   mora: number
+  intereses: number
 }
 
 const pactadoMap = new Map(pactadoPlanes.map(p => [p.certificado_no, p.schedules as unknown as Record<string, number>]))
@@ -78,15 +79,14 @@ export default function MoraPage() {
         const socioPlanes = grouped[socio.id] || []
         if (socioPlanes.length === 0) continue
 
-        const debeTenerPagado = socioPlanes
-          .filter(p => normalizePeriod(p.periodo) <= nowPeriod)
-          .reduce((s, p) => s + p.monto_proyectado, 0)
-        const haPagado = socioPlanes
-          .reduce((s, p) => s + p.monto_pagado, 0)
+        const vencidas = socioPlanes.filter(p => normalizePeriod(p.periodo) <= nowPeriod)
+        const debeTenerPagado = vencidas.reduce((s, p) => s + p.monto_proyectado, 0)
+        const haPagado = socioPlanes.reduce((s, p) => s + p.monto_pagado, 0)
         const mora = Math.max(0, debeTenerPagado - haPagado)
+        const intereses = vencidas.reduce((s, p) => s + (p.interes_mora || 0), 0)
 
         if (mora > 0) {
-          enMora.push({ ...socio, debeTenerPagado, haPagado, mora } as SocioMora)
+          enMora.push({ ...socio, debeTenerPagado, haPagado, mora, intereses } as SocioMora)
         } else {
           alDia++
         }
@@ -118,6 +118,7 @@ export default function MoraPage() {
   const totalMora = filtered.reduce((s, p) => s + p.mora, 0)
   const totalDebe = filtered.reduce((s, p) => s + p.debeTenerPagado, 0)
   const totalPagado = filtered.reduce((s, p) => s + p.haPagado, 0)
+  const totalIntereses = filtered.reduce((s, p) => s + p.intereses, 0)
 
   return (
     <div className="p-6">
@@ -143,7 +144,7 @@ export default function MoraPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-red-50 rounded-xl p-4 border border-red-200">
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle className="h-4 w-4 text-red-600" />
@@ -165,6 +166,13 @@ export default function MoraPage() {
           </div>
           <p className="text-2xl font-bold text-amber-900">{formatCurrency(totalMora)}</p>
         </div>
+        <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
+          <div className="flex items-center gap-2 mb-1">
+            <Clock className="h-4 w-4 text-orange-600" />
+            <span className="text-sm font-medium text-orange-700">Total Intereses</span>
+          </div>
+          <p className="text-2xl font-bold text-orange-900">{formatCurrency(totalIntereses)}</p>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden">
@@ -178,6 +186,7 @@ export default function MoraPage() {
                 <th className="px-4 py-3 font-medium text-right">Debe Tener Pagado</th>
                 <th className="px-4 py-3 font-medium text-right">Ha Pagado</th>
                 <th className="px-4 py-3 font-medium text-right">Mora</th>
+                <th className="px-4 py-3 font-medium text-right">Intereses</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
               </tr>
             </thead>
@@ -206,6 +215,9 @@ export default function MoraPage() {
                   <td className="px-4 py-3 text-right font-bold text-red-600">
                     {formatCurrency(socio.mora)}
                   </td>
+                  <td className="px-4 py-3 text-right font-medium text-orange-600">
+                    {socio.intereses > 0 ? formatCurrency(socio.intereses) : "-"}
+                  </td>
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600">
                       <AlertTriangle className="h-3.5 w-3.5" />
@@ -216,7 +228,7 @@ export default function MoraPage() {
               ))}
               {sociosMora.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-zinc-400">
+                  <td colSpan={8} className="px-4 py-12 text-center text-zinc-400">
                     <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-emerald-400" />
                     <p className="font-medium">No hay socios en mora</p>
                     <p className="text-sm">Todos los socios est&aacute;n al d&iacute;a con sus pagos</p>
@@ -230,6 +242,7 @@ export default function MoraPage() {
                 <td className="px-4 py-3 text-right">{formatCurrency(totalDebe)}</td>
                 <td className="px-4 py-3 text-right text-emerald-600">{formatCurrency(totalPagado)}</td>
                 <td className="px-4 py-3 text-right text-red-600">{formatCurrency(totalMora)}</td>
+                <td className="px-4 py-3 text-right text-orange-600">{totalIntereses > 0 ? formatCurrency(totalIntereses) : "-"}</td>
                 <td />
               </tr>
             </tfoot>
