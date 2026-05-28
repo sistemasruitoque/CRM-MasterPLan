@@ -105,6 +105,8 @@ export default function PagosPage() {
   const [selectedSocio, setSelectedSocio] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingMoraId, setEditingMoraId] = useState<string | null>(null)
+  const [editValue, setEditValue] = useState("")
+  const [editMoraValue, setEditMoraValue] = useState("")
   const editingRef = useRef<HTMLInputElement | null>(null)
   const [ibr, setIbr] = useState<number>(() => {
     if (typeof window !== "undefined") {
@@ -410,25 +412,26 @@ export default function PagosPage() {
                                               ref={(el) => { editingRef.current = el }}
                                               type="text"
                                               inputMode="numeric"
-                                              value={p.monto_pagado}
+                                              value={editValue}
                                               autoFocus
                                               onChange={(e) => {
                                                 const raw = e.target.value.replace(/[^0-9]/g, "")
-                                                const val = raw === "" ? 0 : Number(raw)
+                                                setEditValue(raw)
+                                              }}
+                                              onBlur={() => {
+                                                const val = editValue === "" ? 0 : Number(editValue)
                                                 setPlanesPago((prev) => {
                                                   const next: Record<string, PlanPago[]> = {
                                                     ...prev,
                                                     [socio.id]: (prev[socio.id] || []).map((pp) =>
                                                       pp.id === p.id
-                                                        ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado - val ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
+                                                        ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
                                                         : pp
                                                     ),
                                                   }
                                                   planesPagoRef.current = next
                                                   return next
                                                 })
-                                              }}
-                                              onBlur={() => {
                                                 setEditingId(null)
                                                 savePlan(socio.id, true)
                                               }}
@@ -440,7 +443,7 @@ export default function PagosPage() {
                                             />
                                           ) : (
                                             <span
-                                              onClick={() => setEditingId(p.id)}
+                                              onClick={() => { setEditingId(p.id); setEditValue(String(p.monto_pagado)) }}
                                               className="cursor-pointer text-zinc-700 hover:bg-zinc-100 px-2 py-0.5 rounded block text-right text-sm"
                                             >
                                               {formatCurrency(p.monto_pagado)}
@@ -458,11 +461,14 @@ export default function PagosPage() {
                                             <input
                                               type="text"
                                               inputMode="numeric"
-                                              value={p.interes_mora || 0}
+                                              value={editMoraValue}
                                               autoFocus
                                               onChange={(e) => {
                                                 const raw = e.target.value.replace(/[^0-9]/g, "")
-                                                const val = raw === "" ? 0 : Number(raw)
+                                                setEditMoraValue(raw)
+                                              }}
+                                              onBlur={() => {
+                                                const val = editMoraValue === "" ? 0 : Number(editMoraValue)
                                                 setPlanesPago((prev) => {
                                                   const next: Record<string, PlanPago[]> = {
                                                     ...prev,
@@ -473,8 +479,6 @@ export default function PagosPage() {
                                                   planesPagoRef.current = next
                                                   return next
                                                 })
-                                              }}
-                                              onBlur={() => {
                                                 setEditingMoraId(null)
                                                 savePlan(socio.id, true)
                                               }}
@@ -486,7 +490,7 @@ export default function PagosPage() {
                                             />
                                           ) : (
                                             <span
-                                              onClick={() => setEditingMoraId(p.id)}
+                                              onClick={() => { setEditingMoraId(p.id); setEditMoraValue(String(p.interes_mora || 0)) }}
                                               className={`cursor-pointer px-2 py-0.5 rounded block text-right text-sm ${(p.interes_mora || 0) > 0 ? "text-red-600 font-medium" : "text-zinc-400"}`}
                                             >
                                               {(p.interes_mora || 0) > 0 ? formatCurrency(p.interes_mora) : "-"}
