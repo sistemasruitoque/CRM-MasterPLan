@@ -48,6 +48,8 @@ export default function SociosPage() {
   async function handleCreate() {
     setSaving(true)
     try {
+      const { data: existing } = await supabase.from("socios").select("id").eq("certificado_no", form.certificado_no).maybeSingle()
+      if (existing) { alert("Ya existe un socio con ese No. Certificado"); setSaving(false); return }
       const { data: newSocio, error } = await supabase.from("socios").insert({
         certificado_no: form.certificado_no,
         cedula: form.cedula,
