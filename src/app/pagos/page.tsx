@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency, distributePagos, fetchAllPlanesPago } from "@/lib/utils"
+import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos } from "@/lib/utils"
 import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
@@ -50,6 +50,7 @@ function calcularPlanPagos(socio: Socio): PlanPago[] {
       monto_proyectado: montoProyectado,
       monto_pagado: 0,
       saldo: saldo,
+      interes_mora: 0,
       estado: "pendiente",
       fecha_pago: null,
       created_at: "",
@@ -83,6 +84,7 @@ function pactadoToPlanPagos(socio: Socio, schedules: Record<string, number>, pag
         monto_proyectado: monto,
         monto_pagado: 0,
         saldo,
+        interes_mora: 0,
         estado: "pendiente",
         fecha_pago: null,
         created_at: "",
@@ -102,9 +104,21 @@ export default function PagosPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [selectedSocio, setSelectedSocio] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingMoraId, setEditingMoraId] = useState<string | null>(null)
   const editingRef = useRef<HTMLInputElement | null>(null)
+  const [ibr, setIbr] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("ibr-rate")
+      return saved ? Number(saved) : 9.53
+    }
+    return 9.53
+  })
   const planesPagoRef = useRef(planesPago)
   planesPagoRef.current = planesPago
+
+  useEffect(() => {
+    localStorage.setItem("ibr-rate", String(ibr))
+  }, [ibr])
 
   useEffect(() => {
     if (typeof window !== "undefined" && !localStorage.getItem("club-auth")) {
@@ -145,6 +159,7 @@ export default function PagosPage() {
               monto_pagado: p.monto_pagado,
               saldo: p.saldo,
               estado: p.estado,
+              interes_mora: p.interes_mora,
             }))
             await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
           }
@@ -190,6 +205,7 @@ export default function PagosPage() {
         monto_pagado: p.monto_pagado,
         saldo: p.saldo,
         estado: p.estado,
+        interes_mora: p.interes_mora,
       }))
       const { error: upsertErr } = await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
       if (upsertErr) { if (!silent) alert("Error al guardar: " + upsertErr.message); return }
@@ -249,6 +265,20 @@ export default function PagosPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-sm">
+            <label className="text-zinc-500 font-medium">IBR:</label>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={ibr}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value)
+                if (!isNaN(val)) setIbr(val)
+              }}
+              className="w-16 px-2 py-1 border border-zinc-300 rounded text-right text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            />
+            <span className="text-zinc-400">%</span>
+          </div>
           <button
             onClick={exportToExcel}
             className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
@@ -358,32 +388,125 @@ export default function PagosPage() {
                                     <th className="px-2 py-1 text-right">Proyectado</th>
                                     <th className="px-2 py-1 text-right">Pagado</th>
                                     <th className="px-2 py-1 text-right">Saldo</th>
+                                    <th className="px-2 py-1 text-right">Int. Mora</th>
                                     <th className="px-2 py-1 text-center">Estado</th>
                                     <th className="px-2 py-1" />
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {plan.map((p) => (
-                                    <tr key={p.id} className="hover:bg-white border-b border-zinc-100">
-                                      <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
-                                      <td className="px-2 py-1.5 text-right text-zinc-700">{formatCurrency(p.monto_proyectado)}</td>
-                                      <td className="px-2 py-1.5 text-right">
-                                        {editingId === p.id ? (
-                                          <input
-                                            ref={(el) => { editingRef.current = el }}
-                                            type="text"
-                                            inputMode="numeric"
-                                            value={p.monto_pagado}
-                                            autoFocus
-                                            onChange={(e) => {
-                                              const raw = e.target.value.replace(/[^0-9]/g, "")
-                                              const val = raw === "" ? 0 : Number(raw)
+                                  {plan.map((p) => {
+                                    const saldoActual = p.monto_proyectado - p.monto_pagado
+                                    const dias = diasVencidos(p.periodo)
+                                    const moraCalculada = calcularInteresMora(saldoActual, dias, ibr)
+                                    const moraValue = p.interes_mora || moraCalculada
+                                    const vencida = dias > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
+                                    return (
+                                      <tr key={p.id} className={`hover:bg-white border-b border-zinc-100 ${vencida ? "bg-red-50" : ""}`}>
+                                        <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
+                                        <td className="px-2 py-1.5 text-right text-zinc-700">{formatCurrency(p.monto_proyectado)}</td>
+                                        <td className="px-2 py-1.5 text-right">
+                                          {editingId === p.id ? (
+                                            <input
+                                              ref={(el) => { editingRef.current = el }}
+                                              type="text"
+                                              inputMode="numeric"
+                                              value={p.monto_pagado}
+                                              autoFocus
+                                              onChange={(e) => {
+                                                const raw = e.target.value.replace(/[^0-9]/g, "")
+                                                const val = raw === "" ? 0 : Number(raw)
+                                                setPlanesPago((prev) => {
+                                                  const next: Record<string, PlanPago[]> = {
+                                                    ...prev,
+                                                    [socio.id]: (prev[socio.id] || []).map((pp) =>
+                                                      pp.id === p.id
+                                                        ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado - val ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
+                                                        : pp
+                                                    ),
+                                                  }
+                                                  planesPagoRef.current = next
+                                                  return next
+                                                })
+                                              }}
+                                              onBlur={() => {
+                                                setEditingId(null)
+                                                savePlan(socio.id, true)
+                                              }}
+                                              onKeyDown={(e) => {
+                                                if (e.key === "Enter") (e.target as HTMLInputElement).blur()
+                                                if (e.key === "Escape") { setEditingId(null) }
+                                              }}
+                                              className="w-28 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
+                                            />
+                                          ) : (
+                                            <span
+                                              onClick={() => setEditingId(p.id)}
+                                              className="cursor-pointer text-zinc-700 hover:bg-zinc-100 px-2 py-0.5 rounded block text-right text-sm"
+                                            >
+                                              {formatCurrency(p.monto_pagado)}
+                                            </span>
+                                          )}
+                                        </td>
+                                        <td className="px-2 py-1.5 text-right font-medium text-zinc-800">{formatCurrency(saldoActual)}</td>
+                                        <td className="px-2 py-1.5 text-right">
+                                          {editingMoraId === p.id ? (
+                                            <input
+                                              type="text"
+                                              inputMode="numeric"
+                                              value={p.interes_mora || 0}
+                                              autoFocus
+                                              onChange={(e) => {
+                                                const raw = e.target.value.replace(/[^0-9]/g, "")
+                                                const val = raw === "" ? 0 : Number(raw)
+                                                setPlanesPago((prev) => {
+                                                  const next: Record<string, PlanPago[]> = {
+                                                    ...prev,
+                                                    [socio.id]: (prev[socio.id] || []).map((pp) =>
+                                                      pp.id === p.id ? { ...pp, interes_mora: val } : pp
+                                                    ),
+                                                  }
+                                                  planesPagoRef.current = next
+                                                  return next
+                                                })
+                                              }}
+                                              onBlur={() => {
+                                                setEditingMoraId(null)
+                                                savePlan(socio.id, true)
+                                              }}
+                                              onKeyDown={(e) => {
+                                                if (e.key === "Enter") (e.target as HTMLInputElement).blur()
+                                                if (e.key === "Escape") { setEditingMoraId(null) }
+                                              }}
+                                              className="w-24 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
+                                            />
+                                          ) : (
+                                            <span
+                                              onClick={() => setEditingMoraId(p.id)}
+                                              className={`cursor-pointer px-2 py-0.5 rounded block text-right text-sm ${moraValue > 0 ? "text-red-600 font-medium" : "text-zinc-400"}`}
+                                            >
+                                              {moraValue > 0 ? formatCurrency(moraValue) : "-"}
+                                            </span>
+                                          )}
+                                        </td>
+                                        <td className="px-2 py-1.5 text-center">
+                                          <span className="inline-flex items-center gap-1">
+                                            {getStatusIcon(p.estado)}
+                                            <span className={
+                                              p.estado === "pagado" ? "text-emerald-600" :
+                                              p.estado === "parcial" ? "text-amber-600" :
+                                              p.estado === "exonerado" ? "text-blue-600" : "text-zinc-400"
+                                            }>{p.estado}</span>
+                                          </span>
+                                        </td>
+                                        <td className="px-2 py-1.5">
+                                          <button
+                                            onClick={() => {
                                               setPlanesPago((prev) => {
                                                 const next: Record<string, PlanPago[]> = {
                                                   ...prev,
                                                   [socio.id]: (prev[socio.id] || []).map((pp) =>
                                                     pp.id === p.id
-                                                      ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado - val ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
+                                                      ? { ...pp, estado: (pp.estado === "exonerado" ? "pendiente" : "exonerado") as PlanPago["estado"] }
                                                       : pp
                                                   ),
                                                 }
@@ -391,59 +514,14 @@ export default function PagosPage() {
                                                 return next
                                               })
                                             }}
-                                            onBlur={() => {
-                                              setEditingId(null)
-                                              savePlan(socio.id, true)
-                                            }}
-                                            onKeyDown={(e) => {
-                                              if (e.key === "Enter") (e.target as HTMLInputElement).blur()
-                                              if (e.key === "Escape") { setEditingId(null) }
-                                            }}
-                                            className="w-28 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
-                                          />
-                                        ) : (
-                                          <span
-                                            onClick={() => setEditingId(p.id)}
-                                            className="cursor-pointer text-zinc-700 hover:bg-zinc-100 px-2 py-0.5 rounded block text-right text-sm"
+                                            className="text-[10px] text-blue-600 hover:text-blue-800"
                                           >
-                                            {formatCurrency(p.monto_pagado)}
-                                          </span>
-                                        )}
-                                      </td>
-                                      <td className="px-2 py-1.5 text-right font-medium text-zinc-800">{formatCurrency(p.monto_proyectado - p.monto_pagado)}</td>
-                                      <td className="px-2 py-1.5 text-center">
-                                        <span className="inline-flex items-center gap-1">
-                                          {getStatusIcon(p.estado)}
-                                          <span className={
-                                            p.estado === "pagado" ? "text-emerald-600" :
-                                            p.estado === "parcial" ? "text-amber-600" :
-                                            p.estado === "exonerado" ? "text-blue-600" : "text-zinc-400"
-                                          }>{p.estado}</span>
-                                        </span>
-                                      </td>
-                                      <td className="px-2 py-1.5">
-                                        <button
-                                          onClick={() => {
-                                            setPlanesPago((prev) => {
-                                              const next: Record<string, PlanPago[]> = {
-                                                ...prev,
-                                                [socio.id]: (prev[socio.id] || []).map((pp) =>
-                                                  pp.id === p.id
-                                                    ? { ...pp, estado: (pp.estado === "exonerado" ? "pendiente" : "exonerado") as PlanPago["estado"] }
-                                                    : pp
-                                                ),
-                                              }
-                                              planesPagoRef.current = next
-                                              return next
-                                            })
-                                          }}
-                                          className="text-[10px] text-blue-600 hover:text-blue-800"
-                                        >
-                                          Exonerar
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  ))}
+                                            Exonerar
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    )
+                                  })}
                                 </tbody>
                               </table>
                             </div>

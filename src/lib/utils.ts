@@ -16,6 +16,21 @@ export function formatCurrency(n: number): string {
   }).format(n)
 }
 
+export function diasVencidos(periodo: string): number {
+  const [y, m] = periodo.split("-").map(Number)
+  const cuotaDate = new Date(y, m - 1, 1)
+  const today = new Date()
+  if (cuotaDate > today) return 0
+  return Math.floor((today.getTime() - cuotaDate.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+export function calcularInteresMora(saldo: number, dias: number, ibr: number): number {
+  if (dias <= 0 || saldo <= 0) return 0
+  const tasaEA = (ibr + 4) / 100
+  const tasaDiaria = Math.pow(1 + tasaEA, 1 / 360) - 1
+  return Math.round(saldo * tasaDiaria * dias)
+}
+
 const MONTH_MAP: Record<string, string> = {
   "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
   "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",

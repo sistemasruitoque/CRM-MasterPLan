@@ -58,6 +58,7 @@ export default function DashboardPage() {
         monto_proyectado: monto,
         monto_pagado: 0,
         saldo: 0,
+        interes_mora: 0,
         estado: "pendiente",
         fecha_pago: null,
         created_at: "",
