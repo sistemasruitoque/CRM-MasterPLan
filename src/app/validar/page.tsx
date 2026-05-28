@@ -43,7 +43,7 @@ export default function ValidarPage() {
     try {
       const [sociosRes, planesRes, pagosRes] = await Promise.all([
         supabase.from("socios").select("*"),
-        supabase.from("planes_pago").select("*"),
+        supabase.from("planes_pago").select("*").range(0, 10000),
         supabase.from("pagos").select("*"),
       ])
 
@@ -109,7 +109,7 @@ export default function ValidarPage() {
     try {
       const [sociosRes, planesRes, pagosRes] = await Promise.all([
         supabase.from("socios").select("*"),
-        supabase.from("planes_pago").select("*"),
+        supabase.from("planes_pago").select("*").range(0, 10000),
         supabase.from("pagos").select("*"),
       ])
       const socios: Socio[] = sociosRes.data || []

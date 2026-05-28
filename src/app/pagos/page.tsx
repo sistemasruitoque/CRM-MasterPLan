@@ -118,7 +118,7 @@ export default function PagosPage() {
     try {
       const [{ data: sociosData }, { data: planesData }, { data: pagosData }] = await Promise.all([
         supabase.from("socios").select("*").order("certificado_no"),
-        supabase.from("planes_pago").select("*"),
+        supabase.from("planes_pago").select("*").range(0, 10000),
         supabase.from("pagos").select("*"),
       ])
 
