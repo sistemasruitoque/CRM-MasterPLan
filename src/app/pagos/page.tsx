@@ -124,9 +124,18 @@ export default function PagosPage() {
 
       if (sociosData && sociosData.length > 0) {
         setSocios(sociosData as Socio[])
+        const dbPlanBySocio: Record<string, PlanPago[]> = {}
+        if (planesData) {
+          for (const p of planesData as PlanPago[]) {
+            if (!dbPlanBySocio[p.socio_id]) dbPlanBySocio[p.socio_id] = []
+            dbPlanBySocio[p.socio_id].push(p)
+          }
+        }
         const grouped: Record<string, PlanPago[]> = {}
         for (const socio of sociosData as Socio[]) {
-          if (pactadoMap.has(socio.certificado_no)) {
+          if (dbPlanBySocio[socio.id]) {
+            grouped[socio.id] = dbPlanBySocio[socio.id]
+          } else if (pactadoMap.has(socio.certificado_no)) {
             grouped[socio.id] = pactadoToPlanPagos(socio, pactadoMap.get(socio.certificado_no)!, pagosData as Pago[])
           }
         }
@@ -159,7 +168,7 @@ export default function PagosPage() {
     })
   }
 
-  async function guardarPlan(socioId: string) {
+  async function savePlan(socioId: string, silent = false) {
     try {
       const plan = planesPagoRef.current[socioId]
       if (!plan) return
@@ -172,9 +181,9 @@ export default function PagosPage() {
         estado: p.estado,
       }))
       const { error: delErr } = await supabase.from("planes_pago").delete().eq("socio_id", socioId)
-      if (delErr) { alert("Error al eliminar plan anterior: " + delErr.message); return }
+      if (delErr) { if (!silent) alert("Error al eliminar plan anterior: " + delErr.message); return }
       const { error: insErr } = await supabase.from("planes_pago").insert(rows as any)
-      if (insErr) { alert("Error al guardar: " + insErr.message); return }
+      if (insErr) { if (!silent) alert("Error al guardar: " + insErr.message); return }
       const { data: freshPlanes } = await supabase.from("planes_pago").select("*").eq("socio_id", socioId)
       if (freshPlanes) {
         setPlanesPago((prev) => {
@@ -183,11 +192,13 @@ export default function PagosPage() {
           return next
         })
       }
-      alert("Plan guardado exitosamente")
+      if (!silent) alert("Plan guardado exitosamente")
     } catch {
-      alert("Conecta Supabase para guardar (funciona en demo)")
+      if (!silent) alert("Conecta Supabase para guardar (funciona en demo)")
     }
   }
+
+  function guardarPlan(socioId: string) { savePlan(socioId, false) }
 
   const filtered = socios.filter((s) => {
     if (!search) return true
@@ -400,6 +411,7 @@ export default function PagosPage() {
                                                 return next
                                               })
                                             }}
+                                            onBlur={() => savePlan(socio.id, true)}
                                             className="w-28 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
                                           />
                                         </td>
