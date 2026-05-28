@@ -4,8 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, normalizePeriod, currentPeriod, distributePagos, fetchAllPlanesPago } from "@/lib/utils"
-import { AlertTriangle, ArrowLeft, Clock, CheckCircle2, Search } from "lucide-react"
-import Link from "next/link"
+import { AlertTriangle, Clock, CheckCircle2, Search } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
@@ -121,9 +120,6 @@ export default function MoraPage() {
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/dashboard" className="p-2 hover:bg-zinc-100 rounded-lg transition-colors">
-          <ArrowLeft className="h-5 w-5 text-zinc-600" />
-        </Link>
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">Socios en Mora</h1>
           <p className="text-zinc-500 text-sm mt-1">
