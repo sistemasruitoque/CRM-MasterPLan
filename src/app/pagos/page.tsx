@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, distributePagos, fetchAllPlanesPago } from "@/lib/utils"
-import { Search, ChevronDown, ChevronRight, Calculator, DollarSign, CheckCircle2, Clock, AlertCircle, Receipt, FileDown } from "lucide-react"
+import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
@@ -98,11 +98,9 @@ export default function PagosPage() {
   const [socios, setSocios] = useState<Socio[]>([])
   const [planesPago, setPlanesPago] = useState<Record<string, PlanPago[]>>({})
   const [pagos, setPagos] = useState<Pago[]>([])
-  const [view, setView] = useState<"plan" | "recibidos">("plan")
   const [search, setSearch] = useState("")
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [selectedSocio, setSelectedSocio] = useState<string | null>(null)
-  const [tasaInteres, setTasaInteres] = useState(1)
   const [editingId, setEditingId] = useState<string | null>(null)
   const editingRef = useRef<HTMLInputElement | null>(null)
   const planesPagoRef = useRef(planesPago)
@@ -247,225 +245,145 @@ export default function PagosPage() {
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">Plan de Pagos</h1>
           <p className="text-zinc-500 text-sm mt-1">
-            {view === "plan"
-              ? `Calendario de cuotas pactadas · ${Object.values(planesPago).flat().length} cuotas registradas`
-              : `${pagos.length} pagos recibidos registrados`}
+            Calendario de cuotas pactadas · {Object.values(planesPago).flat().length} cuotas registradas
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex bg-zinc-100 rounded-lg p-0.5">
-            <button
-              onClick={() => setView("plan")}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${view === "plan" ? "bg-white shadow-sm text-zinc-900 font-medium" : "text-zinc-500 hover:text-zinc-700"}`}
-            >
-              <Calculator className="h-3.5 w-3.5 inline mr-1" />
-              Plan
-            </button>
-            <button
-              onClick={() => setView("recibidos")}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${view === "recibidos" ? "bg-white shadow-sm text-zinc-900 font-medium" : "text-zinc-500 hover:text-zinc-700"}`}
-            >
-              <Receipt className="h-3.5 w-3.5 inline mr-1" />
-              Recibidos
-            </button>
-          </div>
-          {view === "plan" && (
-            <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-zinc-200">
-              <Calculator className="h-4 w-4 text-zinc-400" />
-              <span className="text-sm text-zinc-600">Interés:</span>
-              <input
-                type="number"
-                value={tasaInteres}
-                onChange={(e) => setTasaInteres(Number(e.target.value))}
-                className="w-16 px-2 py-0.5 border border-zinc-300 rounded text-sm text-center"
-              />
-              <span className="text-sm text-zinc-600">%</span>
-            </div>
-          )}
-          {view === "plan" && (
-            <button
-              onClick={exportToExcel}
-              className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
-            >
-              <FileDown className="h-4 w-4" />
-              Exportar Excel
-            </button>
-          )}
+          <button
+            onClick={exportToExcel}
+            className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
+          >
+            <FileDown className="h-4 w-4" />
+            Exportar Excel
+          </button>
         </div>
       </div>
 
-      {view === "plan" ? (
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden mb-6">
-          <div className="p-4 border-b border-zinc-200">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
-              <input
-                type="text"
-                placeholder="Buscar socio..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
-              />
-            </div>
+      <div className="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden mb-6">
+        <div className="p-4 border-b border-zinc-200">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="Buscar socio..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            />
           </div>
+        </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-zinc-50 text-zinc-600 text-left">
-                  <th className="px-4 py-3 w-8" />
-                  <th className="px-4 py-3 font-medium">No.</th>
-                  <th className="px-4 py-3 font-medium">Socio</th>
-                  <th className="px-4 py-3 font-medium">Categoría</th>
-                  <th className="px-4 py-3 font-medium text-right">Valor Final</th>
-                  <th className="px-4 py-3 font-medium text-right">Cuotas</th>
-                  <th className="px-4 py-3 font-medium text-right">Proyectado</th>
-                  <th className="px-4 py-3 font-medium text-right">Pagado</th>
-                  <th className="px-4 py-3 font-medium text-right">Saldo</th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100">
-                {filtered.map((socio) => {
-                  const plan = planesPago[socio.id] || []
-                  const isExpanded = expanded.has(socio.id)
-                  const totalCuotas = plan.length
-                  const pagado = plan.reduce((s, p) => s + p.monto_pagado, 0)
-                  const proyectado = plan.reduce((s, p) => s + p.monto_proyectado, 0)
-                  const saldo = proyectado - pagado
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-zinc-50 text-zinc-600 text-left">
+                <th className="px-4 py-3 w-8" />
+                <th className="px-4 py-3 font-medium">No.</th>
+                <th className="px-4 py-3 font-medium">Socio</th>
+                <th className="px-4 py-3 font-medium">Categoría</th>
+                <th className="px-4 py-3 font-medium text-right">Valor Final</th>
+                <th className="px-4 py-3 font-medium text-right">Cuotas</th>
+                <th className="px-4 py-3 font-medium text-right">Proyectado</th>
+                <th className="px-4 py-3 font-medium text-right">Pagado</th>
+                <th className="px-4 py-3 font-medium text-right">Saldo</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {filtered.map((socio) => {
+                const plan = planesPago[socio.id] || []
+                const isExpanded = expanded.has(socio.id)
+                const totalCuotas = plan.length
+                const pagado = plan.reduce((s, p) => s + p.monto_pagado, 0)
+                const proyectado = plan.reduce((s, p) => s + p.monto_proyectado, 0)
+                const saldo = proyectado - pagado
 
-                  return (
-                    <React.Fragment key={socio.id}>
-                      <tr
-                        className="hover:bg-zinc-50 transition-colors cursor-pointer"
-                        onClick={() => toggleSocio(socio.id)}
-                      >
-                        <td className="px-4 py-3">
-                          {isExpanded ? <ChevronDown className="h-4 w-4 text-zinc-400" /> : <ChevronRight className="h-4 w-4 text-zinc-400" />}
-                        </td>
-                        <td className="px-4 py-3 text-zinc-900 font-medium">{socio.certificado_no}</td>
-                        <td className="px-4 py-3">
-                          <span className="font-medium text-zinc-900">{socio.nombre}</span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                            socio.categoria === "Fundador" ? "bg-purple-100 text-purple-700" :
-                            socio.categoria === "Fase I" ? "bg-blue-100 text-blue-700" :
-                            socio.categoria === "Fase II" ? "bg-amber-100 text-amber-700" :
-                            "bg-emerald-100 text-emerald-700"
-                          }`}>{socio.categoria}</span>
-                        </td>
-                        <td className="px-4 py-3 text-right font-medium text-zinc-900">{formatCurrency(socio.valor_final)}</td>
-                        <td className="px-4 py-3 text-right text-zinc-600">{totalCuotas || "-"}</td>
-                        <td className="px-4 py-3 text-right text-zinc-700">{proyectado ? formatCurrency(proyectado) : "-"}</td>
-                        <td className="px-4 py-3 text-right text-emerald-600 font-medium">{pagado ? formatCurrency(pagado) : "-"}</td>
-                        <td className="px-4 py-3 text-right font-bold text-zinc-900">{saldo ? formatCurrency(saldo) : formatCurrency(socio.valor_final)}</td>
-                        <td className="px-4 py-3">
-                          {!plan.length && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); calcularPlan(socio) }}
-                              className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded hover:bg-emerald-200"
-                            >
-                              Calcular Plan
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                      {isExpanded && plan.length > 0 && (
-                        <tr key={`${socio.id}-detail`}>
-                          <td colSpan={10} className="px-4 py-0 bg-zinc-50">
-                            <div className="py-3">
-                              <div className="flex gap-2 mb-3">
-                                <button
-                                  onClick={() => guardarPlan(socio.id)}
-                                  className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded hover:bg-emerald-700"
-                                >
-                                  Guardar Plan
-                                </button>
-                                <span className="text-xs text-zinc-500 self-center">
-                                  {plan.length} cuotas proyectadas
-                                </span>
-                              </div>
-                              <div className="overflow-x-auto">
-                                <table className="w-full text-xs">
-                                  <thead>
-                                    <tr className="text-zinc-500 border-b border-zinc-200">
-                                      <th className="px-2 py-1 text-left">Período</th>
-                                      <th className="px-2 py-1 text-right">Proyectado</th>
-                                      <th className="px-2 py-1 text-right">Pagado</th>
-                                      <th className="px-2 py-1 text-right">Saldo</th>
-                                      <th className="px-2 py-1 text-center">Estado</th>
-                                      <th className="px-2 py-1" />
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {plan.map((p) => (
-                                      <tr key={p.id} className="hover:bg-white border-b border-zinc-100">
-                                        <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
-                                        <td className="px-2 py-1.5 text-right text-zinc-700">{formatCurrency(p.monto_proyectado)}</td>
-                                        <td className="px-2 py-1.5 text-right">
-                                          {editingId === p.id ? (
-                                            <input
-                                              ref={(el) => { editingRef.current = el }}
-                                              type="text"
-                                              inputMode="numeric"
-                                              value={p.monto_pagado}
-                                              autoFocus
-                                              onChange={(e) => {
-                                                const raw = e.target.value.replace(/[^0-9]/g, "")
-                                                const val = raw === "" ? 0 : Number(raw)
-                                                setPlanesPago((prev) => {
-                                                  const next: Record<string, PlanPago[]> = {
-                                                    ...prev,
-                                                    [socio.id]: (prev[socio.id] || []).map((pp) =>
-                                                      pp.id === p.id
-                                                        ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado - val ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
-                                                        : pp
-                                                    ),
-                                                  }
-                                                  planesPagoRef.current = next
-                                                  return next
-                                                })
-                                              }}
-                                              onBlur={() => {
-                                                setEditingId(null)
-                                                savePlan(socio.id, true)
-                                              }}
-                                              onKeyDown={(e) => {
-                                                if (e.key === "Enter") (e.target as HTMLInputElement).blur()
-                                                if (e.key === "Escape") { setEditingId(null) }
-                                              }}
-                                              className="w-28 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
-                                            />
-                                          ) : (
-                                            <span
-                                              onClick={() => setEditingId(p.id)}
-                                              className="cursor-pointer text-zinc-700 hover:bg-zinc-100 px-2 py-0.5 rounded block text-right text-sm"
-                                            >
-                                              {formatCurrency(p.monto_pagado)}
-                                            </span>
-                                          )}
-                                        </td>
-                                        <td className="px-2 py-1.5 text-right font-medium text-zinc-800">{formatCurrency(p.monto_proyectado - p.monto_pagado)}</td>
-                                        <td className="px-2 py-1.5 text-center">
-                                          <span className="inline-flex items-center gap-1">
-                                            {getStatusIcon(p.estado)}
-                                            <span className={
-                                              p.estado === "pagado" ? "text-emerald-600" :
-                                              p.estado === "parcial" ? "text-amber-600" :
-                                              p.estado === "exonerado" ? "text-blue-600" : "text-zinc-400"
-                                            }>{p.estado}</span>
-                                          </span>
-                                        </td>
-                                        <td className="px-2 py-1.5">
-                                          <button
-                                            onClick={() => {
+                return (
+                  <React.Fragment key={socio.id}>
+                    <tr
+                      className="hover:bg-zinc-50 transition-colors cursor-pointer"
+                      onClick={() => toggleSocio(socio.id)}
+                    >
+                      <td className="px-4 py-3">
+                        {isExpanded ? <ChevronDown className="h-4 w-4 text-zinc-400" /> : <ChevronRight className="h-4 w-4 text-zinc-400" />}
+                      </td>
+                      <td className="px-4 py-3 text-zinc-900 font-medium">{socio.certificado_no}</td>
+                      <td className="px-4 py-3">
+                        <span className="font-medium text-zinc-900">{socio.nombre}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          socio.categoria === "Fundador" ? "bg-purple-100 text-purple-700" :
+                          socio.categoria === "Fase I" ? "bg-blue-100 text-blue-700" :
+                          socio.categoria === "Fase II" ? "bg-amber-100 text-amber-700" :
+                          "bg-emerald-100 text-emerald-700"
+                        }`}>{socio.categoria}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-zinc-900">{formatCurrency(socio.valor_final)}</td>
+                      <td className="px-4 py-3 text-right text-zinc-600">{totalCuotas || "-"}</td>
+                      <td className="px-4 py-3 text-right text-zinc-700">{proyectado ? formatCurrency(proyectado) : "-"}</td>
+                      <td className="px-4 py-3 text-right text-emerald-600 font-medium">{pagado ? formatCurrency(pagado) : "-"}</td>
+                      <td className="px-4 py-3 text-right font-bold text-zinc-900">{saldo ? formatCurrency(saldo) : formatCurrency(socio.valor_final)}</td>
+                      <td className="px-4 py-3">
+                        {!plan.length && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); calcularPlan(socio) }}
+                            className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded hover:bg-emerald-200"
+                          >
+                            Calcular Plan
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                    {isExpanded && plan.length > 0 && (
+                      <tr key={`${socio.id}-detail`}>
+                        <td colSpan={10} className="px-4 py-0 bg-zinc-50">
+                          <div className="py-3">
+                            <div className="flex gap-2 mb-3">
+                              <button
+                                onClick={() => guardarPlan(socio.id)}
+                                className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded hover:bg-emerald-700"
+                              >
+                                Guardar Plan
+                              </button>
+                              <span className="text-xs text-zinc-500 self-center">
+                                {plan.length} cuotas proyectadas
+                              </span>
+                            </div>
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-xs">
+                                <thead>
+                                  <tr className="text-zinc-500 border-b border-zinc-200">
+                                    <th className="px-2 py-1 text-left">Período</th>
+                                    <th className="px-2 py-1 text-right">Proyectado</th>
+                                    <th className="px-2 py-1 text-right">Pagado</th>
+                                    <th className="px-2 py-1 text-right">Saldo</th>
+                                    <th className="px-2 py-1 text-center">Estado</th>
+                                    <th className="px-2 py-1" />
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {plan.map((p) => (
+                                    <tr key={p.id} className="hover:bg-white border-b border-zinc-100">
+                                      <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
+                                      <td className="px-2 py-1.5 text-right text-zinc-700">{formatCurrency(p.monto_proyectado)}</td>
+                                      <td className="px-2 py-1.5 text-right">
+                                        {editingId === p.id ? (
+                                          <input
+                                            ref={(el) => { editingRef.current = el }}
+                                            type="text"
+                                            inputMode="numeric"
+                                            value={p.monto_pagado}
+                                            autoFocus
+                                            onChange={(e) => {
+                                              const raw = e.target.value.replace(/[^0-9]/g, "")
+                                              const val = raw === "" ? 0 : Number(raw)
                                               setPlanesPago((prev) => {
                                                 const next: Record<string, PlanPago[]> = {
                                                   ...prev,
                                                   [socio.id]: (prev[socio.id] || []).map((pp) =>
                                                     pp.id === p.id
-                                                      ? { ...pp, estado: (pp.estado === "exonerado" ? "pendiente" : "exonerado") as PlanPago["estado"] }
+                                                      ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado - val ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
                                                       : pp
                                                   ),
                                                 }
@@ -473,106 +391,80 @@ export default function PagosPage() {
                                                 return next
                                               })
                                             }}
-                                            className="text-[10px] text-blue-600 hover:text-blue-800"
+                                            onBlur={() => {
+                                              setEditingId(null)
+                                              savePlan(socio.id, true)
+                                            }}
+                                            onKeyDown={(e) => {
+                                              if (e.key === "Enter") (e.target as HTMLInputElement).blur()
+                                              if (e.key === "Escape") { setEditingId(null) }
+                                            }}
+                                            className="w-28 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
+                                          />
+                                        ) : (
+                                          <span
+                                            onClick={() => setEditingId(p.id)}
+                                            className="cursor-pointer text-zinc-700 hover:bg-zinc-100 px-2 py-0.5 rounded block text-right text-sm"
                                           >
-                                            Exonerar
-                                          </button>
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
+                                            {formatCurrency(p.monto_pagado)}
+                                          </span>
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1.5 text-right font-medium text-zinc-800">{formatCurrency(p.monto_proyectado - p.monto_pagado)}</td>
+                                      <td className="px-2 py-1.5 text-center">
+                                        <span className="inline-flex items-center gap-1">
+                                          {getStatusIcon(p.estado)}
+                                          <span className={
+                                            p.estado === "pagado" ? "text-emerald-600" :
+                                            p.estado === "parcial" ? "text-amber-600" :
+                                            p.estado === "exonerado" ? "text-blue-600" : "text-zinc-400"
+                                          }>{p.estado}</span>
+                                        </span>
+                                      </td>
+                                      <td className="px-2 py-1.5">
+                                        <button
+                                          onClick={() => {
+                                            setPlanesPago((prev) => {
+                                              const next: Record<string, PlanPago[]> = {
+                                                ...prev,
+                                                [socio.id]: (prev[socio.id] || []).map((pp) =>
+                                                  pp.id === p.id
+                                                    ? { ...pp, estado: (pp.estado === "exonerado" ? "pendiente" : "exonerado") as PlanPago["estado"] }
+                                                    : pp
+                                                ),
+                                              }
+                                              planesPagoRef.current = next
+                                              return next
+                                            })
+                                          }}
+                                          className="text-[10px] text-blue-600 hover:text-blue-800"
+                                        >
+                                          Exonerar
+                                        </button>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
                             </div>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
-      ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden mb-6">
-          <div className="p-4 border-b border-zinc-200">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
-              <input
-                type="text"
-                placeholder="Buscar socio..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
-              />
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-zinc-50 text-zinc-600 text-left">
-                  <th className="px-4 py-3 font-medium">Socio</th>
-                  <th className="px-4 py-3 font-medium">Cert.</th>
-                  <th className="px-4 py-3 font-medium text-right">Monto</th>
-                  <th className="px-4 py-3 font-medium text-right">Fecha</th>
-                  <th className="px-4 py-3 font-medium">Tipo</th>
-                  <th className="px-4 py-3 font-medium">Concepto</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100">
-                {pagos.filter(p => {
-                  const socio = socios.find(s => s.id === p.socio_id)
-                  if (!search) return true
-                  const q = search.toLowerCase()
-                  return socio?.nombre.toLowerCase().includes(q)
-                }).map((pago) => {
-                  const socio = socios.find(s => s.id === pago.socio_id)
-                  return (
-                    <tr key={pago.id} className="hover:bg-zinc-50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-zinc-900">{socio?.nombre || "—"}</td>
-                      <td className="px-4 py-3 text-zinc-600">{socio?.certificado_no || "—"}</td>
-                      <td className="px-4 py-3 text-right font-medium text-emerald-600">{formatCurrency(pago.monto)}</td>
-                      <td className="px-4 py-3 text-right text-zinc-600">{pago.fecha_pago}</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                          pago.tipo === "cuota" ? "bg-emerald-100 text-emerald-700" :
-                          pago.tipo === "ajuste" ? "bg-blue-100 text-blue-700" :
-                          "bg-zinc-100 text-zinc-600"
-                        }`}>{pago.tipo}</span>
-                      </td>
-                      <td className="px-4 py-3 text-zinc-500 max-w-xs truncate">{pago.concepto}</td>
-                    </tr>
-                  )
-                })}
-                {pagos.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-zinc-400">
-                      No hay pagos recibidos registrados
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      </div>
 
-      {view === "plan" && Object.keys(planesPago).length > 0 && (
+      {Object.keys(planesPago).length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <SummaryCard label="Total Proyectado" value={formatCurrency(totalProyectado)} color="text-blue-600" bg="bg-blue-50" />
           <SummaryCard label="Total Pagado" value={formatCurrency(totalPagado)} color="text-emerald-600" bg="bg-emerald-50" />
           <SummaryCard label="Saldo Pendiente" value={formatCurrency(totalProyectado - totalPagado)} color="text-amber-600" bg="bg-amber-50" />
           <SummaryCard label="Socios con Plan" value={Object.keys(planesPago).length.toString()} color="text-violet-600" bg="bg-violet-50" />
-        </div>
-      )}
-
-      {view === "recibidos" && pagos.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <SummaryCard label="Total Recibido" value={formatCurrency(pagos.reduce((s, p) => s + p.monto, 0))} color="text-emerald-600" bg="bg-emerald-50" />
-          <SummaryCard label="No. de Pagos" value={pagos.length.toString()} color="text-blue-600" bg="bg-blue-50" />
-          <SummaryCard label="Socios con Pago" value={new Set(pagos.map(p => p.socio_id)).size.toString()} color="text-violet-600" bg="bg-violet-50" />
-          <SummaryCard label="Promedio por Pago" value={formatCurrency(Math.round(pagos.reduce((s, p) => s + p.monto, 0) / pagos.length))} color="text-amber-600" bg="bg-amber-50" />
         </div>
       )}
     </div>
