@@ -389,6 +389,7 @@ export default function PagosPage() {
                                     <th className="px-2 py-1 text-right">Pagado</th>
                                     <th className="px-2 py-1 text-right">Saldo</th>
                                     <th className="px-2 py-1 text-right">Int. Mora</th>
+                                    <th className="px-2 py-1 text-right">Int. Acumulado</th>
                                     <th className="px-2 py-1 text-center">Estado</th>
                                     <th className="px-2 py-1" />
                                   </tr>
@@ -398,7 +399,6 @@ export default function PagosPage() {
                                     const saldoActual = p.monto_proyectado - p.monto_pagado
                                     const dias = diasVencidos(p.periodo)
                                     const moraCalculada = calcularInteresMora(saldoActual, dias, ibr)
-                                    const moraValue = p.interes_mora || moraCalculada
                                     const vencida = dias > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
                                     return (
                                       <tr key={p.id} className={`hover:bg-white border-b border-zinc-100 ${vencida ? "bg-red-50" : ""}`}>
@@ -449,6 +449,11 @@ export default function PagosPage() {
                                         </td>
                                         <td className="px-2 py-1.5 text-right font-medium text-zinc-800">{formatCurrency(saldoActual)}</td>
                                         <td className="px-2 py-1.5 text-right">
+                                          <span className={`px-2 py-0.5 block text-right text-sm ${moraCalculada > 0 ? "text-red-500" : "text-zinc-400"}`}>
+                                            {moraCalculada > 0 ? formatCurrency(moraCalculada) : "-"}
+                                          </span>
+                                        </td>
+                                        <td className="px-2 py-1.5 text-right">
                                           {editingMoraId === p.id ? (
                                             <input
                                               type="text"
@@ -482,9 +487,9 @@ export default function PagosPage() {
                                           ) : (
                                             <span
                                               onClick={() => setEditingMoraId(p.id)}
-                                              className={`cursor-pointer px-2 py-0.5 rounded block text-right text-sm ${moraValue > 0 ? "text-red-600 font-medium" : "text-zinc-400"}`}
+                                              className={`cursor-pointer px-2 py-0.5 rounded block text-right text-sm ${(p.interes_mora || 0) > 0 ? "text-red-600 font-medium" : "text-zinc-400"}`}
                                             >
-                                              {moraValue > 0 ? formatCurrency(moraValue) : "-"}
+                                              {(p.interes_mora || 0) > 0 ? formatCurrency(p.interes_mora) : "-"}
                                             </span>
                                           )}
                                         </td>
