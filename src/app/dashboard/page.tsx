@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency, normalizePeriod, currentPeriod, distributePagos } from "@/lib/utils"
+import { formatCurrency, normalizePeriod, currentPeriod, distributePagos, fetchAllPlanesPago } from "@/lib/utils"
 import { Users, DollarSign, CreditCard, AlertTriangle, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
@@ -30,11 +30,11 @@ export default function DashboardPage() {
     try {
       const [sociosRes, planesRes, pagosRes] = await Promise.all([
         supabase.from("socios").select("*"),
-        supabase.from("planes_pago").select("*").range(0, 10000),
+        fetchAllPlanesPago(supabase),
         supabase.from("pagos").select("*"),
       ])
       if (sociosRes.data) setSocios(sociosRes.data)
-      if (planesRes.data) setPlanes(planesRes.data)
+      if (planesRes) setPlanes(planesRes)
       if (pagosRes.data) setPagos(pagosRes.data)
     } catch {
       // Supabase not configured yet — use demo data

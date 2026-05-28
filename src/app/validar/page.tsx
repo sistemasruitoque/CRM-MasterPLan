@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency, distributePagos } from "@/lib/utils"
+import { formatCurrency, distributePagos, fetchAllPlanesPago } from "@/lib/utils"
 import { ArrowLeft, CheckCircle2, XCircle, AlertTriangle, RefreshCw, Save } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
@@ -41,14 +41,13 @@ export default function ValidarPage() {
 
   async function loadData() {
     try {
-      const [sociosRes, planesRes, pagosRes] = await Promise.all([
+      const [sociosRes, planes, pagosRes] = await Promise.all([
         supabase.from("socios").select("*"),
-        supabase.from("planes_pago").select("*").range(0, 10000),
+        fetchAllPlanesPago(supabase),
         supabase.from("pagos").select("*"),
       ])
 
       const socios: Socio[] = sociosRes.data || []
-      const planes: PlanPago[] = planesRes.data || []
       const pagos: Pago[] = pagosRes.data || []
 
       setTotalSocios(socios.length)
@@ -107,13 +106,12 @@ export default function ValidarPage() {
   async function syncPactadoPlans() {
     setSyncing(true)
     try {
-      const [sociosRes, planesRes, pagosRes] = await Promise.all([
+      const [sociosRes, pagosRes] = await Promise.all([
         supabase.from("socios").select("*"),
-        supabase.from("planes_pago").select("*").range(0, 10000),
         supabase.from("pagos").select("*"),
       ])
       const socios: Socio[] = sociosRes.data || []
-      const planes: PlanPago[] = planesRes.data || []
+      const planes: PlanPago[] = await fetchAllPlanesPago(supabase)
       const pagos: Pago[] = pagosRes.data || []
 
       let count = 0

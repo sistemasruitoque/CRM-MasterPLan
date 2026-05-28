@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import type { PlanPago, Pago } from "@/types"
+import type { SupabaseClient } from "@supabase/supabase-js"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -31,6 +32,19 @@ export function normalizePeriod(p: string): string {
 export function currentPeriod(): string {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+}
+
+export async function fetchAllPlanesPago(client: SupabaseClient<any>): Promise<PlanPago[]> {
+  let all: PlanPago[] = []
+  let from = 0
+  while (true) {
+    const { data } = await client.from("planes_pago").select("*").range(from, from + 999)
+    if (!data || data.length === 0) break
+    all = all.concat(data as PlanPago[])
+    if (data.length < 1000) break
+    from += 1000
+  }
+  return all
 }
 
 export function parseDate(d: string): string {

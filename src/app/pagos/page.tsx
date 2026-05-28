@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency, distributePagos } from "@/lib/utils"
+import { formatCurrency, distributePagos, fetchAllPlanesPago } from "@/lib/utils"
 import { Search, ChevronDown, ChevronRight, Calculator, DollarSign, CheckCircle2, Clock, AlertCircle, Receipt, FileDown } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
@@ -116,9 +116,9 @@ export default function PagosPage() {
 
   async function loadData() {
     try {
-      const [{ data: sociosData }, { data: planesData }, { data: pagosData }] = await Promise.all([
+      const [{ data: sociosData }, planesData, { data: pagosData }] = await Promise.all([
         supabase.from("socios").select("*").order("certificado_no"),
-        supabase.from("planes_pago").select("*").range(0, 10000),
+        fetchAllPlanesPago(supabase),
         supabase.from("pagos").select("*"),
       ])
 

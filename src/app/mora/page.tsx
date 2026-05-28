@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency, normalizePeriod, currentPeriod, distributePagos } from "@/lib/utils"
+import { formatCurrency, normalizePeriod, currentPeriod, distributePagos, fetchAllPlanesPago } from "@/lib/utils"
 import { AlertTriangle, ArrowLeft, Clock, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 import type { Socio, PlanPago, Pago } from "@/types"
@@ -35,12 +35,12 @@ export default function MoraPage() {
     try {
       const [sociosRes, planesRes, pagosRes] = await Promise.all([
         supabase.from("socios").select("*"),
-        supabase.from("planes_pago").select("*").range(0, 10000),
+        fetchAllPlanesPago(supabase),
         supabase.from("pagos").select("*"),
       ])
 
       const sociosData: Socio[] = sociosRes.data || []
-      const planesData: PlanPago[] = planesRes.data || []
+      const planesData: PlanPago[] = planesRes || []
       const pagosData: Pago[] = pagosRes.data || []
 
       const nowPeriod = currentPeriod()
