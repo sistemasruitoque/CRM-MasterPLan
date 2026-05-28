@@ -116,34 +116,41 @@ export default function PagosPage() {
 
   async function loadData() {
     try {
-      const [{ data: sociosData }, { data: pagosData }] = await Promise.all([
+      const [{ data: sociosData }, { data: planesData }, { data: pagosData }] = await Promise.all([
         supabase.from("socios").select("*").order("certificado_no"),
+        supabase.from("planes_pago").select("*"),
         supabase.from("pagos").select("*"),
       ])
 
       if (sociosData && sociosData.length > 0) {
         setSocios(sociosData as Socio[])
+        const dbPlanBySocio: Record<string, PlanPago[]> = {}
+        if (planesData) {
+          for (const p of planesData as PlanPago[]) {
+            if (!dbPlanBySocio[p.socio_id]) dbPlanBySocio[p.socio_id] = []
+            dbPlanBySocio[p.socio_id].push(p)
+          }
+        }
         const grouped: Record<string, PlanPago[]> = {}
         for (const socio of sociosData as Socio[]) {
-          if (pactadoMap.has(socio.certificado_no)) {
-            grouped[socio.id] = pactadoToPlanPagos(socio, pactadoMap.get(socio.certificado_no)!, pagosData as Pago[])
+          if (dbPlanBySocio[socio.id]) {
+            grouped[socio.id] = dbPlanBySocio[socio.id]
+          } else if (pactadoMap.has(socio.certificado_no)) {
+            const computed = pactadoToPlanPagos(socio, pactadoMap.get(socio.certificado_no)!, pagosData as Pago[])
+            grouped[socio.id] = computed
+            const rows = computed.map((p: PlanPago) => ({
+              socio_id: p.socio_id,
+              periodo: p.periodo,
+              monto_proyectado: p.monto_proyectado,
+              monto_pagado: p.monto_pagado,
+              saldo: p.saldo,
+              estado: p.estado,
+            }))
+            await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
           }
         }
         setPlanesPago(grouped)
         planesPagoRef.current = grouped
-        const allRows = Object.entries(grouped).flatMap(([, plan]) =>
-          plan.map((p: PlanPago) => ({
-            socio_id: p.socio_id,
-            periodo: p.periodo,
-            monto_proyectado: p.monto_proyectado,
-            monto_pagado: p.monto_pagado,
-            saldo: p.saldo,
-            estado: p.estado,
-          }))
-        )
-        if (allRows.length > 0) {
-          await supabase.from("planes_pago").upsert(allRows as any, { onConflict: "socio_id,periodo" })
-        }
       }
       if (pagosData && pagosData.length > 0) {
         setPagos(pagosData as Pago[])
