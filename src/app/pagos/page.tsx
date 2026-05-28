@@ -236,7 +236,11 @@ export default function PagosPage() {
 
   function commitEditRow(p: PlanPago, socioId: string) {
     const pagadoVal = editPagado === "" ? 0 : Number(editPagado)
-    const moraVal = editMora === "" ? 0 : Number(editMora)
+    const saldoActual = p.monto_proyectado - pagadoVal
+    const dias = diasVencidos(p.periodo)
+    const moraCalculada = calcularInteresMora(saldoActual, dias, ibr)
+    const elUsuarioToco = editMora !== String(p.interes_mora || 0)
+    const moraVal = elUsuarioToco ? (editMora === "" ? 0 : Number(editMora)) : moraCalculada
     setPlanesPago((prev) => {
       const next = { ...prev, [socioId]: (prev[socioId] || []).map((pp) =>
         pp.id === p.id
