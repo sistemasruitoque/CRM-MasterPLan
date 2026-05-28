@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, normalizePeriod, currentPeriod, distributePagos, fetchAllPlanesPago } from "@/lib/utils"
-import { AlertTriangle, ArrowLeft, Clock, CheckCircle2 } from "lucide-react"
+import { AlertTriangle, ArrowLeft, Clock, CheckCircle2, Search } from "lucide-react"
 import Link from "next/link"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
@@ -21,6 +21,7 @@ export default function MoraPage() {
   const router = useRouter()
   const [sociosMora, setSociosMora] = useState<SocioMora[]>([])
   const [sociosAlDia, setSociosAlDia] = useState(0)
+  const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -107,9 +108,15 @@ export default function MoraPage() {
     )
   }
 
-  const totalMora = sociosMora.reduce((s, p) => s + p.mora, 0)
-  const totalDebe = sociosMora.reduce((s, p) => s + p.debeTenerPagado, 0)
-  const totalPagado = sociosMora.reduce((s, p) => s + p.haPagado, 0)
+  const filtered = sociosMora.filter(s => {
+    if (!search) return true
+    const q = search.toLowerCase()
+    return s.nombre.toLowerCase().includes(q) || String(s.certificado_no).includes(q)
+  })
+
+  const totalMora = filtered.reduce((s, p) => s + p.mora, 0)
+  const totalDebe = filtered.reduce((s, p) => s + p.debeTenerPagado, 0)
+  const totalPagado = filtered.reduce((s, p) => s + p.haPagado, 0)
 
   return (
     <div className="p-6">
@@ -125,13 +132,26 @@ export default function MoraPage() {
         </div>
       </div>
 
+      <div className="mb-4">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+          <input
+            type="text"
+            placeholder="Buscar socio..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+          />
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-red-50 rounded-xl p-4 border border-red-200">
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle className="h-4 w-4 text-red-600" />
             <span className="text-sm font-medium text-red-700">En Mora</span>
           </div>
-          <p className="text-2xl font-bold text-red-900">{sociosMora.length}</p>
+          <p className="text-2xl font-bold text-red-900">{filtered.length}</p>
         </div>
         <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
           <div className="flex items-center gap-2 mb-1">
@@ -164,7 +184,7 @@ export default function MoraPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {sociosMora.map((socio) => (
+              {filtered.map((socio) => (
                 <tr key={socio.id} className="hover:bg-zinc-50 transition-colors">
                   <td className="px-4 py-3 font-medium text-zinc-900">{socio.certificado_no}</td>
                   <td className="px-4 py-3">
