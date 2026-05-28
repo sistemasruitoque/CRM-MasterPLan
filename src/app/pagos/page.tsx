@@ -317,7 +317,8 @@ export default function PagosPage() {
               inputMode="decimal"
               value={ibr}
               onChange={(e) => {
-                const val = parseFloat(e.target.value)
+                const raw = e.target.value.replace(",", ".")
+                const val = parseFloat(raw)
                 if (!isNaN(val)) setIbr(val)
               }}
               className="w-16 px-2 py-1 border border-zinc-300 rounded text-right text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
