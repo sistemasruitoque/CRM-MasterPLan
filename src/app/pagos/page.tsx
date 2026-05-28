@@ -103,6 +103,8 @@ export default function PagosPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [selectedSocio, setSelectedSocio] = useState<string | null>(null)
   const [tasaInteres, setTasaInteres] = useState(1)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const editingRef = useRef<HTMLInputElement | null>(null)
   const planesPagoRef = useRef(planesPago)
   planesPagoRef.current = planesPago
 
@@ -402,27 +404,47 @@ export default function PagosPage() {
                                         <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
                                         <td className="px-2 py-1.5 text-right text-zinc-700">{formatCurrency(p.monto_proyectado)}</td>
                                         <td className="px-2 py-1.5 text-right">
-                                          <input
-                                            type="number"
-                                            value={p.monto_pagado}
-                                            onChange={(e) => {
-                                              const val = Number(e.target.value)
-                                              setPlanesPago((prev) => {
-                                                const next: Record<string, PlanPago[]> = {
-                                                  ...prev,
-                                                  [socio.id]: (prev[socio.id] || []).map((pp) =>
-                                                    pp.id === p.id
-                                                      ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado - val ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
-                                                      : pp
-                                                  ),
-                                                }
-                                                planesPagoRef.current = next
-                                                return next
-                                              })
-                                            }}
-                                            onBlur={() => savePlan(socio.id, true)}
-                                            className="w-28 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
-                                          />
+                                          {editingId === p.id ? (
+                                            <input
+                                              ref={(el) => { editingRef.current = el }}
+                                              type="text"
+                                              inputMode="numeric"
+                                              value={p.monto_pagado}
+                                              autoFocus
+                                              onChange={(e) => {
+                                                const raw = e.target.value.replace(/[^0-9]/g, "")
+                                                const val = raw === "" ? 0 : Number(raw)
+                                                setPlanesPago((prev) => {
+                                                  const next: Record<string, PlanPago[]> = {
+                                                    ...prev,
+                                                    [socio.id]: (prev[socio.id] || []).map((pp) =>
+                                                      pp.id === p.id
+                                                        ? { ...pp, monto_pagado: val, estado: (val >= pp.monto_proyectado - val ? "pagado" : val > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
+                                                        : pp
+                                                    ),
+                                                  }
+                                                  planesPagoRef.current = next
+                                                  return next
+                                                })
+                                              }}
+                                              onBlur={() => {
+                                                setEditingId(null)
+                                                savePlan(socio.id, true)
+                                              }}
+                                              onKeyDown={(e) => {
+                                                if (e.key === "Enter") (e.target as HTMLInputElement).blur()
+                                                if (e.key === "Escape") { setEditingId(null) }
+                                              }}
+                                              className="w-28 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
+                                            />
+                                          ) : (
+                                            <span
+                                              onClick={() => setEditingId(p.id)}
+                                              className="cursor-pointer text-zinc-700 hover:bg-zinc-100 px-2 py-0.5 rounded block text-right text-sm"
+                                            >
+                                              {formatCurrency(p.monto_pagado)}
+                                            </span>
+                                          )}
                                         </td>
                                         <td className="px-2 py-1.5 text-right font-medium text-zinc-800">{formatCurrency(p.monto_proyectado - p.monto_pagado)}</td>
                                         <td className="px-2 py-1.5 text-center">
