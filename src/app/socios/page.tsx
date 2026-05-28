@@ -83,47 +83,13 @@ export default function SociosPage() {
         observaciones: "",
       } as any).select()
       if (error) { alert("Error: " + error.message); return }
-      if (newSocio && newSocio[0]) {
-        const socio = newSocio[0] as Socio
-        await generarPlanInicial(socio)
-        alert("Socio creado con plan de pagos")
-        router.push("/pagos")
+      if (newSocio && (newSocio as any[])[0]) {
+        router.push("/pagos/nuevo?socio_id=" + (newSocio as any[])[0].id)
       }
     } catch {
       alert("Conecta Supabase para guardar")
     }
     setSaving(false)
-  }
-
-  async function generarPlanInicial(socio: Socio) {
-    const meses: string[] = []
-    let year = 2025, month = 11
-    const endYear = 2031, endMonth = 1
-    while (year < endYear || (year === endYear && month <= endMonth)) {
-      meses.push(`${year}-${String(month).padStart(2, "0")}`)
-      month++
-      if (month > 12) { month = 1; year++ }
-    }
-    const cuotaBase = Math.round(socio.valor_final * 0.0363)
-    let saldo = socio.valor_final
-    const rows: any[] = []
-    for (const periodo of meses) {
-      const interes = Math.round(saldo * 0.01)
-      const cuota = Math.min(cuotaBase + interes, saldo + interes)
-      rows.push({
-        socio_id: socio.id,
-        periodo,
-        monto_proyectado: cuota,
-        monto_pagado: 0,
-        saldo,
-        estado: "pendiente",
-        interes_mora: 0,
-        interes_mora_fecha: null,
-      })
-      saldo -= cuota
-      if (saldo <= 0) break
-    }
-    await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
   }
 
   const filtered = socios.filter((s) => {
