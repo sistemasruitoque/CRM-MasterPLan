@@ -42,10 +42,6 @@ export default function DashboardPage() {
     setLoading(false)
   }
 
-  const totalSocios = socios.length || 119
-  const totalAportes = socios.reduce((s, p) => s + p.valor_final, 0) || 15236524256
-  const totalRecaudado = pagos.reduce((s, p) => s + p.monto, 0) || 6625240280
-
   const nowPeriod = currentPeriod()
   const grouped: Record<string, PlanPago[]> = {}
   for (const p of planes) {
@@ -70,6 +66,10 @@ export default function DashboardPage() {
       grouped[socio.id] = plan
     }
   }
+
+  const totalSocios = socios.length || 119
+  const totalAportes = socios.reduce((s, p) => s + p.valor_final, 0) || 15236524256
+  const totalRecaudado = Object.values(grouped).flat().reduce((s, p) => s + p.monto_pagado, 0) || 6625240280
   const enMora = socios.filter(s => {
     const socioPlanes = grouped[s.id] || []
     if (socioPlanes.length === 0) return false
