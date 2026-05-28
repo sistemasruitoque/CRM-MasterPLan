@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos } from "@/lib/utils"
+import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos, diasEntre, hoyStr } from "@/lib/utils"
 import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
@@ -51,6 +51,7 @@ function calcularPlanPagos(socio: Socio): PlanPago[] {
       monto_pagado: 0,
       saldo: saldo,
       interes_mora: 0,
+      interes_mora_fecha: null,
       estado: "pendiente",
       fecha_pago: null,
       created_at: "",
@@ -85,6 +86,7 @@ function pactadoToPlanPagos(socio: Socio, schedules: Record<string, number>, pag
         monto_pagado: 0,
         saldo,
         interes_mora: 0,
+        interes_mora_fecha: null,
         estado: "pendiente",
         fecha_pago: null,
         created_at: "",
@@ -162,6 +164,7 @@ export default function PagosPage() {
               saldo: p.saldo,
               estado: p.estado,
               interes_mora: p.interes_mora,
+              interes_mora_fecha: p.interes_mora_fecha,
             }))
             await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
           }
@@ -208,6 +211,7 @@ export default function PagosPage() {
         saldo: p.saldo,
         estado: p.estado,
         interes_mora: p.interes_mora,
+        interes_mora_fecha: p.interes_mora_fecha,
       }))
       const { error: upsertErr } = await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
       if (upsertErr) { if (!silent) alert("Error al guardar: " + upsertErr.message); return }
@@ -231,15 +235,18 @@ export default function PagosPage() {
 
   function commitPagado(p: PlanPago, socioId: string) {
     const pagadoVal = editPagado === "" ? 0 : Number(editPagado)
-    const saldoActual = p.monto_proyectado - pagadoVal
-    const dias = diasVencidos(p.periodo)
-    const moraCalculada = calcularInteresMora(saldoActual, dias, ibr)
+    const saldoAnterior = p.monto_proyectado - p.monto_pagado
+    const hoy = hoyStr()
+    const fechaDesde = p.interes_mora_fecha || `${p.periodo}-01`
+    const dias = diasEntre(fechaDesde, hoy)
+    const incremento = (dias > 0 && saldoAnterior > 0) ? calcularInteresMora(saldoAnterior, dias, ibr) : 0
+    const nuevoMora = (p.interes_mora || 0) + incremento
     const elUsuarioTocoMora = editingMoraId === p.id
-    const moraVal = elUsuarioTocoMora ? (editMora === "" ? 0 : Number(editMora)) : moraCalculada
+    const moraVal = elUsuarioTocoMora ? (editMora === "" ? 0 : Number(editMora)) : nuevoMora
     setPlanesPago((prev) => {
       const next = { ...prev, [socioId]: (prev[socioId] || []).map((pp) =>
         pp.id === p.id
-          ? { ...pp, monto_pagado: pagadoVal, interes_mora: moraVal, estado: (pagadoVal >= pp.monto_proyectado ? "pagado" : pagadoVal > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
+          ? { ...pp, monto_pagado: pagadoVal, interes_mora: moraVal, interes_mora_fecha: hoy, estado: (pagadoVal >= pp.monto_proyectado ? "pagado" : pagadoVal > 0 ? "parcial" : "pendiente") as PlanPago["estado"] }
           : pp
       )}
       planesPagoRef.current = next
@@ -251,9 +258,10 @@ export default function PagosPage() {
 
   function commitMora(p: PlanPago, socioId: string) {
     const moraVal = editMora === "" ? 0 : Number(editMora)
+    const hoy = hoyStr()
     setPlanesPago((prev) => {
       const next = { ...prev, [socioId]: (prev[socioId] || []).map((pp) =>
-        pp.id === p.id ? { ...pp, interes_mora: moraVal } : pp
+        pp.id === p.id ? { ...pp, interes_mora: moraVal, interes_mora_fecha: hoy } : pp
       )}
       planesPagoRef.current = next
       return next

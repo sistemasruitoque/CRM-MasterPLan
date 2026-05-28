@@ -44,6 +44,16 @@ export function normalizePeriod(p: string): string {
   return `${yy}-${MONTH_MAP[m] || "01"}`
 }
 
+export function diasEntre(desde: string, hasta: string): number {
+  const d = new Date(desde)
+  const h = new Date(hasta)
+  return Math.max(0, Math.floor((h.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)))
+}
+
+export function hoyStr(): string {
+  return new Date().toISOString().split("T")[0]
+}
+
 export function currentPeriod(): string {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`

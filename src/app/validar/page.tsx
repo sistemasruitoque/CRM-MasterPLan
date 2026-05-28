@@ -280,6 +280,7 @@ function pactadoToPlan(socio: Socio, schedules: Record<string, number>, pagos: P
         monto_pagado: 0,
         saldo,
         interes_mora: 0,
+        interes_mora_fecha: null,
         estado: "pendiente",
         fecha_pago: null,
         created_at: "",
