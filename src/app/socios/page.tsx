@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency } from "@/lib/utils"
@@ -30,6 +30,18 @@ export default function SociosPage() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ ...emptyForm })
   const [saving, setSaving] = useState(false)
+  const [certificadoStatus, setCertificadoStatus] = useState<"idle" | "checking" | "available" | "taken">("idle")
+  const certTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  function checkCertificado(val: number) {
+    if (certTimeout.current) clearTimeout(certTimeout.current)
+    if (!val || val <= 0) { setCertificadoStatus("idle"); return }
+    setCertificadoStatus("checking")
+    certTimeout.current = setTimeout(async () => {
+      const { data } = await supabase.from("socios").select("id").eq("certificado_no", val).maybeSingle()
+      setCertificadoStatus(data ? "taken" : "available")
+    }, 400)
+  }
 
   useEffect(() => {
     if (typeof window !== "undefined" && !localStorage.getItem("club-auth")) {
@@ -237,7 +249,10 @@ export default function SociosPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">No. Certificado</label>
-                  <input type="number" value={form.certificado_no || ""} onChange={(e) => setForm({ ...form, certificado_no: Number(e.target.value) })} className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  <input type="number" value={form.certificado_no || ""} onChange={(e) => { const v = Number(e.target.value); setForm({ ...form, certificado_no: v }); checkCertificado(v) }} className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none ${certificadoStatus === "taken" ? "border-red-400" : certificadoStatus === "available" ? "border-emerald-400" : "border-zinc-300"}`} />
+                  {certificadoStatus === "taken" && <p className="text-xs text-red-500 mt-1">Ya está en uso</p>}
+                  {certificadoStatus === "available" && <p className="text-xs text-emerald-500 mt-1">Disponible</p>}
+                  {certificadoStatus === "checking" && <p className="text-xs text-zinc-400 mt-1">Verificando...</p>}
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">Cédula</label>
@@ -302,7 +317,7 @@ export default function SociosPage() {
               <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">Cancelar</button>
               <button
                 onClick={handleCreate}
-                disabled={saving || !form.nombre || !form.cedula}
+                disabled={saving || !form.nombre || !form.cedula || certificadoStatus === "taken"}
                 className="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
               >
                 {saving ? "Guardando..." : "Crear Socio"}
