@@ -18,7 +18,7 @@ export function formatCurrency(n: number): string {
 
 export function diasVencidos(periodo: string): number {
   const [y, m] = periodo.split("-").map(Number)
-  const cuotaDate = new Date(y, m - 1, 1)
+  const cuotaDate = new Date(y, m, 0)
   const today = new Date()
   if (cuotaDate > today) return 0
   return Math.floor((today.getTime() - cuotaDate.getTime()) / (1000 * 60 * 60 * 24))

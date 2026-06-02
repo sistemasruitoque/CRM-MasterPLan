@@ -237,7 +237,8 @@ export default function PagosPage() {
     const pagadoVal = editPagado === "" ? 0 : Number(editPagado)
     const saldoAnterior = p.monto_proyectado - p.monto_pagado
     const hoy = hoyStr()
-    const fechaDesde = p.interes_mora_fecha || `${p.periodo}-01`
+    const ultimoDia = new Date(Number(p.periodo.split("-")[0]), Number(p.periodo.split("-")[1]), 0).getDate()
+    const fechaDesde = p.interes_mora_fecha || `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
     const dias = diasEntre(fechaDesde, hoy)
     const incremento = (dias > 0 && saldoAnterior > 0) ? calcularInteresMora(saldoAnterior, dias, ibr) : 0
     const nuevoMora = (p.interes_mora || 0) + incremento
