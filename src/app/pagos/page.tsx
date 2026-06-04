@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos, diasEntre, hoyStr } from "@/lib/utils"
-import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus } from "lucide-react"
+import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2 } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
@@ -110,6 +110,59 @@ export default function PagosPage() {
   const [editPagado, setEditPagado] = useState("")
   const [editMora, setEditMora] = useState("")
   const editingRef = useRef<HTMLInputElement | null>(null)
+  const [editSocioId, setEditSocioId] = useState<string | null>(null)
+  const [editRows, setEditRows] = useState<{ periodo: string; proyectado: number; id?: string }[]>([])
+
+  function openEditor(socioId: string) {
+    const plan = planesPago[socioId] || []
+    setEditRows(plan.map(p => ({ periodo: p.periodo, proyectado: p.monto_proyectado, id: p.id })))
+    setEditSocioId(socioId)
+  }
+
+  function closeEditor() { setEditSocioId(null); setEditRows([]) }
+
+  function addRow(afterIndex: number) {
+    setEditRows(prev => {
+      const next = [...prev]
+      const last = next[afterIndex] || next[next.length - 1]
+      const [y, m] = (last?.periodo || "2025-11").split("-").map(Number)
+      const nextM = m + 1 > 12 ? 1 : m + 1
+      const nextY = nextM === 1 ? y + 1 : y
+      const newPeriodo = `${nextY}-${String(nextM).padStart(2, "0")}`
+      next.splice(afterIndex + 1, 0, { periodo: newPeriodo, proyectado: 0 })
+      return next
+    })
+  }
+
+  function removeRow(index: number) {
+    setEditRows(prev => prev.filter((_, i) => i !== index))
+  }
+
+  async function saveEdits() {
+    if (!editSocioId) return
+    const socio = socios.find(s => s.id === editSocioId)
+    if (!socio || editRows.length === 0) return
+    let saldo = socio.valor_final
+    const rows = editRows.map(r => {
+      const row = {
+        socio_id: editSocioId,
+        periodo: r.periodo,
+        monto_proyectado: r.proyectado,
+        monto_pagado: 0,
+        saldo,
+        estado: "pendiente" as const,
+        interes_mora: 0,
+        interes_mora_fecha: null,
+      }
+      saldo -= r.proyectado
+      return row
+    })
+    const { error } = await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
+    if (error) { alert("Error al guardar: " + error.message); return }
+    await loadData()
+    closeEditor()
+  }
+
   const [ibr, setIbr] = useState<number>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("ibr-rate")
@@ -327,13 +380,6 @@ export default function PagosPage() {
             <span className="text-zinc-400">%</span>
           </div>
           <button
-            onClick={() => router.push("/pagos/nuevo")}
-            className="flex items-center gap-2 px-3 py-2 border border-emerald-600 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors text-sm"
-          >
-            <Plus className="h-4 w-4" />
-            Nuevo Plan
-          </button>
-          <button
             onClick={exportToExcel}
             className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
           >
@@ -409,7 +455,14 @@ export default function PagosPage() {
                       <td className="px-4 py-3 text-right text-emerald-600 font-medium">{pagado ? formatCurrency(pagado) : "-"}</td>
                       <td className="px-4 py-3 text-right font-bold text-zinc-900">{saldo ? formatCurrency(saldo) : formatCurrency(socio.valor_final)}</td>
                       <td className="px-4 py-3">
-                        {!plan.length && (
+                        {plan.length > 0 ? (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); openEditor(socio.id) }}
+                            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
+                          >
+                            Editar
+                          </button>
+                        ) : (
                           <button
                             onClick={(e) => { e.stopPropagation(); calcularPlan(socio) }}
                             className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded hover:bg-emerald-200"
@@ -567,6 +620,77 @@ export default function PagosPage() {
           </table>
         </div>
       </div>
+
+      {/* Modal editor */}
+      {editSocioId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={closeEditor}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-zinc-200 flex items-center justify-between">
+              <h2 className="font-semibold text-zinc-900">
+                Editar Cuotas — #{socios.find(s => s.id === editSocioId)?.certificado_no} {socios.find(s => s.id === editSocioId)?.nombre}
+              </h2>
+              <button onClick={closeEditor} className="text-zinc-400 hover:text-zinc-600 text-lg leading-none">&times;</button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-4">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-zinc-500 border-b border-zinc-200">
+                    <th className="px-3 py-2 text-left w-8">#</th>
+                    <th className="px-3 py-2 text-left">Período</th>
+                    <th className="px-3 py-2 text-right">Proyectado</th>
+                    <th className="px-3 py-2 w-16"></th>
+                    <th className="px-3 py-2 w-16"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100">
+                  {editRows.map((r, i) => (
+                    <tr key={i} className="hover:bg-zinc-50">
+                      <td className="px-3 py-2 text-zinc-400">{i + 1}</td>
+                      <td className="px-3 py-2">
+                        <input type="month" value={r.periodo}
+                          onChange={e => setEditRows(prev => prev.map((row, j) => j === i ? { ...row, periodo: e.target.value } : row))}
+                          className="w-full px-2 py-1 border border-zinc-300 rounded text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                        />
+                      </td>
+                      <td className="px-3 py-2">
+                        <input type="number" value={r.proyectado}
+                          onChange={e => setEditRows(prev => prev.map((row, j) => j === i ? { ...row, proyectado: Number(e.target.value) } : row))}
+                          className="w-full text-right px-2 py-1 border border-zinc-300 rounded text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                        />
+                      </td>
+                      <td className="px-3 py-2">
+                        <button onClick={() => addRow(i)}
+                          className="p-1 hover:bg-emerald-50 rounded text-emerald-500 hover:text-emerald-700">
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      </td>
+                      <td className="px-3 py-2">
+                        <button onClick={() => removeRow(i)}
+                          className="p-1 hover:bg-red-50 rounded text-red-400 hover:text-red-600">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {editRows.length === 0 && (
+                <div className="text-center py-8 text-zinc-400">
+                  <p>Sin cuotas</p>
+                  <button onClick={() => addRow(-1)} className="mt-2 text-sm text-emerald-600 hover:text-emerald-700">Agregar primera cuota</button>
+                </div>
+              )}
+            </div>
+            <div className="p-4 border-t border-zinc-200 flex justify-end gap-3">
+              <button onClick={closeEditor} className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">Cancelar</button>
+              <button onClick={saveEdits}
+                className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">
+                <Save className="h-4 w-4" /> Guardar Cambios
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {Object.keys(planesPago).length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
