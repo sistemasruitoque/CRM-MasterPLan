@@ -4,7 +4,13 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Building2, Eye, EyeOff } from "lucide-react"
 
+const users = [
+  { name: "Admin", password: "admin123" },
+  { name: "Cartera", password: "cartera123" },
+]
+
 export default function LoginPage() {
+  const [selectedUser, setSelectedUser] = useState("Admin")
   const [password, setPassword] = useState("")
   const [show, setShow] = useState(false)
   const [error, setError] = useState("")
@@ -12,8 +18,10 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (password === "admin123") {
+    const user = users.find(u => u.name === selectedUser)
+    if (user && password === user.password) {
       localStorage.setItem("club-auth", "true")
+      localStorage.setItem("club-user", user.name)
       router.push("/dashboard")
     } else {
       setError("Contraseña incorrecta")
@@ -32,6 +40,13 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 mb-1">Usuario</label>
+            <select value={selectedUser} onChange={e => { setSelectedUser(e.target.value); setError("") }}
+              className="w-full px-4 py-2.5 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+              {users.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-zinc-700 mb-1">Contraseña</label>
             <div className="relative">

@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Home, CreditCard, AlertTriangle, Users, FileBarChart } from "lucide-react"
+import { Home, CreditCard, AlertTriangle, Users, FileBarChart, LogOut, User } from "lucide-react"
+import { useEffect, useState } from "react"
 
 const links = [
   { href: "/dashboard", label: "Inicio", icon: Home },
@@ -15,6 +16,13 @@ const links = [
 
 export function NavBar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [userName, setUserName] = useState("")
+
+  useEffect(() => {
+    setUserName(localStorage.getItem("club-user") || "")
+  }, [])
+
   if (pathname === "/login") return null
 
   return (
@@ -39,6 +47,17 @@ export function NavBar() {
             </Link>
           )
         })}
+        <div className="ml-auto flex items-center gap-3 text-sm text-zinc-500">
+          <span className="flex items-center gap-1.5">
+            <User className="h-4 w-4" />
+            {userName}
+          </span>
+          <button onClick={() => { localStorage.removeItem("club-auth"); localStorage.removeItem("club-user"); router.push("/login") }}
+            className="flex items-center gap-1.5 text-red-400 hover:text-red-600 transition-colors">
+            <LogOut className="h-4 w-4" />
+            Salir
+          </button>
+        </div>
       </div>
     </nav>
   )
