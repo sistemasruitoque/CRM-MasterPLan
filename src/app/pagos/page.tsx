@@ -107,8 +107,10 @@ export default function PagosPage() {
   const [selectedSocio, setSelectedSocio] = useState<string | null>(null)
   const [editingPagadoId, setEditingPagadoId] = useState<string | null>(null)
   const [editingMoraId, setEditingMoraId] = useState<string | null>(null)
+  const [editingProyectadoId, setEditingProyectadoId] = useState<string | null>(null)
   const [editPagado, setEditPagado] = useState("")
   const [editMora, setEditMora] = useState("")
+  const [editProyectado, setEditProyectado] = useState("")
   const editingRef = useRef<HTMLInputElement | null>(null)
   const [editSocioId, setEditSocioId] = useState<string | null>(null)
   const [editRows, setEditRows] = useState<{ periodo: string; proyectado: number; id?: string }[]>([])
@@ -324,6 +326,55 @@ export default function PagosPage() {
     savePlan(socioId, true)
   }
 
+  function commitProyectado(p: PlanPago, socioId: string) {
+    const val = editProyectado === "" ? 0 : Number(editProyectado)
+    setPlanesPago((prev) => {
+      const next = { ...prev, [socioId]: (prev[socioId] || []).map((pp) =>
+        pp.id === p.id ? { ...pp, monto_proyectado: val } : pp
+      )}
+      planesPagoRef.current = next
+      return next
+    })
+    setEditingProyectadoId(null)
+    savePlan(socioId, true)
+  }
+
+  function addCuota(socioId: string, afterPeriodo: string) {
+    setPlanesPago((prev) => {
+      const plan = prev[socioId] || []
+      const [y, m] = afterPeriodo.split("-").map(Number)
+      const nextM = m + 1 > 12 ? 1 : m + 1
+      const nextY = nextM === 1 ? y + 1 : y
+      const newPeriodo = `${nextY}-${String(nextM).padStart(2, "0")}`
+      const newRow: PlanPago = {
+        id: `${socioId}-${newPeriodo}`,
+        socio_id: socioId,
+        periodo: newPeriodo,
+        monto_proyectado: 0,
+        monto_pagado: 0,
+        saldo: 0,
+        interes_mora: 0,
+        interes_mora_fecha: null,
+        estado: "pendiente",
+        fecha_pago: null,
+        created_at: "",
+      }
+      const next = { ...prev, [socioId]: [...plan, newRow] }
+      planesPagoRef.current = next
+      return next
+    })
+  }
+
+  function deleteCuota(socioId: string, p: PlanPago) {
+    setPlanesPago((prev) => {
+      const next = { ...prev, [socioId]: (prev[socioId] || []).filter(pp => pp.id !== p.id) }
+      planesPagoRef.current = next
+      return next
+    })
+    supabase.from("planes_pago").delete().eq("socio_id", socioId).eq("periodo", p.periodo).then()
+    savePlan(socioId, true)
+  }
+
   const filtered = socios.filter((s) => {
     if (!search) return true
     const q = search.toLowerCase()
@@ -499,6 +550,7 @@ export default function PagosPage() {
                                     <th className="px-2 py-1 text-right">Int. Acumulado</th>
                                     <th className="px-2 py-1 text-center">Estado</th>
                                     <th className="px-2 py-1" />
+                                    <th className="px-2 py-1 w-16"></th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -510,7 +562,23 @@ export default function PagosPage() {
                                     return (
                                       <tr key={p.id} className={`hover:bg-white border-b border-zinc-100 ${vencida ? "bg-red-50" : ""}`}>
                                         <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
-                                        <td className="px-2 py-1.5 text-right text-zinc-700">{formatCurrency(p.monto_proyectado)}</td>
+                                        <td className="px-2 py-1.5 text-right">
+                                          {editingProyectadoId === p.id ? (
+                                            <input
+                                              type="number"
+                                              value={editProyectado}
+                                              autoFocus
+                                              onChange={e => setEditProyectado(e.target.value)}
+                                              onBlur={() => commitProyectado(p, socio.id)}
+                                              onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); if (e.key === "Escape") setEditingProyectadoId(null) }}
+                                              className="w-24 px-2 py-0.5 border border-zinc-200 rounded text-right text-sm"
+                                            />
+                                          ) : (
+                                            <span onClick={() => { setEditingProyectadoId(p.id); setEditProyectado(String(p.monto_proyectado)) }}
+                                              className="cursor-pointer text-zinc-700 hover:bg-zinc-100 px-2 py-0.5 rounded block text-right text-sm"
+                                            >{formatCurrency(p.monto_proyectado)}</span>
+                                          )}
+                                        </td>
                                         <td className="px-2 py-1.5 text-right">
                                           {editingPagadoId === p.id ? (
                                             <input
@@ -603,10 +671,26 @@ export default function PagosPage() {
                                             Exonerar
                                           </button>
                                         </td>
+                                        <td className="px-2 py-1.5">
+                                          <button onClick={() => deleteCuota(socio.id, p)}
+                                            className="p-1 hover:bg-red-50 rounded text-red-400 hover:text-red-600">
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                          </button>
+                                        </td>
                                       </tr>
                                     )
                                   })}
                                 </tbody>
+                                <tfoot>
+                                  <tr>
+                                    <td colSpan={8} className="px-2 py-2">
+                                      <button onClick={() => addCuota(socio.id, plan[plan.length - 1]?.periodo || "2025-11")}
+                                        className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700">
+                                        <Plus className="h-3.5 w-3.5" /> Agregar Cuota
+                                      </button>
+                                    </td>
+                                  </tr>
+                                </tfoot>
                               </table>
                             </div>
                           </div>
