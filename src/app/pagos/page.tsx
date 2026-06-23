@@ -453,7 +453,7 @@ export default function PagosPage() {
                       <td className="px-4 py-3 text-right text-zinc-600">{totalCuotas || "-"}</td>
                       <td className="px-4 py-3 text-right text-zinc-700">{proyectado ? formatCurrency(proyectado) : "-"}</td>
                       <td className="px-4 py-3 text-right text-emerald-600 font-medium">{pagado ? formatCurrency(pagado) : "-"}</td>
-                      <td className="px-4 py-3 text-right font-bold text-zinc-900">{saldo ? formatCurrency(saldo) : formatCurrency(socio.valor_final)}</td>
+                      <td className="px-4 py-3 text-right font-bold text-zinc-900">{plan.length > 0 ? formatCurrency(saldo) : formatCurrency(socio.valor_final)}</td>
                       <td className="px-4 py-3">
                         {plan.length > 0 ? (
                           <button
