@@ -292,17 +292,16 @@ export default function PagosPage() {
     const hoy = hoyStr()
     let changed = false
     const updatedPlan = plan.map(p => {
+      if (p.estado === "pagado" || p.estado === "exonerado") return p
       const saldoActual = p.monto_proyectado - p.monto_pagado
-      if (saldoActual <= 0 || p.estado === "pagado" || p.estado === "exonerado") return p
-      const [y, m] = p.periodo.split("-")
-      const ultimoDia = new Date(Number(y), Number(m), 0).getDate()
-      const fechaDesde = (p.interes_mora_fecha && (p.interes_mora || 0) > 0) ? p.interes_mora_fecha : `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
-      const dias = diasEntre(fechaDesde, hoy)
+      if (saldoActual <= 0) return p
+      const dias = diasVencidos(p.periodo)
       if (dias <= 0) return p
-      const incremento = calcularInteresMora(saldoActual, dias, ibr)
-      if (incremento <= 0) return p
+      if (p.interes_mora_fecha === hoy) return p
+      const moraHoy = calcularInteresMora(saldoActual, dias, ibr)
+      if (moraHoy <= 0) return p
       changed = true
-      return { ...p, interes_mora: (p.interes_mora || 0) + incremento, interes_mora_fecha: hoy }
+      return { ...p, interes_mora: (p.interes_mora || 0) + moraHoy, interes_mora_fecha: hoy }
     })
     if (!changed) { savePlan(socioId, false); return }
     setPlanesPago((prev) => {
@@ -317,11 +316,9 @@ export default function PagosPage() {
     const pagadoVal = editPagado === "" ? 0 : Number(editPagado)
     const saldoAnterior = p.monto_proyectado - p.monto_pagado
     const hoy = hoyStr()
-    const ultimoDia = new Date(Number(p.periodo.split("-")[0]), Number(p.periodo.split("-")[1]), 0).getDate()
-    const fechaDesde = (p.interes_mora_fecha && (p.interes_mora || 0) > 0) ? p.interes_mora_fecha : `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
-    const dias = diasEntre(fechaDesde, hoy)
-    const incremento = (dias > 0 && saldoAnterior > 0) ? calcularInteresMora(saldoAnterior, dias, ibr) : 0
-    const nuevoMora = (p.interes_mora || 0) + incremento
+    const dias = diasVencidos(p.periodo)
+    const moraHoy = (dias > 0 && saldoAnterior > 0) ? calcularInteresMora(saldoAnterior, dias, ibr) : 0
+    const nuevoMora = (p.interes_mora || 0) + moraHoy
     const elUsuarioTocoMora = editingMoraId === p.id
     const moraVal = elUsuarioTocoMora ? (editMora === "" ? 0 : Number(editMora)) : nuevoMora
     setPlanesPago((prev) => {
@@ -584,12 +581,7 @@ export default function PagosPage() {
                                     const dias = diasVencidos(p.periodo)
                                     const moraCalculada = calcularInteresMora(saldoActual, dias, ibr)
                                     const vencida = dias > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
-                                    const [y, m] = p.periodo.split("-")
-                                    const ultimoDia = new Date(Number(y), Number(m), 0).getDate()
-                                    const fechaDesdeInt = (p.interes_mora_fecha && (p.interes_mora || 0) > 0) ? p.interes_mora_fecha : `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
-                                    const diasIncremento = diasEntre(fechaDesdeInt, hoyStr())
-                                    const incrementoInt = (diasIncremento > 0 && saldoActual > 0) ? calcularInteresMora(saldoActual, diasIncremento, ibr) : 0
-                                    const totalIntAcum = (p.interes_mora || 0) + incrementoInt
+                                    const totalIntAcum = p.interes_mora || 0
                                     return (
                                       <tr key={p.id} className={`hover:bg-white border-b border-zinc-100 ${vencida ? "bg-red-50" : ""}`}>
                                         <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
