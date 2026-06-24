@@ -286,7 +286,32 @@ export default function PagosPage() {
     }
   }
 
-  function guardarPlan(socioId: string) { savePlan(socioId, false) }
+  function guardarPlan(socioId: string) {
+    const plan = planesPagoRef.current[socioId]
+    if (!plan) return
+    const hoy = hoyStr()
+    let changed = false
+    const updatedPlan = plan.map(p => {
+      const saldoActual = p.monto_proyectado - p.monto_pagado
+      if (saldoActual <= 0 || p.estado === "pagado" || p.estado === "exonerado") return p
+      const [y, m] = p.periodo.split("-")
+      const ultimoDia = new Date(Number(y), Number(m), 0).getDate()
+      const fechaDesde = p.interes_mora_fecha || `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
+      const dias = diasEntre(fechaDesde, hoy)
+      if (dias <= 0) return p
+      const incremento = calcularInteresMora(saldoActual, dias, ibr)
+      if (incremento <= 0) return p
+      changed = true
+      return { ...p, interes_mora: (p.interes_mora || 0) + incremento, interes_mora_fecha: hoy }
+    })
+    if (!changed) { savePlan(socioId, false); return }
+    setPlanesPago((prev) => {
+      const next = { ...prev, [socioId]: updatedPlan }
+      planesPagoRef.current = next
+      return next
+    })
+    savePlan(socioId, false)
+  }
 
   function commitPagado(p: PlanPago, socioId: string) {
     const pagadoVal = editPagado === "" ? 0 : Number(editPagado)
