@@ -116,8 +116,8 @@ export default function PagosPage() {
   const editingRef = useRef<HTMLInputElement | null>(null)
   const [editSocioId, setEditSocioId] = useState<string | null>(null)
   const [editRows, setEditRows] = useState<{ periodo: string; proyectado: number; id?: string }[]>([])
-  const [editingObsId, setEditingObsId] = useState<string | null>(null)
-  const [editObs, setEditObs] = useState("")
+  const [obsModalPlan, setObsModalPlan] = useState<PlanPago | null>(null)
+  const [obsModalText, setObsModalText] = useState("")
 
   function openEditor(socioId: string) {
     const plan = planesPago[socioId] || []
@@ -368,15 +368,17 @@ export default function PagosPage() {
     savePlan(socioId, true)
   }
 
-  function commitObs(p: PlanPago, socioId: string) {
+  function commitObsModal() {
+    if (!obsModalPlan) return
+    const socioId = obsModalPlan.socio_id
     setPlanesPago((prev) => {
       const next = { ...prev, [socioId]: (prev[socioId] || []).map((pp) =>
-        pp.id === p.id ? { ...pp, observacion: editObs } : pp
+        pp.id === obsModalPlan.id ? { ...pp, observacion: obsModalText } : pp
       )}
       planesPagoRef.current = next
       return next
     })
-    setEditingObsId(null)
+    setObsModalPlan(null)
     savePlan(socioId, true)
   }
 
@@ -716,26 +718,13 @@ export default function PagosPage() {
                                           </button>
                                         </td>
                                         <td className="px-1 py-1.5">
-                                          {editingObsId === p.id ? (
-                                            <input
-                                              type="text"
-                                              value={editObs}
-                                              autoFocus
-                                              onChange={e => setEditObs(e.target.value)}
-                                              onBlur={() => commitObs(p, socio.id)}
-                                              onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); if (e.key === "Escape") setEditingObsId(null) }}
-                                              className="w-28 px-1 py-0.5 border border-zinc-200 rounded text-[10px]"
-                                              placeholder="Observación..."
-                                            />
-                                          ) : (
-                                            <button
-                                              onClick={() => { setEditingObsId(p.id); setEditObs(p.observacion || "") }}
-                                              className={`p-1 rounded ${p.observacion ? "text-amber-500 hover:text-amber-600" : "text-zinc-300 hover:text-zinc-500"}`}
-                                              title={p.observacion || "Agregar observación"}
-                                            >
-                                              <MessageSquare className={`h-3.5 w-3.5 ${p.observacion ? "fill-amber-200" : ""}`} />
-                                            </button>
-                                          )}
+                                          <button
+                                            onClick={() => { setObsModalPlan(p); setObsModalText(p.observacion || "") }}
+                                            className={`p-1 rounded ${p.observacion ? "text-amber-500 hover:text-amber-600" : "text-zinc-300 hover:text-zinc-500"}`}
+                                            title={p.observacion || "Agregar observación"}
+                                          >
+                                            <MessageSquare className={`h-3.5 w-3.5 ${p.observacion ? "fill-amber-200" : ""}`} />
+                                          </button>
                                         </td>
                                         <td className="px-2 py-1.5">
                                           <button onClick={() => deleteCuota(socio.id, p)}
@@ -836,6 +825,35 @@ export default function PagosPage() {
               <button onClick={saveEdits}
                 className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">
                 <Save className="h-4 w-4" /> Guardar Cambios
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal observación */}
+      {obsModalPlan && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setObsModalPlan(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-zinc-200 flex items-center justify-between">
+              <h2 className="font-semibold text-zinc-900">Observación</h2>
+              <button onClick={() => setObsModalPlan(null)} className="text-zinc-400 hover:text-zinc-600 text-lg leading-none">&times;</button>
+            </div>
+            <div className="p-4">
+              <textarea
+                value={obsModalText}
+                onChange={(e) => setObsModalText(e.target.value)}
+                rows={5}
+                className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none resize-none"
+                placeholder="Escriba observación..."
+                autoFocus
+              />
+            </div>
+            <div className="p-4 border-t border-zinc-200 flex justify-end gap-3">
+              <button onClick={() => setObsModalPlan(null)} className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">Cancelar</button>
+              <button onClick={commitObsModal}
+                className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">
+                <Save className="h-4 w-4" /> Guardar
               </button>
             </div>
           </div>
