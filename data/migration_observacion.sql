@@ -1,0 +1,1 @@
+ALTER TABLE planes_pago ADD COLUMN IF NOT EXISTS observacion TEXT DEFAULT '';

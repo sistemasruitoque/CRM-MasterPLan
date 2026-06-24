@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos, diasEntre, hoyStr } from "@/lib/utils"
-import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2 } from "lucide-react"
+import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2, MessageSquare } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
@@ -50,9 +50,10 @@ function calcularPlanPagos(socio: Socio): PlanPago[] {
       monto_proyectado: montoProyectado,
       monto_pagado: 0,
       saldo: saldo,
-      interes_mora: 0,
-      interes_mora_fecha: null,
-      estado: "pendiente",
+        interes_mora: 0,
+        interes_mora_fecha: null,
+        observacion: "",
+        estado: "pendiente",
       fecha_pago: null,
       created_at: "",
     })
@@ -87,6 +88,7 @@ function pactadoToPlanPagos(socio: Socio, schedules: Record<string, number>, pag
         saldo,
         interes_mora: 0,
         interes_mora_fecha: null,
+        observacion: "",
         estado: "pendiente",
         fecha_pago: null,
         created_at: "",
@@ -114,6 +116,8 @@ export default function PagosPage() {
   const editingRef = useRef<HTMLInputElement | null>(null)
   const [editSocioId, setEditSocioId] = useState<string | null>(null)
   const [editRows, setEditRows] = useState<{ periodo: string; proyectado: number; id?: string }[]>([])
+  const [editingObsId, setEditingObsId] = useState<string | null>(null)
+  const [editObs, setEditObs] = useState("")
 
   function openEditor(socioId: string) {
     const plan = planesPago[socioId] || []
@@ -155,6 +159,7 @@ export default function PagosPage() {
         estado: "pendiente" as const,
         interes_mora: 0,
         interes_mora_fecha: null,
+        observacion: "",
       }
       saldo -= r.proyectado
       return row
@@ -220,6 +225,7 @@ export default function PagosPage() {
               estado: p.estado,
               interes_mora: p.interes_mora,
               interes_mora_fecha: p.interes_mora_fecha,
+              observacion: p.observacion || "",
             }))
             await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
           }
@@ -267,6 +273,7 @@ export default function PagosPage() {
         estado: p.estado,
         interes_mora: p.interes_mora,
         interes_mora_fecha: p.interes_mora_fecha,
+        observacion: p.observacion || "",
       }))
       const { error: upsertErr } = await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
       if (upsertErr) { if (!silent) alert("Error al guardar: " + upsertErr.message); return }
@@ -361,6 +368,18 @@ export default function PagosPage() {
     savePlan(socioId, true)
   }
 
+  function commitObs(p: PlanPago, socioId: string) {
+    setPlanesPago((prev) => {
+      const next = { ...prev, [socioId]: (prev[socioId] || []).map((pp) =>
+        pp.id === p.id ? { ...pp, observacion: editObs } : pp
+      )}
+      planesPagoRef.current = next
+      return next
+    })
+    setEditingObsId(null)
+    savePlan(socioId, true)
+  }
+
   function addCuota(socioId: string, afterPeriodo: string) {
     setPlanesPago((prev) => {
       const plan = prev[socioId] || []
@@ -377,6 +396,7 @@ export default function PagosPage() {
         saldo: 0,
         interes_mora: 0,
         interes_mora_fecha: null,
+        observacion: "",
         estado: "pendiente",
         fecha_pago: null,
         created_at: "",
@@ -572,6 +592,7 @@ export default function PagosPage() {
                                     <th className="px-2 py-1 text-right">Int. Acumulado</th>
                                     <th className="px-2 py-1 text-center">Estado</th>
                                     <th className="px-2 py-1" />
+                                    <th className="px-2 py-1"></th>
                                     <th className="px-2 py-1 w-16"></th>
                                   </tr>
                                 </thead>
@@ -694,6 +715,28 @@ export default function PagosPage() {
                                             Exonerar
                                           </button>
                                         </td>
+                                        <td className="px-1 py-1.5">
+                                          {editingObsId === p.id ? (
+                                            <input
+                                              type="text"
+                                              value={editObs}
+                                              autoFocus
+                                              onChange={e => setEditObs(e.target.value)}
+                                              onBlur={() => commitObs(p, socio.id)}
+                                              onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); if (e.key === "Escape") setEditingObsId(null) }}
+                                              className="w-28 px-1 py-0.5 border border-zinc-200 rounded text-[10px]"
+                                              placeholder="Observación..."
+                                            />
+                                          ) : (
+                                            <button
+                                              onClick={() => { setEditingObsId(p.id); setEditObs(p.observacion || "") }}
+                                              className={`p-1 rounded ${p.observacion ? "text-amber-500 hover:text-amber-600" : "text-zinc-300 hover:text-zinc-500"}`}
+                                              title={p.observacion || "Agregar observación"}
+                                            >
+                                              <MessageSquare className={`h-3.5 w-3.5 ${p.observacion ? "fill-amber-200" : ""}`} />
+                                            </button>
+                                          )}
+                                        </td>
                                         <td className="px-2 py-1.5">
                                           <button onClick={() => deleteCuota(socio.id, p)}
                                             className="p-1 hover:bg-red-50 rounded text-red-400 hover:text-red-600">
@@ -706,7 +749,7 @@ export default function PagosPage() {
                                 </tbody>
                                 <tfoot>
                                   <tr>
-                                    <td colSpan={8} className="px-2 py-2">
+                                    <td colSpan={10} className="px-2 py-2">
                                       <button onClick={() => addCuota(socio.id, plan[plan.length - 1]?.periodo || "2025-11")}
                                         className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700">
                                         <Plus className="h-3.5 w-3.5" /> Agregar Cuota

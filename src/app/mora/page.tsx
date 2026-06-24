@@ -74,7 +74,8 @@ export default function MoraPage() {
             saldo: 0,
             interes_mora: 0,
             interes_mora_fecha: null,
-            estado: "pendiente",
+            observacion: "",
+        estado: "pendiente",
             fecha_pago: null,
             created_at: "",
           }))

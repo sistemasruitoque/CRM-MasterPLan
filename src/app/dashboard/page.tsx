@@ -60,6 +60,7 @@ export default function DashboardPage() {
         saldo: 0,
         interes_mora: 0,
         interes_mora_fecha: null,
+        observacion: "",
         estado: "pendiente",
         fecha_pago: null,
         created_at: "",

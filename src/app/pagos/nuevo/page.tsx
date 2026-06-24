@@ -135,6 +135,7 @@ function NuevoPlanPage() {
           estado: "pendiente" as const,
           interes_mora: 0,
           interes_mora_fecha: null,
+          observacion: "",
         }
         saldo -= c.proyectado
         return row

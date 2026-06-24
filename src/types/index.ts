@@ -30,6 +30,7 @@ export interface PlanPago {
   saldo: number
   interes_mora: number
   interes_mora_fecha: string | null
+  observacion: string
   estado: 'pendiente' | 'pagado' | 'parcial' | 'exonerado'
   fecha_pago: string | null
   created_at: string
