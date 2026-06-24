@@ -559,6 +559,12 @@ export default function PagosPage() {
                                     const dias = diasVencidos(p.periodo)
                                     const moraCalculada = calcularInteresMora(saldoActual, dias, ibr)
                                     const vencida = dias > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
+                                    const [y, m] = p.periodo.split("-")
+                                    const ultimoDia = new Date(Number(y), Number(m), 0).getDate()
+                                    const fechaDesdeInt = p.interes_mora_fecha || `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
+                                    const diasIncremento = diasEntre(fechaDesdeInt, hoyStr())
+                                    const incrementoInt = (diasIncremento > 0 && saldoActual > 0) ? calcularInteresMora(saldoActual, diasIncremento, ibr) : 0
+                                    const totalIntAcum = (p.interes_mora || 0) + incrementoInt
                                     return (
                                       <tr key={p.id} className={`hover:bg-white border-b border-zinc-100 ${vencida ? "bg-red-50" : ""}`}>
                                         <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
@@ -634,9 +640,9 @@ export default function PagosPage() {
                                           ) : (
                                             <span
                                               onClick={() => { setEditingMoraId(p.id); setEditMora(String(p.interes_mora || 0)) }}
-                                              className={`cursor-pointer px-2 py-0.5 rounded block text-right text-sm ${(p.interes_mora || 0) > 0 ? "text-red-600 font-medium" : "text-zinc-400"}`}
+                                              className={`cursor-pointer px-2 py-0.5 rounded block text-right text-sm ${totalIntAcum > 0 ? "text-red-600 font-medium" : "text-zinc-400"}`}
                                             >
-                                              {(p.interes_mora || 0) > 0 ? formatCurrency(p.interes_mora) : "-"}
+                                              {totalIntAcum > 0 ? formatCurrency(totalIntAcum) : "-"}
                                             </span>
                                           )}
                                         </td>
