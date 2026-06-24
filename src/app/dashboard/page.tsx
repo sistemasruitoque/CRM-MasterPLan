@@ -76,7 +76,7 @@ export default function DashboardPage() {
     const socioPlanes = grouped[s.id] || []
     if (socioPlanes.length === 0) return false
     const debe = socioPlanes
-      .filter(p => normalizePeriod(p.periodo) <= nowPeriod)
+      .filter(p => normalizePeriod(p.periodo) < nowPeriod)
       .reduce((sum, p) => sum + p.monto_proyectado, 0)
     const haPagado = socioPlanes
       .reduce((sum, p) => sum + p.monto_pagado, 0)
