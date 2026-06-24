@@ -90,7 +90,7 @@ export default function MoraPage() {
         const socioPlanes = grouped[socio.id] || []
         if (socioPlanes.length === 0) continue
 
-        const vencidas = socioPlanes.filter(p => normalizePeriod(p.periodo) <= nowPeriod)
+        const vencidas = socioPlanes.filter(p => normalizePeriod(p.periodo) < nowPeriod)
         const debeTenerPagado = vencidas.reduce((s, p) => s + p.monto_proyectado, 0)
         const haPagado = socioPlanes.reduce((s, p) => s + p.monto_pagado, 0)
         const mora = Math.max(0, debeTenerPagado - haPagado)
