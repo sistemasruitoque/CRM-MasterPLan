@@ -296,7 +296,7 @@ export default function PagosPage() {
       if (saldoActual <= 0 || p.estado === "pagado" || p.estado === "exonerado") return p
       const [y, m] = p.periodo.split("-")
       const ultimoDia = new Date(Number(y), Number(m), 0).getDate()
-      const fechaDesde = p.interes_mora_fecha || `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
+      const fechaDesde = (p.interes_mora_fecha && (p.interes_mora || 0) > 0) ? p.interes_mora_fecha : `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
       const dias = diasEntre(fechaDesde, hoy)
       if (dias <= 0) return p
       const incremento = calcularInteresMora(saldoActual, dias, ibr)
@@ -318,7 +318,7 @@ export default function PagosPage() {
     const saldoAnterior = p.monto_proyectado - p.monto_pagado
     const hoy = hoyStr()
     const ultimoDia = new Date(Number(p.periodo.split("-")[0]), Number(p.periodo.split("-")[1]), 0).getDate()
-    const fechaDesde = p.interes_mora_fecha || `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
+    const fechaDesde = (p.interes_mora_fecha && (p.interes_mora || 0) > 0) ? p.interes_mora_fecha : `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
     const dias = diasEntre(fechaDesde, hoy)
     const incremento = (dias > 0 && saldoAnterior > 0) ? calcularInteresMora(saldoAnterior, dias, ibr) : 0
     const nuevoMora = (p.interes_mora || 0) + incremento
@@ -586,7 +586,7 @@ export default function PagosPage() {
                                     const vencida = dias > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
                                     const [y, m] = p.periodo.split("-")
                                     const ultimoDia = new Date(Number(y), Number(m), 0).getDate()
-                                    const fechaDesdeInt = p.interes_mora_fecha || `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
+                                    const fechaDesdeInt = (p.interes_mora_fecha && (p.interes_mora || 0) > 0) ? p.interes_mora_fecha : `${p.periodo}-${String(ultimoDia).padStart(2, "0")}`
                                     const diasIncremento = diasEntre(fechaDesdeInt, hoyStr())
                                     const incrementoInt = (diasIncremento > 0 && saldoActual > 0) ? calcularInteresMora(saldoActual, diasIncremento, ibr) : 0
                                     const totalIntAcum = (p.interes_mora || 0) + incrementoInt
