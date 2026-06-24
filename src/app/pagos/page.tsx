@@ -639,7 +639,7 @@ export default function PagosPage() {
                                             />
                                           ) : (
                                             <span
-                                              onClick={() => { setEditingMoraId(p.id); setEditMora(String(p.interes_mora || 0)) }}
+                                              onClick={() => { setEditingMoraId(p.id); setEditMora(String(totalIntAcum)) }}
                                               className={`cursor-pointer px-2 py-0.5 rounded block text-right text-sm ${totalIntAcum > 0 ? "text-red-600 font-medium" : "text-zinc-400"}`}
                                             >
                                               {totalIntAcum > 0 ? formatCurrency(totalIntAcum) : "-"}
