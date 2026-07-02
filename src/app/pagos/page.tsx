@@ -656,8 +656,8 @@ export default function PagosPage() {
                                         </td>
                                         <td className="px-2 py-1.5 text-right font-medium text-zinc-800">{formatCurrency(saldoActual)}</td>
                                         <td className="px-2 py-1.5 text-center">
-                                          <span className={`text-sm font-medium ${dias > 0 ? "text-red-500" : "text-zinc-400"}`}>
-                                            {dias > 0 ? dias : "-"}
+                                          <span className={`text-sm font-medium ${dias > 0 && saldoActual > 0 ? "text-red-500" : "text-zinc-400"}`}>
+                                            {dias > 0 && saldoActual > 0 ? dias : "-"}
                                           </span>
                                         </td>
                                         <td className="px-2 py-1.5 text-right">
