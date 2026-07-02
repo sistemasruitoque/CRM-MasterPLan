@@ -21,13 +21,13 @@ export function diasVencidos(periodo: string): number {
   const cuotaDate = new Date(y, m, 0)
   const today = new Date()
   if (cuotaDate > today) return 0
-  return Math.floor((today.getTime() - cuotaDate.getTime()) / (1000 * 60 * 60 * 24))
+  return Math.max(0, Math.floor((today.getTime() - cuotaDate.getTime()) / (1000 * 60 * 60 * 24)) - 1)
 }
 
 export function calcularInteresMora(saldo: number, dias: number, ibr: number): number {
   if (dias <= 0 || saldo <= 0) return 0
   const tasaEA = (ibr + 4) / 100
-  const tasaDiaria = Math.pow(1 + tasaEA, 1 / 360) - 1
+  const tasaDiaria = Math.pow(1 + tasaEA, 1 / 365) - 1
   return Math.round(saldo * tasaDiaria * dias)
 }
 
