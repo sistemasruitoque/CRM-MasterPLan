@@ -569,7 +569,7 @@ export default function PagosPage() {
                     </tr>
                     {isExpanded && plan.length > 0 && (
                       <tr key={`${socio.id}-detail`}>
-                        <td colSpan={10} className="px-4 py-0 bg-zinc-50">
+                        <td colSpan={11} className="px-4 py-0 bg-zinc-50">
                           <div className="py-3">
                             <div className="flex gap-2 mb-3">
                               <button
@@ -590,6 +590,7 @@ export default function PagosPage() {
                                     <th className="px-2 py-1 text-right">Proyectado</th>
                                     <th className="px-2 py-1 text-right">Pagado</th>
                                     <th className="px-2 py-1 text-right">Saldo</th>
+                                    <th className="px-2 py-1 text-center">Días Mora</th>
                                     <th className="px-2 py-1 text-right">Int. Mora</th>
                                     <th className="px-2 py-1 text-right">Int. Acumulado</th>
                                     <th className="px-2 py-1 text-center">Estado</th>
@@ -654,6 +655,11 @@ export default function PagosPage() {
                                           )}
                                         </td>
                                         <td className="px-2 py-1.5 text-right font-medium text-zinc-800">{formatCurrency(saldoActual)}</td>
+                                        <td className="px-2 py-1.5 text-center">
+                                          <span className={`text-sm font-medium ${dias > 0 ? "text-red-500" : "text-zinc-400"}`}>
+                                            {dias > 0 ? dias : "-"}
+                                          </span>
+                                        </td>
                                         <td className="px-2 py-1.5 text-right">
                                           <span className={`px-2 py-0.5 block text-right text-sm ${moraCalculada > 0 ? "text-red-500" : "text-zinc-400"}`}>
                                             {moraCalculada > 0 ? formatCurrency(moraCalculada) : "-"}
@@ -738,7 +744,7 @@ export default function PagosPage() {
                                 </tbody>
                                 <tfoot>
                                   <tr>
-                                    <td colSpan={10} className="px-2 py-2">
+                                    <td colSpan={11} className="px-2 py-2">
                                       <button onClick={() => addCuota(socio.id, plan[plan.length - 1]?.periodo || "2025-11")}
                                         className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700">
                                         <Plus className="h-3.5 w-3.5" /> Agregar Cuota
