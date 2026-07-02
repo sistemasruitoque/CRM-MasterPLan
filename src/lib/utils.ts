@@ -27,8 +27,7 @@ export function diasVencidos(periodo: string): number {
 export function calcularInteresMora(saldo: number, dias: number, ibr: number): number {
   if (dias <= 0 || saldo <= 0) return 0
   const tasaEA = (ibr + 4) / 100
-  const tasaDiaria = Math.pow(1 + tasaEA, 1 / 365) - 1
-  return Math.round(saldo * tasaDiaria * dias)
+  return Math.round(saldo * (Math.pow(1 + tasaEA, dias / 365) - 1))
 }
 
 const MONTH_MAP: Record<string, string> = {
