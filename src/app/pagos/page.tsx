@@ -177,6 +177,7 @@ export default function PagosPage() {
     }
     return 9.53
   })
+  const [ibrStr, setIbrStr] = useState(String(ibr))
   const planesPagoRef = useRef(planesPago)
   planesPagoRef.current = planesPago
 
@@ -464,11 +465,14 @@ export default function PagosPage() {
             <input
               type="text"
               inputMode="decimal"
-              value={ibr}
+              value={ibrStr}
               onChange={(e) => {
                 const raw = e.target.value.replace(",", ".")
-                const val = parseFloat(raw)
-                if (!isNaN(val)) setIbr(val)
+                if (/^\d*\.?\d*$/.test(raw) || raw === "") {
+                  setIbrStr(raw)
+                  const val = parseFloat(raw)
+                  if (!isNaN(val)) setIbr(val)
+                }
               }}
               className="w-16 px-2 py-1 border border-zinc-300 rounded text-right text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
             />
