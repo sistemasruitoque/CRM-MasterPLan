@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos, diasEntre, hoyStr } from "@/lib/utils"
 import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2, MessageSquare } from "lucide-react"
+import { jsPDF } from "jspdf"
+import autoTable from "jspdf-autotable"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
@@ -471,11 +473,7 @@ export default function PagosPage() {
 
   function exportToPDF(socio: Socio) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { jsPDF: JsPDF } = require("jspdf")
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require("jspdf-autotable")
-      const doc = new JsPDF({ format: "letter" })
+      const doc = new jsPDF({ format: "letter" })
       const plan = planesPago[socio.id]
       const hoy = new Date()
       const fechaStr = hoy.toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })
@@ -594,8 +592,7 @@ export default function PagosPage() {
       const totalSaldo = totalProy - totalPag
       const totalMora = plan.reduce((s, p) => s + (p.interes_mora || 0), 0)
 
-      const docAny = doc as any
-      docAny.autoTable({
+      autoTable(doc, {
         startY: yPos + 2,
         head: [["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora", "Int. Acum.", "Estado"]],
         body: rows,
