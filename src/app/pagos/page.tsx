@@ -6,7 +6,6 @@ import { supabase } from "@/lib/supabase"
 import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos, diasEntre, hoyStr } from "@/lib/utils"
 import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2, MessageSquare } from "lucide-react"
 import { jsPDF } from "jspdf"
-import autoTable from "jspdf-autotable"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
@@ -471,7 +470,7 @@ export default function PagosPage() {
     URL.revokeObjectURL(url)
   }
 
-  function exportToPDF(socio: Socio) {
+  async function exportToPDF(socio: Socio) {
     try {
       const doc = new jsPDF({ format: "letter" })
       const plan = planesPago[socio.id]
@@ -592,6 +591,7 @@ export default function PagosPage() {
       const totalSaldo = totalProy - totalPag
       const totalMora = plan.reduce((s, p) => s + (p.interes_mora || 0), 0)
 
+      const { default: autoTable } = await import("jspdf-autotable")
       autoTable(doc, {
         startY: yPos + 2,
         head: [["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora", "Int. Acum.", "Estado"]],
