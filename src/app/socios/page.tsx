@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency } from "@/lib/utils"
-import { Search, Plus, Filter, ChevronDown, Building2, UserCheck } from "lucide-react"
+import { Search, Plus, Filter, ChevronDown, Building2, UserCheck, Edit3 } from "lucide-react"
 import type { Socio } from "@/types"
 
 const emptyForm = {
@@ -30,6 +30,7 @@ export default function SociosPage() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ ...emptyForm })
   const [saving, setSaving] = useState(false)
+  const [editingSocio, setEditingSocio] = useState<Socio | null>(null)
   const [certificadoStatus, setCertificadoStatus] = useState<"idle" | "checking" | "available" | "taken">("idle")
   const certTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
@@ -57,34 +58,72 @@ export default function SociosPage() {
     } catch { /* use mock data */ }
   }
 
-  async function handleCreate() {
+  function handleEdit(socio: Socio) {
+    setForm({
+      certificado_no: socio.certificado_no,
+      cedula: socio.cedula,
+      nombre: socio.nombre,
+      categoria: socio.categoria,
+      estatus: socio.estatus,
+      fecha_contrato: socio.fecha_contrato || "",
+      modalidad: socio.modalidad,
+      aporte: socio.aporte,
+      referido: socio.referido,
+      valor_final: socio.valor_final,
+      responsable: socio.responsable,
+    })
+    setEditingSocio(socio)
+    setShowForm(true)
+  }
+
+  async function handleSave() {
     setSaving(true)
     try {
-      const { data: existing } = await supabase.from("socios").select("id").eq("certificado_no", form.certificado_no).maybeSingle()
-      if (existing) { alert("Ya existe un socio con ese No. Certificado"); setSaving(false); return }
-      const { data: newSocio, error } = await supabase.from("socios").insert({
-        certificado_no: form.certificado_no,
-        cedula: form.cedula,
-        nombre: form.nombre,
-        categoria: form.categoria,
-        estatus: form.estatus,
-        fecha_contrato: form.fecha_contrato || null,
-        modalidad: form.modalidad,
-        aporte: form.aporte,
-        referido: form.referido,
-        valor_final: form.valor_final,
-        responsable: form.responsable,
-        admin_fee: 0,
-        cuota_especial_nota: "",
-        ap_locker: 0,
-        cabal_cant: 0,
-        cab_locker: 0,
-        dama_cant: 0,
-        observaciones: "",
-      } as any).select()
-      if (error) { alert("Error: " + error.message); return }
-      if (newSocio && (newSocio as any[])[0]) {
-        router.push("/pagos/nuevo?socio_id=" + (newSocio as any[])[0].id)
+      if (editingSocio) {
+        const res = await (supabase.from("socios") as any).update({
+          certificado_no: form.certificado_no,
+          cedula: form.cedula,
+          nombre: form.nombre,
+          categoria: form.categoria,
+          estatus: form.estatus,
+          fecha_contrato: form.fecha_contrato || null,
+          modalidad: form.modalidad,
+          aporte: form.aporte,
+          referido: form.referido,
+          valor_final: form.valor_final,
+          responsable: form.responsable,
+        }).eq("id", editingSocio.id)
+        if (res.error) { alert("Error: " + res.error.message); return }
+        setShowForm(false)
+        setEditingSocio(null)
+        loadSocios()
+      } else {
+        const { data: existing } = await supabase.from("socios").select("id").eq("certificado_no", form.certificado_no).maybeSingle()
+        if (existing) { alert("Ya existe un socio con ese No. Certificado"); setSaving(false); return }
+        const { data: newSocio, error } = await supabase.from("socios").insert({
+          certificado_no: form.certificado_no,
+          cedula: form.cedula,
+          nombre: form.nombre,
+          categoria: form.categoria,
+          estatus: form.estatus,
+          fecha_contrato: form.fecha_contrato || null,
+          modalidad: form.modalidad,
+          aporte: form.aporte,
+          referido: form.referido,
+          valor_final: form.valor_final,
+          responsable: form.responsable,
+          admin_fee: 0,
+          cuota_especial_nota: "",
+          ap_locker: 0,
+          cabal_cant: 0,
+          cab_locker: 0,
+          dama_cant: 0,
+          observaciones: "",
+        } as any).select()
+        if (error) { alert("Error: " + error.message); return }
+        if (newSocio && (newSocio as any[])[0]) {
+          router.push("/pagos/nuevo?socio_id=" + (newSocio as any[])[0].id)
+        }
       }
     } catch {
       alert("Conecta Supabase para guardar")
@@ -109,7 +148,7 @@ export default function SociosPage() {
           <p className="text-zinc-500 text-sm mt-1">{socios.length} socios registrados</p>
         </div>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => { setForm({ ...emptyForm }); setEditingSocio(null); setShowForm(true) }}
           className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
         >
           <Plus className="h-4 w-4" />
@@ -157,6 +196,7 @@ export default function SociosPage() {
                 <th className="px-4 py-3 font-medium text-right">Referido</th>
                 <th className="px-4 py-3 font-medium text-right">Valor Final</th>
                 <th className="px-4 py-3 font-medium">Responsable</th>
+                <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
@@ -190,6 +230,11 @@ export default function SociosPage() {
                   <td className="px-4 py-3 text-right text-red-500">{formatCurrency(socio.referido)}</td>
                   <td className="px-4 py-3 text-right font-bold text-zinc-900">{formatCurrency(socio.valor_final)}</td>
                   <td className="px-4 py-3 text-zinc-600">{socio.responsable}</td>
+                  <td className="px-4 py-3">
+                    <button onClick={() => handleEdit(socio)} className="p-1.5 text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Editar socio">
+                      <Edit3 className="h-4 w-4" />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -200,16 +245,17 @@ export default function SociosPage() {
                 <td className="px-4 py-3 text-right">{formatCurrency(filtered.reduce((s, p) => s + p.referido, 0))}</td>
                 <td className="px-4 py-3 text-right">{formatCurrency(totalValor)}</td>
                 <td />
+                <td />
               </tr>
             </tfoot>
           </table>
         </div>
       </div>
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => { setShowForm(false); setEditingSocio(null) }}>
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="p-6 border-b border-zinc-200">
-              <h2 className="text-lg font-bold text-zinc-900">Nuevo Socio</h2>
+              <h2 className="text-lg font-bold text-zinc-900">{editingSocio ? "Editar Socio" : "Nuevo Socio"}</h2>
             </div>
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -280,13 +326,13 @@ export default function SociosPage() {
               </div>
             </div>
             <div className="p-6 border-t border-zinc-200 flex justify-end gap-3">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">Cancelar</button>
+              <button onClick={() => { setShowForm(false); setEditingSocio(null) }} className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">Cancelar</button>
               <button
-                onClick={handleCreate}
-                disabled={saving || certificadoStatus === "taken" || !form.certificado_no || !form.cedula || !form.nombre || !form.fecha_contrato || !form.aporte || !form.valor_final || !form.responsable}
+                onClick={handleSave}
+                disabled={saving || (!editingSocio && certificadoStatus === "taken") || !form.certificado_no || !form.cedula || !form.nombre || !form.fecha_contrato || !form.aporte || !form.valor_final || !form.responsable}
                 className="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
               >
-                {saving ? "Guardando..." : "Crear Socio"}
+                {saving ? "Guardando..." : editingSocio ? "Guardar Cambios" : "Crear Socio"}
               </button>
             </div>
           </div>

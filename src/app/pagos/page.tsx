@@ -604,7 +604,11 @@ export default function PagosPage() {
       const totalProy = plan.reduce((s, p) => s + p.monto_proyectado, 0)
       const totalPag = plan.reduce((s, p) => s + p.monto_pagado, 0)
       const totalSaldo = totalProy - totalPag
-      const totalMora = plan.reduce((s, p) => s + (p.interes_mora || 0), 0)
+      const totalMora = plan.reduce((s, p) => {
+        const saldo = p.monto_proyectado - p.monto_pagado
+        const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
+        return s + calcularInteresMora(saldo, dias, ibr)
+      }, 0)
 
       const colW = [8, 36, 32, 32, 32, 14, 32]
       const fullW = colW.reduce((s, w) => s + w, 0)
