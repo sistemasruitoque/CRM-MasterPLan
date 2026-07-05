@@ -61,8 +61,8 @@ export default function SociosPage() {
   function handleEdit(socio: Socio) {
     setForm({
       certificado_no: socio.certificado_no,
-      cedula: socio.cedula,
-      nombre: socio.nombre,
+      cedula: socio.cedula || "",
+      nombre: socio.nombre || "",
       categoria: socio.categoria,
       estatus: socio.estatus,
       fecha_contrato: socio.fecha_contrato || "",
@@ -70,7 +70,7 @@ export default function SociosPage() {
       aporte: socio.aporte,
       referido: socio.referido,
       valor_final: socio.valor_final,
-      responsable: socio.responsable,
+      responsable: socio.responsable || "",
     })
     setEditingSocio(socio)
     setShowForm(true)
@@ -329,7 +329,7 @@ export default function SociosPage() {
               <button onClick={() => { setShowForm(false); setEditingSocio(null) }} className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">Cancelar</button>
               <button
                 onClick={handleSave}
-                disabled={saving || (!editingSocio && certificadoStatus === "taken") || form.certificado_no <= 0 || !form.cedula || !form.nombre || !form.fecha_contrato || form.aporte < 0 || form.valor_final < 0 || !form.responsable}
+                disabled={saving || (!editingSocio && certificadoStatus === "taken") || form.certificado_no <= 0 || (editingSocio ? false : (!form.cedula || !form.nombre || !form.fecha_contrato || !form.responsable)) || form.aporte < 0 || form.valor_final < 0}
                 className="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
               >
                 {saving ? "Guardando..." : editingSocio ? "Guardar Cambios" : "Crear Socio"}
