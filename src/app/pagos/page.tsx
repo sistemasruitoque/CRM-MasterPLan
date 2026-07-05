@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase"
 import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos, diasEntre, hoyStr } from "@/lib/utils"
 import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2, MessageSquare } from "lucide-react"
 import { jsPDF } from "jspdf"
+import "jspdf-autotable"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
@@ -471,34 +472,31 @@ export default function PagosPage() {
   }
 
   function exportToPDF(socio: Socio) {
-    require("jspdf-autotable")
-    const doc = new jsPDF({ format: "letter" })
-    const plan = planesPago[socio.id]
-    const hoy = new Date()
-    const fechaStr = hoy.toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })
-    const nomMeses: Record<string, string> = {
-      "01": "Enero","02": "Febrero","03": "Marzo","04": "Abril","05": "Mayo","06": "Junio",
-      "07": "Julio","08": "Agosto","09": "Septiembre","10": "Octubre","11": "Noviembre","12": "Diciembre",
-    }
-    const fmtP = (n: number) => "$" + Math.round(n).toLocaleString("es-CO")
-    const fmtPer = (p: string) => { const [y,m] = p.split("-"); return nomMeses[m] + " de " + y }
+    try {
+      const doc = new jsPDF({ format: "letter" })
+      const plan = planesPago[socio.id]
+      const hoy = new Date()
+      const fechaStr = hoy.toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })
+      const nomMeses: Record<string, string> = {
+        "01": "Enero","02": "Febrero","03": "Marzo","04": "Abril","05": "Mayo","06": "Junio",
+        "07": "Julio","08": "Agosto","09": "Septiembre","10": "Octubre","11": "Noviembre","12": "Diciembre",
+      }
+      const fmtP = (n: number) => "$" + Math.round(n).toLocaleString("es-CO")
+      const fmtPer = (p: string) => { const [y,m] = p.split("-"); return nomMeses[m] + " de " + y }
 
-    if (!plan || plan.length === 0) return
+      if (!plan || plan.length === 0) return
 
-    const pageW = doc.internal.pageSize.width
-    const margen = 20
+      const pageW = doc.internal.pageSize.width
+      const margen = 20
 
-    // Logo placeholder (top right)
-    doc.setFontSize(10)
+      doc.setFontSize(10)
       doc.setTextColor(100)
       doc.text("[LOGO]", pageW - margen, 20, { align: "right" })
 
-      // Date
       doc.setTextColor(0)
       doc.setFontSize(11)
       doc.text("Piedecuesta, " + fechaStr, margen, 35)
 
-      // Addressee
       doc.setFontSize(12)
       doc.setFont("helvetica", "bold")
       doc.text("Señor(a)", margen, 48)
@@ -506,16 +504,13 @@ export default function PagosPage() {
       doc.text(socio.nombre, margen, 55)
       doc.text("Código No. " + socio.certificado_no, margen, 62)
 
-      // Salutation
       doc.setFontSize(11)
       doc.text("Apreciado(a) señor(a):", margen, 76)
 
-      // Body paragraph 1
       const body1 = "Reciba un cordial saludo. Con el propósito de mantener actualizada la información de su cuenta y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su cuenta registra un saldo pendiente por valor de " + fmtP(plan.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)) + ", correspondiente al pago del Aporte Social de acuerdo con el siguiente detalle:"
       const lines1 = doc.splitTextToSize(body1, pageW - margen * 2)
       doc.text(lines1, margen, 86)
 
-      // Details - find overdue cuotas
       const vencidas = plan.filter(p => {
         const saldo = p.monto_proyectado - p.monto_pagado
         return diasVencidos(p.periodo, p.fecha_vencimiento) > 0 && saldo > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
@@ -526,30 +521,28 @@ export default function PagosPage() {
 
       let yPos = lines1.length * 5 + 90
       doc.setFont("helvetica", "bold")
-      doc.text("•\tSaldo vencido:", margen, yPos)
+      doc.text("•  Saldo vencido:", margen, yPos)
       doc.setFont("helvetica", "normal")
-      doc.text(fmtP(saldoVencido), margen + 50, yPos)
+      doc.text(fmtP(saldoVencido), margen + 45, yPos)
       yPos += 7
 
       doc.setFont("helvetica", "bold")
-      doc.text("•\tFecha de vencimiento:", margen, yPos)
+      doc.text("•  Fecha de vencimiento:", margen, yPos)
       doc.setFont("helvetica", "normal")
-      doc.text(older ? fmtPer(older.periodo) : "-", margen + 50, yPos)
+      doc.text(older ? fmtPer(older.periodo) : "-", margen + 45, yPos)
       yPos += 7
 
       doc.setFont("helvetica", "bold")
-      doc.text("•\tDías de mora:", margen, yPos)
+      doc.text("•  Días de mora:", margen, yPos)
       doc.setFont("helvetica", "normal")
-      doc.text(String(diasMora) + " días", margen + 50, yPos)
+      doc.text(String(diasMora) + " días", margen + 45, yPos)
       yPos += 12
 
-      // Body paragraph 2
       const body2 = "En el marco del plan de pagos suscrito en el contrato de vinculación, agradecemos su compromiso con el cronograma establecido y le recordamos que, conforme a las condiciones de este, los retrasos o incumplimientos en las fechas pactadas darán lugar a la liquidación de intereses sobre los saldos en mora, a una tasa equivalente a IBR + 400 puntos básicos E.A."
       const lines2 = doc.splitTextToSize(body2, pageW - margen * 2)
       doc.text(lines2, margen, yPos)
       yPos += lines2.length * 5 + 6
 
-      // Body paragraph 3
       const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la generación de costos adicionales. Nuestro interés es seguir acompañándolo y brindándole el mejor servicio. Por ello, en caso de requerir información adicional sobre el estado de su cuenta, estaremos atentos a atenderle."
       const lines3 = doc.splitTextToSize(body3, pageW - margen * 2)
       doc.text(lines3, margen, yPos)
@@ -558,7 +551,6 @@ export default function PagosPage() {
       doc.text("Agradecemos su atención y gestión.", margen, yPos)
       yPos += 12
 
-      // Signature
       doc.text("Cordialmente,", margen, yPos)
       yPos += 20
       doc.text("____________________________", margen, yPos)
@@ -570,18 +562,16 @@ export default function PagosPage() {
       doc.text("Ruitoque Golf Club", margen, yPos)
       yPos += 12
 
-      // Separator
       doc.setDrawColor(200)
       doc.line(margen, yPos, pageW - margen, yPos)
       yPos += 6
 
-      // Plan de pagos table
       doc.setFontSize(10)
       doc.setFont("helvetica", "bold")
       doc.text("Plan de Pagos", margen, yPos)
       yPos += 4
 
-      const body = plan.map((p, i) => {
+      const rows = plan.map((p, i) => {
         const saldo = p.monto_proyectado - p.monto_pagado
         const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
         const mora = calcularInteresMora(saldo, dias, ibr)
@@ -606,7 +596,7 @@ export default function PagosPage() {
       docAny.autoTable({
         startY: yPos + 2,
         head: [["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora", "Int. Acum.", "Estado"]],
-        body,
+        body: rows,
         foot: [[
           "", "TOTALES", fmtP(totalProy), fmtP(totalPag), fmtP(totalSaldo), "", "", fmtP(totalMora), ""
         ]],
@@ -627,7 +617,8 @@ export default function PagosPage() {
         },
         margin: { top: yPos + 2 },
       })
-    doc.save("comunicado_cartera_" + socio.certificado_no + ".pdf")
+      doc.save("comunicado_cartera_" + socio.certificado_no + ".pdf")
+    } catch (e) { alert("Error al generar PDF: " + e) }
   }
 
   return (
