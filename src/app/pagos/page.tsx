@@ -506,16 +506,17 @@ export default function PagosPage() {
       doc.setFontSize(11)
       doc.text("Apreciado(a) señor(a):", margen, 76)
 
-      const body1 = "Reciba un cordial saludo. Con el propósito de mantener actualizada la información de su cuenta y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su cuenta registra un saldo pendiente por valor de " + fmtP(plan.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)) + ", correspondiente al pago del Aporte Social de acuerdo con el siguiente detalle:"
-      const lines1 = doc.splitTextToSize(body1, pageW - margen * 2)
-      doc.setFontSize(10)
-      doc.text(lines1, margen, 86)
-
       const vencidas = plan.filter(p => {
         const saldo = p.monto_proyectado - p.monto_pagado
         return diasVencidos(p.periodo, p.fecha_vencimiento) > 0 && saldo > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
       })
       const saldoVencido = vencidas.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)
+
+      const body1 = "Reciba un cordial saludo. Con el propósito de mantener actualizada la información de su cuenta y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su cuenta registra un saldo pendiente por valor de " + fmtP(saldoVencido) + ", correspondiente al pago del Aporte Social de acuerdo con el siguiente detalle:"
+      const lines1 = doc.splitTextToSize(body1, pageW - margen * 2)
+      doc.setFontSize(10)
+      doc.text(lines1, margen, 86)
+
       let older: PlanPago | null = null
       let maxDias = 0
       for (const p of vencidas) {
