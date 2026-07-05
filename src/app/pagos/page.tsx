@@ -516,7 +516,7 @@ export default function PagosPage() {
       const body1 = "Reciba un cordial saludo. Con el propósito de mantener actualizada la información de su cuenta y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su cuenta registra un saldo pendiente por valor de " + fmtP(saldoVencido) + ", correspondiente al pago del Aporte Social de acuerdo con el siguiente detalle:"
       const lines1 = doc.splitTextToSize(body1, pageW - margen * 2)
       doc.setFontSize(10)
-      doc.text(lines1, margen, 100)
+      doc.text(lines1, margen, 100, { align: "justify" as any })
 
       let older: PlanPago | null = null
       let maxDias = 0
@@ -558,12 +558,12 @@ export default function PagosPage() {
       const body2 = "En el marco del plan de pagos suscrito en el contrato de vinculación, agradecemos su compromiso con el cronograma establecido y le recordamos que, conforme a las condiciones de este, los retrasos o incumplimientos en las fechas pactadas darán lugar a la liquidación de intereses sobre los saldos en mora, a una tasa equivalente a IBR + 400 puntos básicos E.A."
       const lines2 = doc.splitTextToSize(body2, pageW - margen * 2)
       doc.setFontSize(10)
-      doc.text(lines2, margen, yPos)
+      doc.text(lines2, margen, yPos, { align: "justify" as any })
       yPos += lines2.length * 5 + 6
 
       const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la generación de costos adicionales. Nuestro interés es seguir acompañándolo y brindándole el mejor servicio. Por ello, en caso de requerir información adicional sobre el estado de su cuenta, estaremos atentos a atenderle."
       const lines3 = doc.splitTextToSize(body3, pageW - margen * 2)
-      doc.text(lines3, margen, yPos)
+      doc.text(lines3, margen, yPos, { align: "justify" as any })
       yPos += lines3.length * 5 + 6
 
       doc.text("Agradecemos su atención y gestión.", margen, yPos)
