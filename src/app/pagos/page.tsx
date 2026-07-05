@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos, diasEntre, hoyStr } from "@/lib/utils"
-import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2, MessageSquare, FileText } from "lucide-react"
+import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2, MessageSquare } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
@@ -469,10 +469,11 @@ export default function PagosPage() {
     URL.revokeObjectURL(url)
   }
 
-  function exportToPDF() {
+  function exportToPDF(socio: Socio) {
     const { jsPDF } = require("jspdf")
     require("jspdf-autotable")
     const doc = new jsPDF({ format: "letter" })
+    const plan = planesPago[socio.id]
     const hoy = new Date()
     const fechaStr = hoy.toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })
     const nomMeses: Record<string, string> = {
@@ -482,17 +483,13 @@ export default function PagosPage() {
     const fmtP = (n: number) => "$" + Math.round(n).toLocaleString("es-CO")
     const fmtPer = (p: string) => { const [y,m] = p.split("-"); return nomMeses[m] + " de " + y }
 
-    for (let idx = 0; idx < filtered.length; idx++) {
-      const socio = filtered[idx]
-      const plan = planesPago[socio.id]
-      if (!plan || plan.length === 0) continue
-      if (idx > 0) doc.addPage()
+    if (!plan || plan.length === 0) return
 
-      const pageW = doc.internal.pageSize.width
-      const margen = 20
+    const pageW = doc.internal.pageSize.width
+    const margen = 20
 
-      // Logo placeholder (top right)
-      doc.setFontSize(10)
+    // Logo placeholder (top right)
+    doc.setFontSize(10)
       doc.setTextColor(100)
       doc.text("[LOGO]", pageW - margen, 20, { align: "right" })
 
@@ -629,8 +626,7 @@ export default function PagosPage() {
         },
         margin: { top: yPos + 2 },
       })
-    }
-    doc.save("comunicado_cartera.pdf")
+    doc.save("comunicado_cartera_" + socio.certificado_no + ".pdf")
   }
 
   return (
@@ -661,13 +657,6 @@ export default function PagosPage() {
             />
             <span className="text-zinc-400">%</span>
           </div>
-          <button
-            onClick={exportToPDF}
-            className="flex items-center gap-2 px-3 py-2 bg-white border border-zinc-300 text-zinc-700 rounded-lg hover:bg-zinc-50 transition-colors text-sm"
-          >
-            <FileText className="h-4 w-4" />
-            Exportar PDF
-          </button>
           <button
             onClick={exportToExcel}
             className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
@@ -745,12 +734,20 @@ export default function PagosPage() {
                       <td className="px-4 py-3 text-right font-bold text-zinc-900">{plan.length > 0 ? formatCurrency(saldo) : formatCurrency(socio.valor_final)}</td>
                       <td className="px-4 py-3">
                         {plan.length > 0 ? (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); openEditor(socio.id) }}
-                            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
-                          >
-                            Editar
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); openEditor(socio.id) }}
+                              className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
+                            >
+                              Editar
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); exportToPDF(socio) }}
+                              className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200"
+                            >
+                              PDF
+                            </button>
+                          </div>
                         ) : (
                           <button
                             onClick={(e) => { e.stopPropagation(); calcularPlan(socio) }}
