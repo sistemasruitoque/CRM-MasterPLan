@@ -470,9 +470,23 @@ export default function PagosPage() {
     URL.revokeObjectURL(url)
   }
 
-  function exportToPDF(socio: Socio) {
+  async function loadFont(doc: jsPDF, url: string, fontName: string, style: string) {
+    const res = await fetch(url)
+    const buf = await res.arrayBuffer()
+    const bytes = new Uint8Array(buf)
+    let binary = ""
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+    const b64 = btoa(binary)
+    doc.addFileToVFS(fontName + "-" + style + ".otf", b64)
+    doc.addFont(fontName + "-" + style + ".otf", fontName, style)
+  }
+
+  async function exportToPDF(socio: Socio) {
     try {
       const doc = new jsPDF({ format: "letter" })
+
+      await loadFont(doc, "/fonts/BwModelica-Regular.otf", "BwModelica", "normal")
+      await loadFont(doc, "/fonts/BwModelica-Bold.otf", "BwModelica", "bold")
       const plan = planesPago[socio.id]
       const hoy = new Date()
       const fechaStr = hoy.toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })
@@ -497,9 +511,9 @@ export default function PagosPage() {
       doc.text("Piedecuesta, " + fechaStr, margen, 35)
 
       doc.setFontSize(12)
-      doc.setFont("helvetica", "bold")
+      doc.setFont("BwModelica", "bold")
       doc.text("Señor(a)", margen, 48)
-      doc.setFont("helvetica", "normal")
+      doc.setFont("BwModelica", "normal")
       doc.text(socio.nombre, margen, 55)
       doc.text("Código No. " + socio.certificado_no, margen, 62)
 
@@ -534,21 +548,21 @@ export default function PagosPage() {
 
       let yPos = lines1.length * 5 + 90
       doc.setFontSize(9)
-      doc.setFont("helvetica", "bold")
+      doc.setFont("BwModelica", "bold")
       doc.text("•  Saldo vencido:", margen, yPos)
-      doc.setFont("helvetica", "normal")
+      doc.setFont("BwModelica", "normal")
       doc.text(fmtP(saldoVencido), margen + 45, yPos)
       yPos += 5
 
-      doc.setFont("helvetica", "bold")
+      doc.setFont("BwModelica", "bold")
       doc.text("•  Fecha de vencimiento:", margen, yPos)
-      doc.setFont("helvetica", "normal")
+      doc.setFont("BwModelica", "normal")
       doc.text(older ? fmtPer(older.periodo) : "-", margen + 45, yPos)
       yPos += 5
 
-      doc.setFont("helvetica", "bold")
+      doc.setFont("BwModelica", "bold")
       doc.text("•  Días de mora:", margen, yPos)
-      doc.setFont("helvetica", "normal")
+      doc.setFont("BwModelica", "normal")
       doc.text(String(diasMora) + " días", margen + 45, yPos)
       yPos += 8
 
@@ -570,10 +584,10 @@ export default function PagosPage() {
       yPos += 14
       doc.text("____________________________", margen, yPos)
       yPos += 4
-      doc.setFont("helvetica", "bold")
+      doc.setFont("BwModelica", "bold")
       doc.text("Cordial saludo,", margen, yPos)
       yPos += 4
-      doc.setFont("helvetica", "normal")
+      doc.setFont("BwModelica", "normal")
       doc.text("Ruitoque Golf Club", margen, yPos)
       yPos += 8
 
@@ -582,7 +596,7 @@ export default function PagosPage() {
       yPos += 4
 
       doc.setFontSize(10)
-      doc.setFont("helvetica", "bold")
+      doc.setFont("BwModelica", "bold")
       doc.text("Plan de Pagos", margen, yPos)
       yPos += 4
 
@@ -598,8 +612,6 @@ export default function PagosPage() {
           fmtP(saldo),
           dias > 0 && saldo > 0 ? String(dias) : "-",
           fmtP(mora),
-          fmtP(p.interes_mora || 0),
-          p.estado.charAt(0).toUpperCase() + p.estado.slice(1),
         ]
       })
       const totalProy = plan.reduce((s, p) => s + p.monto_proyectado, 0)
@@ -607,7 +619,7 @@ export default function PagosPage() {
       const totalSaldo = totalProy - totalPag
       const totalMora = plan.reduce((s, p) => s + (p.interes_mora || 0), 0)
 
-      const colW = [8, 32, 28, 28, 28, 12, 26, 26, 22]
+      const colW = [8, 36, 32, 32, 32, 14, 32]
       const fullW = colW.reduce((s, w) => s + w, 0)
       const leftX = margen
       const rowH = 6
@@ -621,7 +633,7 @@ export default function PagosPage() {
         doc.setDrawColor(200)
         doc.rect(x, y, w, h, "S")
         doc.setFontSize(opts.size || 8)
-        doc.setFont("helvetica", opts.bold ? "bold" : "normal")
+        doc.setFont("BwModelica", opts.bold ? "bold" : "normal")
         doc.setTextColor(0)
         const align = opts.align || "left"
         const pad = 1.5
@@ -632,8 +644,8 @@ export default function PagosPage() {
         doc.text(txt, tx, y + h / 2 + 2, { align: align as any })
       }
       let cy = addPageIfNeeded(yPos + 4, rowH * (rows.length + 2))
-      const headRow = ["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora", "Int. Acum.", "Estado"]
-      headRow.forEach((h, i) => drawCell(leftX + colW.slice(0, i).reduce((s, w) => s + w, 0), cy, colW[i], rowH, h, { bg: headBg, bold: true, align: i === 0 || i >= 5 ? "center" : i >= 2 ? "right" : "left", size: 8 }))
+      const headRow = ["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora"]
+      headRow.forEach((h, i) => drawCell(leftX + colW.slice(0, i).reduce((s, w) => s + w, 0), cy, colW[i], rowH, h, { bg: headBg, bold: true, align: i <= 1 ? "left" : i === 5 ? "center" : "right", size: 8 }))
       cy += rowH
       rows.forEach((r: (string | number)[]) => {
         if (cy + rowH > pageH - 20) {
@@ -641,14 +653,14 @@ export default function PagosPage() {
         }
         r.forEach((txt, i) => {
           const x = leftX + colW.slice(0, i).reduce((s, w) => s + w, 0)
-          drawCell(x, cy, colW[i], rowH, String(txt), { align: i === 0 || i >= 5 ? "center" : i >= 2 ? "right" : "left" })
+          drawCell(x, cy, colW[i], rowH, String(txt), { align: i <= 1 ? "left" : i === 5 ? "center" : "right" })
         })
         cy += rowH
       })
-      const footRow = ["", "TOTALES", fmtP(totalProy), fmtP(totalPag), fmtP(totalSaldo), "", "", fmtP(totalMora), ""]
+      const footRow = ["", "TOTALES", fmtP(totalProy), fmtP(totalPag), fmtP(totalSaldo), "", fmtP(totalMora)]
       footRow.forEach((t, i) => {
         const x = leftX + colW.slice(0, i).reduce((s, w) => s + w, 0)
-        drawCell(x, cy, colW[i], rowH, t, { bg: footBg, bold: true, align: i === 0 || i >= 5 ? "center" : i >= 2 ? "right" : "left" })
+        drawCell(x, cy, colW[i], rowH, t, { bg: footBg, bold: true, align: i <= 1 ? "left" : i === 5 ? "center" : "right" })
       })
       yPos = cy + rowH
       doc.save("comunicado_cartera_" + socio.certificado_no + ".pdf")
