@@ -329,7 +329,7 @@ export default function SociosPage() {
               <button onClick={() => { setShowForm(false); setEditingSocio(null) }} className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">Cancelar</button>
               <button
                 onClick={handleSave}
-                disabled={saving || (!editingSocio && certificadoStatus === "taken") || !form.certificado_no || !form.cedula || !form.nombre || !form.fecha_contrato || !form.aporte || !form.valor_final || !form.responsable}
+                disabled={saving || (!editingSocio && certificadoStatus === "taken") || form.certificado_no <= 0 || !form.cedula || !form.nombre || !form.fecha_contrato || form.aporte < 0 || form.valor_final < 0 || !form.responsable}
                 className="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
               >
                 {saving ? "Guardando..." : editingSocio ? "Guardar Cambios" : "Crear Socio"}
