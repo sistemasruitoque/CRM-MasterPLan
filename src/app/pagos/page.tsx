@@ -470,7 +470,7 @@ export default function PagosPage() {
     URL.revokeObjectURL(url)
   }
 
-  async function exportToPDF(socio: Socio) {
+  function exportToPDF(socio: Socio) {
     try {
       const doc = new jsPDF({ format: "letter" })
       const plan = planesPago[socio.id]
@@ -591,31 +591,48 @@ export default function PagosPage() {
       const totalSaldo = totalProy - totalPag
       const totalMora = plan.reduce((s, p) => s + (p.interes_mora || 0), 0)
 
-      const { default: autoTable } = await import("jspdf-autotable")
-      autoTable(doc, {
-        startY: yPos + 2,
-        head: [["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora", "Int. Acum.", "Estado"]],
-        body: rows,
-        foot: [[
-          "", "TOTALES", fmtP(totalProy), fmtP(totalPag), fmtP(totalSaldo), "", "", fmtP(totalMora), ""
-        ]],
-        theme: "striped",
-        headStyles: { fillColor: [5, 150, 105], fontSize: 8 },
-        footStyles: { fillColor: [240, 240, 240], textColor: [50, 50, 50], fontStyle: "bold", fontSize: 8 },
-        styles: { fontSize: 8, cellPadding: 1.5 },
-        columnStyles: {
-          0: { cellWidth: 8, halign: "center" },
-          1: { cellWidth: 32 },
-          2: { cellWidth: 28, halign: "right" },
-          3: { cellWidth: 28, halign: "right" },
-          4: { cellWidth: 28, halign: "right" },
-          5: { cellWidth: 12, halign: "center" },
-          6: { cellWidth: 26, halign: "right" },
-          7: { cellWidth: 26, halign: "right" },
-          8: { cellWidth: 22, halign: "center" },
-        },
-        margin: { top: yPos + 2 },
+      const colW = [8, 32, 28, 28, 28, 12, 26, 26, 22]
+      const fullW = colW.reduce((s, w) => s + w, 0)
+      const leftX = margen
+      const tblY = yPos + 4
+      const rowH = 6
+      const headBg = [5, 150, 105]
+      const footBg = [240, 240, 240]
+      function drawCell(x: number, y: number, w: number, h: number, txt: string, opts: { bg?: number[], bold?: boolean, align?: string, size?: number } = {}) {
+        if (opts.bg) {
+          doc.setFillColor(opts.bg[0], opts.bg[1], opts.bg[2])
+          doc.rect(x, y, w, h, "F")
+        }
+        doc.setDrawColor(200)
+        doc.rect(x, y, w, h, "S")
+        doc.setFontSize(opts.size || 8)
+        doc.setFont("helvetica", opts.bold ? "bold" : "normal")
+        doc.setTextColor(0)
+        const align = opts.align || "left"
+        const pad = 1.5
+        let tx: number
+        if (align === "right") tx = x + w - pad
+        else if (align === "center") tx = x + w / 2
+        else tx = x + pad
+        doc.text(txt, tx, y + h / 2 + 1.5, { align: align as any })
+      }
+      let cy = tblY
+      const headRow = ["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora", "Int. Acum.", "Estado"]
+      headRow.forEach((h, i) => drawCell(leftX + colW.slice(0, i).reduce((s, w) => s + w, 0), cy, colW[i], rowH, h, { bg: headBg, bold: true, align: i === 0 || i >= 5 ? "center" : i >= 2 ? "right" : "left", size: 8 }))
+      cy += rowH
+      rows.forEach((r: (string | number)[]) => {
+        r.forEach((txt, i) => {
+          const x = leftX + colW.slice(0, i).reduce((s, w) => s + w, 0)
+          drawCell(x, cy, colW[i], rowH, String(txt), { align: i === 0 || i >= 5 ? "center" : i >= 2 ? "right" : "left" })
+        })
+        cy += rowH
       })
+      const footRow = ["", "TOTALES", fmtP(totalProy), fmtP(totalPag), fmtP(totalSaldo), "", "", fmtP(totalMora), ""]
+      footRow.forEach((t, i) => {
+        const x = leftX + colW.slice(0, i).reduce((s, w) => s + w, 0)
+        drawCell(x, cy, colW[i], rowH, t, { bg: footBg, bold: true, align: i === 0 || i >= 5 ? "center" : i >= 2 ? "right" : "left" })
+      })
+      yPos = cy + rowH
       doc.save("comunicado_cartera_" + socio.certificado_no + ".pdf")
     } catch (e) { alert("Error al generar PDF: " + e) }
   }
