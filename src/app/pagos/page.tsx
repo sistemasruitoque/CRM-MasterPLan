@@ -515,55 +515,71 @@ export default function PagosPage() {
         return diasVencidos(p.periodo, p.fecha_vencimiento) > 0 && saldo > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
       })
       const saldoVencido = vencidas.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)
-      const older = vencidas.length > 0 ? vencidas[0] : null
-      const diasMora = older ? diasVencidos(older.periodo, older.fecha_vencimiento) : 0
+      let older: PlanPago | null = null
+      let maxDias = 0
+      for (const p of vencidas) {
+        const d = diasVencidos(p.periodo, p.fecha_vencimiento)
+        if (d > maxDias) { maxDias = d; older = p }
+      }
+      const diasMora = maxDias
+
+      const pageH = doc.internal.pageSize.height
+      function addPageIfNeeded(y: number, needed: number) {
+        if (y + needed > pageH - 20) {
+          doc.addPage()
+          return 20
+        }
+        return y
+      }
 
       let yPos = lines1.length * 5 + 90
+      doc.setFontSize(9)
       doc.setFont("helvetica", "bold")
       doc.text("•  Saldo vencido:", margen, yPos)
       doc.setFont("helvetica", "normal")
       doc.text(fmtP(saldoVencido), margen + 45, yPos)
-      yPos += 7
+      yPos += 5
 
       doc.setFont("helvetica", "bold")
       doc.text("•  Fecha de vencimiento:", margen, yPos)
       doc.setFont("helvetica", "normal")
       doc.text(older ? fmtPer(older.periodo) : "-", margen + 45, yPos)
-      yPos += 7
+      yPos += 5
 
       doc.setFont("helvetica", "bold")
       doc.text("•  Días de mora:", margen, yPos)
       doc.setFont("helvetica", "normal")
       doc.text(String(diasMora) + " días", margen + 45, yPos)
-      yPos += 12
+      yPos += 8
 
       const body2 = "En el marco del plan de pagos suscrito en el contrato de vinculación, agradecemos su compromiso con el cronograma establecido y le recordamos que, conforme a las condiciones de este, los retrasos o incumplimientos en las fechas pactadas darán lugar a la liquidación de intereses sobre los saldos en mora, a una tasa equivalente a IBR + 400 puntos básicos E.A."
       const lines2 = doc.splitTextToSize(body2, pageW - margen * 2)
+      doc.setFontSize(8)
       doc.text(lines2, margen, yPos)
-      yPos += lines2.length * 5 + 6
+      yPos += lines2.length * 3.5 + 4
 
       const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la generación de costos adicionales. Nuestro interés es seguir acompañándolo y brindándole el mejor servicio. Por ello, en caso de requerir información adicional sobre el estado de su cuenta, estaremos atentos a atenderle."
       const lines3 = doc.splitTextToSize(body3, pageW - margen * 2)
       doc.text(lines3, margen, yPos)
-      yPos += lines3.length * 5 + 6
+      yPos += lines3.length * 3.5 + 4
 
       doc.text("Agradecemos su atención y gestión.", margen, yPos)
-      yPos += 12
+      yPos += 8
 
       doc.text("Cordialmente,", margen, yPos)
-      yPos += 20
+      yPos += 14
       doc.text("____________________________", margen, yPos)
-      yPos += 6
+      yPos += 4
       doc.setFont("helvetica", "bold")
       doc.text("Cordial saludo,", margen, yPos)
-      yPos += 6
+      yPos += 4
       doc.setFont("helvetica", "normal")
       doc.text("Ruitoque Golf Club", margen, yPos)
-      yPos += 12
+      yPos += 8
 
       doc.setDrawColor(200)
       doc.line(margen, yPos, pageW - margen, yPos)
-      yPos += 6
+      yPos += 4
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "bold")
@@ -594,7 +610,6 @@ export default function PagosPage() {
       const colW = [8, 32, 28, 28, 28, 12, 26, 26, 22]
       const fullW = colW.reduce((s, w) => s + w, 0)
       const leftX = margen
-      const tblY = yPos + 4
       const rowH = 6
       const headBg = [5, 150, 105]
       const footBg = [240, 240, 240]
@@ -614,13 +629,16 @@ export default function PagosPage() {
         if (align === "right") tx = x + w - pad
         else if (align === "center") tx = x + w / 2
         else tx = x + pad
-        doc.text(txt, tx, y + h / 2 + 1.5, { align: align as any })
+        doc.text(txt, tx, y + h / 2 + 2, { align: align as any })
       }
-      let cy = tblY
+      let cy = addPageIfNeeded(yPos + 4, rowH * (rows.length + 2))
       const headRow = ["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora", "Int. Acum.", "Estado"]
       headRow.forEach((h, i) => drawCell(leftX + colW.slice(0, i).reduce((s, w) => s + w, 0), cy, colW[i], rowH, h, { bg: headBg, bold: true, align: i === 0 || i >= 5 ? "center" : i >= 2 ? "right" : "left", size: 8 }))
       cy += rowH
       rows.forEach((r: (string | number)[]) => {
+        if (cy + rowH > pageH - 20) {
+          cy = addPageIfNeeded(cy, rowH * 5)
+        }
         r.forEach((txt, i) => {
           const x = leftX + colW.slice(0, i).reduce((s, w) => s + w, 0)
           drawCell(x, cy, colW[i], rowH, String(txt), { align: i === 0 || i >= 5 ? "center" : i >= 2 ? "right" : "left" })
