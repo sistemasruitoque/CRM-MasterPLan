@@ -16,10 +16,15 @@ export function formatCurrency(n: number): string {
   }).format(n)
 }
 
-export function diasVencidos(periodo: string): number {
-  const [y, m] = periodo.split("-").map(Number)
-  const cuotaDate = new Date(y, m, 0)
+export function diasVencidos(periodo: string, fechaVen?: string | null): number {
   const today = new Date()
+  let cuotaDate: Date
+  if (fechaVen) {
+    cuotaDate = new Date(fechaVen + "T00:00:00")
+  } else {
+    const [y, m] = periodo.split("-").map(Number)
+    cuotaDate = new Date(y, m, 0)
+  }
   if (cuotaDate > today) return 0
   return Math.max(0, Math.floor((today.getTime() - cuotaDate.getTime()) / (1000 * 60 * 60 * 24)) - 1)
 }

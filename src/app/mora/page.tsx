@@ -75,7 +75,8 @@ export default function MoraPage() {
             interes_mora: 0,
             interes_mora_fecha: null,
             observacion: "",
-        estado: "pendiente",
+            fecha_vencimiento: null,
+            estado: "pendiente",
             fecha_pago: null,
             created_at: "",
           }))
@@ -99,7 +100,7 @@ export default function MoraPage() {
           const acumulado = p.interes_mora || 0
           if (acumulado > 0) return s + acumulado
           const saldo = p.monto_proyectado - p.monto_pagado
-          const dias = diasVencidos(p.periodo)
+          const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
           return s + calcularInteresMora(saldo, dias, ibr)
         }, 0)
 

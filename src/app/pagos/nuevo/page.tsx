@@ -136,6 +136,7 @@ function NuevoPlanPage() {
           interes_mora: 0,
           interes_mora_fecha: null,
           observacion: "",
+          fecha_vencimiento: null,
         }
         saldo -= c.proyectado
         return row

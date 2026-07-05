@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos, diasEntre, hoyStr } from "@/lib/utils"
-import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2, MessageSquare } from "lucide-react"
+import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2, MessageSquare, FileText } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
 
@@ -53,6 +53,7 @@ function calcularPlanPagos(socio: Socio): PlanPago[] {
         interes_mora: 0,
         interes_mora_fecha: null,
         observacion: "",
+        fecha_vencimiento: null,
         estado: "pendiente",
       fecha_pago: null,
       created_at: "",
@@ -89,6 +90,7 @@ function pactadoToPlanPagos(socio: Socio, schedules: Record<string, number>, pag
         interes_mora: 0,
         interes_mora_fecha: null,
         observacion: "",
+        fecha_vencimiento: null,
         estado: "pendiente",
         fecha_pago: null,
         created_at: "",
@@ -118,6 +120,8 @@ export default function PagosPage() {
   const [editRows, setEditRows] = useState<{ periodo: string; proyectado: number; id?: string }[]>([])
   const [obsModalPlan, setObsModalPlan] = useState<PlanPago | null>(null)
   const [obsModalText, setObsModalText] = useState("")
+  const [editingVenceId, setEditingVenceId] = useState<string | null>(null)
+  const [editVence, setEditVence] = useState("")
 
   function openEditor(socioId: string) {
     const plan = planesPago[socioId] || []
@@ -227,6 +231,7 @@ export default function PagosPage() {
               interes_mora: p.interes_mora,
               interes_mora_fecha: p.interes_mora_fecha,
               observacion: p.observacion || "",
+              fecha_vencimiento: p.fecha_vencimiento || null,
             }))
             await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
           }
@@ -275,6 +280,7 @@ export default function PagosPage() {
         interes_mora: p.interes_mora,
         interes_mora_fecha: p.interes_mora_fecha,
         observacion: p.observacion || "",
+        fecha_vencimiento: p.fecha_vencimiento || null,
       }))
       const { error: upsertErr } = await supabase.from("planes_pago").upsert(rows as any, { onConflict: "socio_id,periodo" })
       if (upsertErr) { if (!silent) alert("Error al guardar: " + upsertErr.message); return }
@@ -303,7 +309,7 @@ export default function PagosPage() {
       if (p.estado === "pagado" || p.estado === "exonerado") return p
       const saldoActual = p.monto_proyectado - p.monto_pagado
       if (saldoActual <= 0) return p
-      const dias = diasVencidos(p.periodo)
+      const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
       if (dias <= 0) return p
       if (p.interes_mora_fecha === hoy) return p
       const moraHoy = calcularInteresMora(saldoActual, dias, ibr)
@@ -324,7 +330,7 @@ export default function PagosPage() {
     const pagadoVal = editPagado === "" ? 0 : Number(editPagado)
     const saldoAnterior = p.monto_proyectado - p.monto_pagado
     const hoy = hoyStr()
-    const dias = diasVencidos(p.periodo)
+    const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
     const moraHoy = (dias > 0 && saldoAnterior > 0) ? calcularInteresMora(saldoAnterior, dias, ibr) : 0
     const nuevoMora = (p.interes_mora || 0) + moraHoy
     const elUsuarioTocoMora = editingMoraId === p.id
@@ -369,6 +375,18 @@ export default function PagosPage() {
     savePlan(socioId, true)
   }
 
+  function commitVence(p: PlanPago, socioId: string) {
+    setPlanesPago((prev) => {
+      const next = { ...prev, [socioId]: (prev[socioId] || []).map((pp) =>
+        pp.id === p.id ? { ...pp, fecha_vencimiento: editVence || null } : pp
+      )}
+      planesPagoRef.current = next
+      return next
+    })
+    setEditingVenceId(null)
+    savePlan(socioId, true)
+  }
+
   function commitObsModal() {
     if (!obsModalPlan) return
     const socioId = obsModalPlan.socio_id
@@ -400,6 +418,7 @@ export default function PagosPage() {
         interes_mora: 0,
         interes_mora_fecha: null,
         observacion: "",
+        fecha_vencimiento: null,
         estado: "pendiente",
         fecha_pago: null,
         created_at: "",
@@ -450,6 +469,170 @@ export default function PagosPage() {
     URL.revokeObjectURL(url)
   }
 
+  function exportToPDF() {
+    const { jsPDF } = require("jspdf")
+    require("jspdf-autotable")
+    const doc = new jsPDF({ format: "letter" })
+    const hoy = new Date()
+    const fechaStr = hoy.toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })
+    const nomMeses: Record<string, string> = {
+      "01": "Enero","02": "Febrero","03": "Marzo","04": "Abril","05": "Mayo","06": "Junio",
+      "07": "Julio","08": "Agosto","09": "Septiembre","10": "Octubre","11": "Noviembre","12": "Diciembre",
+    }
+    const fmtP = (n: number) => "$" + Math.round(n).toLocaleString("es-CO")
+    const fmtPer = (p: string) => { const [y,m] = p.split("-"); return nomMeses[m] + " de " + y }
+
+    for (let idx = 0; idx < filtered.length; idx++) {
+      const socio = filtered[idx]
+      const plan = planesPago[socio.id]
+      if (!plan || plan.length === 0) continue
+      if (idx > 0) doc.addPage()
+
+      const pageW = doc.internal.pageSize.width
+      const margen = 20
+
+      // Logo placeholder (top right)
+      doc.setFontSize(10)
+      doc.setTextColor(100)
+      doc.text("[LOGO]", pageW - margen, 20, { align: "right" })
+
+      // Date
+      doc.setTextColor(0)
+      doc.setFontSize(11)
+      doc.text("Piedecuesta, " + fechaStr, margen, 35)
+
+      // Addressee
+      doc.setFontSize(12)
+      doc.setFont("helvetica", "bold")
+      doc.text("Señor(a)", margen, 48)
+      doc.setFont("helvetica", "normal")
+      doc.text(socio.nombre, margen, 55)
+      doc.text("Código No. " + socio.certificado_no, margen, 62)
+
+      // Salutation
+      doc.setFontSize(11)
+      doc.text("Apreciado(a) señor(a):", margen, 76)
+
+      // Body paragraph 1
+      const body1 = "Reciba un cordial saludo. Con el propósito de mantener actualizada la información de su cuenta y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su cuenta registra un saldo pendiente por valor de " + fmtP(plan.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)) + ", correspondiente al pago del Aporte Social de acuerdo con el siguiente detalle:"
+      const lines1 = doc.splitTextToSize(body1, pageW - margen * 2)
+      doc.text(lines1, margen, 86)
+
+      // Details - find overdue cuotas
+      const vencidas = plan.filter(p => {
+        const saldo = p.monto_proyectado - p.monto_pagado
+        return diasVencidos(p.periodo, p.fecha_vencimiento) > 0 && saldo > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
+      })
+      const saldoVencido = vencidas.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)
+      const older = vencidas.length > 0 ? vencidas[0] : null
+      const diasMora = older ? diasVencidos(older.periodo, older.fecha_vencimiento) : 0
+
+      let yPos = lines1.length * 5 + 90
+      doc.setFont("helvetica", "bold")
+      doc.text("•\tSaldo vencido:", margen, yPos)
+      doc.setFont("helvetica", "normal")
+      doc.text(fmtP(saldoVencido), margen + 50, yPos)
+      yPos += 7
+
+      doc.setFont("helvetica", "bold")
+      doc.text("•\tFecha de vencimiento:", margen, yPos)
+      doc.setFont("helvetica", "normal")
+      doc.text(older ? fmtPer(older.periodo) : "-", margen + 50, yPos)
+      yPos += 7
+
+      doc.setFont("helvetica", "bold")
+      doc.text("•\tDías de mora:", margen, yPos)
+      doc.setFont("helvetica", "normal")
+      doc.text(String(diasMora) + " días", margen + 50, yPos)
+      yPos += 12
+
+      // Body paragraph 2
+      const body2 = "En el marco del plan de pagos suscrito en el contrato de vinculación, agradecemos su compromiso con el cronograma establecido y le recordamos que, conforme a las condiciones de este, los retrasos o incumplimientos en las fechas pactadas darán lugar a la liquidación de intereses sobre los saldos en mora, a una tasa equivalente a IBR + 400 puntos básicos E.A."
+      const lines2 = doc.splitTextToSize(body2, pageW - margen * 2)
+      doc.text(lines2, margen, yPos)
+      yPos += lines2.length * 5 + 6
+
+      // Body paragraph 3
+      const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la generación de costos adicionales. Nuestro interés es seguir acompañándolo y brindándole el mejor servicio. Por ello, en caso de requerir información adicional sobre el estado de su cuenta, estaremos atentos a atenderle."
+      const lines3 = doc.splitTextToSize(body3, pageW - margen * 2)
+      doc.text(lines3, margen, yPos)
+      yPos += lines3.length * 5 + 6
+
+      doc.text("Agradecemos su atención y gestión.", margen, yPos)
+      yPos += 12
+
+      // Signature
+      doc.text("Cordialmente,", margen, yPos)
+      yPos += 20
+      doc.text("____________________________", margen, yPos)
+      yPos += 6
+      doc.setFont("helvetica", "bold")
+      doc.text("Cordial saludo,", margen, yPos)
+      yPos += 6
+      doc.setFont("helvetica", "normal")
+      doc.text("Ruitoque Golf Club", margen, yPos)
+      yPos += 12
+
+      // Separator
+      doc.setDrawColor(200)
+      doc.line(margen, yPos, pageW - margen, yPos)
+      yPos += 6
+
+      // Plan de pagos table
+      doc.setFontSize(10)
+      doc.setFont("helvetica", "bold")
+      doc.text("Plan de Pagos", margen, yPos)
+      yPos += 4
+
+      const body = plan.map((p, i) => {
+        const saldo = p.monto_proyectado - p.monto_pagado
+        const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
+        const mora = calcularInteresMora(saldo, dias, ibr)
+        return [
+          i + 1,
+          fmtPer(p.periodo),
+          fmtP(p.monto_proyectado),
+          fmtP(p.monto_pagado),
+          fmtP(saldo),
+          dias > 0 && saldo > 0 ? String(dias) : "-",
+          fmtP(mora),
+          fmtP(p.interes_mora || 0),
+          p.estado.charAt(0).toUpperCase() + p.estado.slice(1),
+        ]
+      })
+      const totalProy = plan.reduce((s, p) => s + p.monto_proyectado, 0)
+      const totalPag = plan.reduce((s, p) => s + p.monto_pagado, 0)
+      const totalSaldo = totalProy - totalPag
+      const totalMora = plan.reduce((s, p) => s + (p.interes_mora || 0), 0)
+
+      doc.autoTable({
+        startY: yPos + 2,
+        head: [["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora", "Int. Acum.", "Estado"]],
+        body,
+        foot: [[
+          "", "TOTALES", fmtP(totalProy), fmtP(totalPag), fmtP(totalSaldo), "", "", fmtP(totalMora), ""
+        ]],
+        theme: "striped",
+        headStyles: { fillColor: [5, 150, 105], fontSize: 8 },
+        footStyles: { fillColor: [240, 240, 240], textColor: [50, 50, 50], fontStyle: "bold", fontSize: 8 },
+        styles: { fontSize: 8, cellPadding: 1.5 },
+        columnStyles: {
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 32 },
+          2: { cellWidth: 28, halign: "right" },
+          3: { cellWidth: 28, halign: "right" },
+          4: { cellWidth: 28, halign: "right" },
+          5: { cellWidth: 12, halign: "center" },
+          6: { cellWidth: 26, halign: "right" },
+          7: { cellWidth: 26, halign: "right" },
+          8: { cellWidth: 22, halign: "center" },
+        },
+        margin: { top: yPos + 2 },
+      })
+    }
+    doc.save("comunicado_cartera.pdf")
+  }
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -478,6 +661,13 @@ export default function PagosPage() {
             />
             <span className="text-zinc-400">%</span>
           </div>
+          <button
+            onClick={exportToPDF}
+            className="flex items-center gap-2 px-3 py-2 bg-white border border-zinc-300 text-zinc-700 rounded-lg hover:bg-zinc-50 transition-colors text-sm"
+          >
+            <FileText className="h-4 w-4" />
+            Exportar PDF
+          </button>
           <button
             onClick={exportToExcel}
             className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
@@ -573,7 +763,7 @@ export default function PagosPage() {
                     </tr>
                     {isExpanded && plan.length > 0 && (
                       <tr key={`${socio.id}-detail`}>
-                        <td colSpan={11} className="px-4 py-0 bg-zinc-50">
+                        <td colSpan={12} className="px-4 py-0 bg-zinc-50">
                           <div className="py-3">
                             <div className="flex gap-2 mb-3">
                               <button
@@ -589,9 +779,10 @@ export default function PagosPage() {
                             <div className="overflow-x-auto">
                               <table className="w-full text-xs">
                                 <thead>
-                                  <tr className="text-zinc-500 border-b border-zinc-200">
-                                    <th className="px-2 py-1 text-left">Período</th>
-                                    <th className="px-2 py-1 text-right">Proyectado</th>
+                                    <tr className="text-zinc-500 border-b border-zinc-200">
+                                        <th className="px-2 py-1 text-left">Período</th>
+                                        <th className="px-2 py-1 text-center">Vence</th>
+                                        <th className="px-2 py-1 text-right">Proyectado</th>
                                     <th className="px-2 py-1 text-right">Pagado</th>
                                     <th className="px-2 py-1 text-right">Saldo</th>
                                     <th className="px-2 py-1 text-center">Días Mora</th>
@@ -606,13 +797,36 @@ export default function PagosPage() {
                                 <tbody>
                                   {plan.map((p) => {
                                     const saldoActual = p.monto_proyectado - p.monto_pagado
-                                    const dias = diasVencidos(p.periodo)
+                                    const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
                                     const moraCalculada = calcularInteresMora(saldoActual, dias, ibr)
                                     const vencida = dias > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
                                     const totalIntAcum = p.interes_mora || 0
                                     return (
                                       <tr key={p.id} className={`hover:bg-white border-b border-zinc-100 ${vencida ? "bg-red-50" : ""}`}>
                                         <td className="px-2 py-1.5 text-zinc-700 font-medium">{fmtPeriodo(p.periodo)}</td>
+                                        <td className="px-2 py-1.5 text-center">
+                                          {editingVenceId === p.id ? (
+                                            <input
+                                              type="date"
+                                              value={editVence}
+                                              autoFocus
+                                              onChange={e => setEditVence(e.target.value)}
+                                              onBlur={() => commitVence(p, socio.id)}
+                                              onKeyDown={e => { if (e.key === "Escape") setEditingVenceId(null) }}
+                                              className="w-28 px-1 py-0.5 border border-zinc-200 rounded text-[10px]"
+                                            />
+                                          ) : (
+                                            <span
+                                              onClick={() => { setEditingVenceId(p.id); setEditVence(p.fecha_vencimiento || "") }}
+                                              className={`cursor-pointer px-1 py-0.5 rounded text-[11px] ${p.fecha_vencimiento ? "text-zinc-700" : "text-zinc-300"}`}
+                                              title={p.fecha_vencimiento || "Haga clic para asignar fecha"}
+                                            >
+                                              {p.fecha_vencimiento
+                                                ? new Date(p.fecha_vencimiento + "T00:00:00").toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric" })
+                                                : "-"}
+                                            </span>
+                                          )}
+                                        </td>
                                         <td className="px-2 py-1.5 text-right">
                                           {editingProyectadoId === p.id ? (
                                             <input
@@ -748,7 +962,7 @@ export default function PagosPage() {
                                 </tbody>
                                 <tfoot>
                                   <tr>
-                                    <td colSpan={11} className="px-2 py-2">
+                                    <td colSpan={12} className="px-2 py-2">
                                       <button onClick={() => addCuota(socio.id, plan[plan.length - 1]?.periodo || "2025-11")}
                                         className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700">
                                         <Plus className="h-3.5 w-3.5" /> Agregar Cuota
