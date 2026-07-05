@@ -508,6 +508,7 @@ export default function PagosPage() {
 
       const body1 = "Reciba un cordial saludo. Con el propósito de mantener actualizada la información de su cuenta y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su cuenta registra un saldo pendiente por valor de " + fmtP(plan.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)) + ", correspondiente al pago del Aporte Social de acuerdo con el siguiente detalle:"
       const lines1 = doc.splitTextToSize(body1, pageW - margen * 2)
+      doc.setFontSize(10)
       doc.text(lines1, margen, 86)
 
       const vencidas = plan.filter(p => {
@@ -533,7 +534,7 @@ export default function PagosPage() {
       }
 
       let yPos = lines1.length * 5 + 90
-      doc.setFontSize(9)
+      doc.setFontSize(10)
       doc.setFont("helvetica", "bold")
       doc.text("•  Saldo vencido:", margen, yPos)
       doc.setFont("helvetica", "normal")
@@ -554,37 +555,37 @@ export default function PagosPage() {
 
       const body2 = "En el marco del plan de pagos suscrito en el contrato de vinculación, agradecemos su compromiso con el cronograma establecido y le recordamos que, conforme a las condiciones de este, los retrasos o incumplimientos en las fechas pactadas darán lugar a la liquidación de intereses sobre los saldos en mora, a una tasa equivalente a IBR + 400 puntos básicos E.A."
       const lines2 = doc.splitTextToSize(body2, pageW - margen * 2)
-      doc.setFontSize(8)
+      doc.setFontSize(10)
       doc.text(lines2, margen, yPos)
-      yPos += lines2.length * 3.5 + 4
+      yPos += lines2.length * 4.5 + 5
 
       const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la generación de costos adicionales. Nuestro interés es seguir acompañándolo y brindándole el mejor servicio. Por ello, en caso de requerir información adicional sobre el estado de su cuenta, estaremos atentos a atenderle."
       const lines3 = doc.splitTextToSize(body3, pageW - margen * 2)
       doc.text(lines3, margen, yPos)
-      yPos += lines3.length * 3.5 + 4
+      yPos += lines3.length * 4.5 + 5
 
       doc.text("Agradecemos su atención y gestión.", margen, yPos)
-      yPos += 8
+      yPos += 10
 
       doc.text("Cordialmente,", margen, yPos)
-      yPos += 14
+      yPos += 16
       doc.text("____________________________", margen, yPos)
-      yPos += 4
+      yPos += 6
       doc.setFont("helvetica", "bold")
       doc.text("Cordial saludo,", margen, yPos)
-      yPos += 4
+      yPos += 6
       doc.setFont("helvetica", "normal")
       doc.text("Ruitoque Golf Club", margen, yPos)
-      yPos += 8
+      yPos += 10
 
       doc.setDrawColor(200)
       doc.line(margen, yPos, pageW - margen, yPos)
-      yPos += 4
+      yPos += 5
 
-      doc.setFontSize(10)
+      doc.setFontSize(11)
       doc.setFont("helvetica", "bold")
       doc.text("Plan de Pagos", margen, yPos)
-      yPos += 4
+      yPos += 5
 
       const rows = plan.map((p, i) => {
         const saldo = p.monto_proyectado - p.monto_pagado
