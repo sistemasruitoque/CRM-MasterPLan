@@ -535,7 +535,7 @@ export default function PagosPage() {
         return y
       }
 
-      let yPos = lines1.length * 5 + 95
+      let yPos = lines1.length * 5 + 105
       doc.setFontSize(10)
       doc.setFont("helvetica", "bold")
       doc.text("Saldo vencido:", margen, yPos)
