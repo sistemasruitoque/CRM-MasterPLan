@@ -625,9 +625,9 @@ export default function PagosPage() {
       const fullW = colW.reduce((s, w) => s + w, 0)
       const leftX = margen
       const rowH = 6
-      const headBg = [5, 150, 105]
+      const headBg = [35, 55, 103]
       const footBg = [240, 240, 240]
-      function drawCell(x: number, y: number, w: number, h: number, txt: string, opts: { bg?: number[], bold?: boolean, align?: string, size?: number } = {}) {
+      function drawCell(x: number, y: number, w: number, h: number, txt: string, opts: { bg?: number[], bold?: boolean, align?: string, size?: number, textColor?: number[] } = {}) {
         if (opts.bg) {
           doc.setFillColor(opts.bg[0], opts.bg[1], opts.bg[2])
           doc.rect(x, y, w, h, "F")
@@ -636,7 +636,7 @@ export default function PagosPage() {
         doc.rect(x, y, w, h, "S")
         doc.setFontSize(opts.size || 8)
         doc.setFont("helvetica", opts.bold ? "bold" : "normal")
-        doc.setTextColor(0)
+        doc.setTextColor(opts.textColor ? opts.textColor[0] : 0, opts.textColor ? opts.textColor[1] : 0, opts.textColor ? opts.textColor[2] : 0)
         const align = opts.align || "left"
         const pad = 1.5
         let tx: number
@@ -647,7 +647,7 @@ export default function PagosPage() {
       }
       let cy = addPageIfNeeded(yPos + 4, rowH * (rows.length + 2))
       const headRow = ["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora"]
-      headRow.forEach((h, i) => drawCell(leftX + colW.slice(0, i).reduce((s, w) => s + w, 0), cy, colW[i], rowH, h, { bg: headBg, bold: true, align: i <= 1 ? "left" : i === 5 ? "center" : "right", size: 8 }))
+      headRow.forEach((h, i) => drawCell(leftX + colW.slice(0, i).reduce((s, w) => s + w, 0), cy, colW[i], rowH, h, { bg: headBg, bold: true, align: "center", size: 8, textColor: [255, 255, 255] }))
       cy += rowH
       rows.forEach((r: (string | number)[]) => {
         if (cy + rowH > pageH - 20) {
