@@ -505,7 +505,8 @@ export default function PagosPage() {
       doc.text("Código No. " + socio.certificado_no, margen, 71)
 
       doc.setFontSize(11)
-      doc.text("Apreciado(a) señor(a):", margen, 88)
+      doc.setFont("helvetica", "bold")
+      doc.text("Asunto: Mora en plan de pagos contrato de vinculación Socio", margen, 84)
 
       const vencidas = plan.filter(p => {
         const saldo = p.monto_proyectado - p.monto_pagado
@@ -513,55 +514,48 @@ export default function PagosPage() {
       })
       const saldoVencido = vencidas.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)
 
-      const body1 = "Reciba un cordial saludo. Con el propósito de mantener actualizada la información de su cuenta y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su cuenta registra un saldo pendiente por valor de " + fmtP(saldoVencido) + ", correspondiente al pago del Aporte Social de acuerdo con el siguiente detalle:"
-      doc.setFontSize(10)
-      doc.text(body1, margen, 100, { align: "justify" as any, maxWidth: pageW - margen * 2 })
-
       let older: PlanPago | null = null
       let maxDias = 0
+      let totalInteres = 0
       for (const p of vencidas) {
+        const saldo = p.monto_proyectado - p.monto_pagado
         const d = diasVencidos(p.periodo, p.fecha_vencimiento)
         if (d > maxDias) { maxDias = d; older = p }
+        totalInteres += calcularInteresMora(saldo, d, ibr)
       }
       const diasMora = maxDias
 
-      const pageH = doc.internal.pageSize.height
-      function addPageIfNeeded(y: number, needed: number) {
-        if (y + needed > pageH - 20) {
-          doc.addPage()
-          return 20
-        }
-        return y
-      }
-
-      let yPos = doc.splitTextToSize(body1, pageW - margen * 2).length * 5 + 105
+      const body1 = "Reciba un cordial saludo. Con el propósito de mantener actualizada la información de su contrato de vinculación como Socio a la CORPORACIÓN RUITOQUE GOLF CLUB y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su contrato de vinculación registra saldo vencido:"
       doc.setFontSize(10)
-      doc.setFont("helvetica", "bold")
+      doc.text(body1, margen, 98, { align: "justify" as any, maxWidth: pageW - margen * 2 })
+      let yPos = doc.splitTextToSize(body1, pageW - margen * 2).length * 5 + 103
+
+      doc.setFont("helvetica", "normal")
       doc.text("Saldo vencido:", margen, yPos)
-      doc.setFont("helvetica", "normal")
-      doc.text(fmtP(saldoVencido), margen + 40, yPos)
+      doc.text(fmtP(saldoVencido), margen + 50, yPos)
       yPos += 6
 
-      doc.setFont("helvetica", "bold")
-      doc.text("Fecha de vencimiento:", margen, yPos)
-      doc.setFont("helvetica", "normal")
-      doc.text(older ? fmtPer(older.periodo) : "-", margen + 40, yPos)
-      yPos += 6
-
-      doc.setFont("helvetica", "bold")
       doc.text("Días de mora:", margen, yPos)
-      doc.setFont("helvetica", "normal")
-      doc.text(String(diasMora) + " días", margen + 40, yPos)
-      yPos += 10
+      doc.text(String(diasMora) + " días", margen + 50, yPos)
+      yPos += 6
 
-      const body2 = "En el marco del plan de pagos suscrito en el contrato de vinculación, agradecemos su compromiso con el cronograma establecido y le recordamos que, conforme a las condiciones de este, los retrasos o incumplimientos en las fechas pactadas darán lugar a la liquidación de intereses sobre los saldos en mora, a una tasa equivalente a IBR + 400 puntos básicos E.A."
-      doc.setFontSize(10)
+      doc.text("Intereses:", margen, yPos)
+      doc.text(fmtP(totalInteres), margen + 50, yPos)
+      yPos += 12
+
+      const body2 = "En el marco del plan de pagos suscrito en el contrato de vinculación, le recordamos que, conforme a las condiciones de este, los retrasos o incumplimientos en las fechas pactadas darán lugar a la liquidación de intereses sobre los saldos en mora, a una tasa equivalente a IBR + 400 puntos básicos E.A."
       doc.text(body2, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
       yPos += doc.splitTextToSize(body2, pageW - margen * 2).length * 5 + 6
 
-      const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la generación de costos adicionales. Nuestro interés es seguir acompañándolo y brindándole el mejor servicio. Por ello, en caso de requerir información adicional sobre el estado de su cuenta, estaremos atentos a atenderle."
+      const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la generación de costos adicionales. Nuestro interés es seguir acompañándolo y brindándole el mejor servicio. Por ello, en caso de requerir información adicional, estaremos atentos a atenderle."
       doc.text(body3, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
       yPos += doc.splitTextToSize(body3, pageW - margen * 2).length * 5 + 6
+
+      const pageH = doc.internal.pageSize.height
+      function addPageIfNeeded(y: number, needed: number) {
+        if (y + needed > pageH - 20) { doc.addPage(); return 20 }
+        return y
+      }
 
       doc.text("Agradecemos su atención y gestión.", margen, yPos)
       yPos += 12
