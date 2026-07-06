@@ -526,20 +526,26 @@ export default function PagosPage() {
       const diasMora = maxDias
 
       const body1 = "Reciba un cordial saludo. Con el propósito de mantener actualizada la información de su contrato de vinculación como Socio a la CORPORACIÓN RUITOQUE GOLF CLUB y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su contrato de vinculación registra saldo vencido:"
+      doc.setFont("helvetica", "normal")
       doc.setFontSize(10)
       doc.text(body1, margen, 98, { align: "justify" as any, maxWidth: pageW - margen * 2 })
       let yPos = doc.splitTextToSize(body1, pageW - margen * 2).length * 5 + 103
 
-      doc.setFont("helvetica", "normal")
+      doc.setFont("helvetica", "bold")
       doc.text("Saldo vencido:", margen, yPos)
+      doc.setFont("helvetica", "normal")
       doc.text(fmtP(saldoVencido), margen + 50, yPos)
       yPos += 6
 
+      doc.setFont("helvetica", "bold")
       doc.text("Días de mora:", margen, yPos)
+      doc.setFont("helvetica", "normal")
       doc.text(String(diasMora) + " días", margen + 50, yPos)
       yPos += 6
 
+      doc.setFont("helvetica", "bold")
       doc.text("Intereses:", margen, yPos)
+      doc.setFont("helvetica", "normal")
       doc.text(fmtP(totalInteres), margen + 50, yPos)
       yPos += 12
 
