@@ -470,7 +470,7 @@ export default function PagosPage() {
     URL.revokeObjectURL(url)
   }
 
-  function exportToPDF(socio: Socio) {
+  async function exportToPDF(socio: Socio) {
     try {
       const doc = new jsPDF({ format: "letter" })
       const plan = planesPago[socio.id]
@@ -488,9 +488,21 @@ export default function PagosPage() {
       const pageW = doc.internal.pageSize.width
       const margen = 20
 
-      doc.setFontSize(10)
-      doc.setTextColor(100)
-      doc.text("[LOGO]", pageW - margen, 20, { align: "right" })
+      const logoResp = await fetch("/logo.png").catch(() => null)
+      let logoDataUrl: string | null = null
+      if (logoResp && logoResp.ok) {
+        const blob = await logoResp.blob()
+        logoDataUrl = await new Promise((resolve) => {
+          const r = new FileReader()
+          r.onload = () => resolve(r.result as string)
+          r.readAsDataURL(blob)
+        })
+        doc.addImage(logoDataUrl!, "PNG", pageW - margen - 70, 15, 70, 25)
+      } else {
+        doc.setFontSize(10)
+        doc.setTextColor(100)
+        doc.text("[LOGO]", pageW - margen, 20, { align: "right" })
+      }
 
       doc.setTextColor(0)
       doc.setFontSize(11)
