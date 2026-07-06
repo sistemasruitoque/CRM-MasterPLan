@@ -497,7 +497,7 @@ export default function PagosPage() {
           r.onload = () => resolve(r.result as string)
           r.readAsDataURL(blob)
         })
-        doc.addImage(logoDataUrl!, "PNG", pageW - margen - 70, 15, 70, 25)
+        doc.addImage(logoDataUrl!, "PNG", pageW - margen - 45, 15, 45, 45 * 6250 / 4419)
       } else {
         doc.setFontSize(10)
         doc.setTextColor(100)
