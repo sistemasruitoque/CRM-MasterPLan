@@ -402,17 +402,17 @@ export default function PagosPage() {
     savePlan(socioId, true)
   }
 
-  function addCuota(socioId: string, afterPeriodo: string) {
+  function addCuota(socioId: string) {
+    const input = prompt("Ingrese el período (YYYY-MM):")
+    if (!input) return
+    if (!/^\d{4}-\d{2}$/.test(input)) { alert("Formato inválido. Use YYYY-MM, ej: 2026-08"); return }
     setPlanesPago((prev) => {
       const plan = prev[socioId] || []
-      const [y, m] = afterPeriodo.split("-").map(Number)
-      const nextM = m + 1 > 12 ? 1 : m + 1
-      const nextY = nextM === 1 ? y + 1 : y
-      const newPeriodo = `${nextY}-${String(nextM).padStart(2, "0")}`
+      if (plan.some(p => p.periodo === input)) { alert("Ese período ya existe"); return prev }
       const newRow: PlanPago = {
-        id: `${socioId}-${newPeriodo}`,
+        id: `${socioId}-${input}`,
         socio_id: socioId,
-        periodo: newPeriodo,
+        periodo: input,
         monto_proyectado: 0,
         monto_pagado: 0,
         saldo: 0,
@@ -1000,7 +1000,7 @@ export default function PagosPage() {
                                 <tfoot>
                                   <tr>
                                     <td colSpan={12} className="px-2 py-2">
-                                      <button onClick={() => addCuota(socio.id, plan[plan.length - 1]?.periodo || "2025-11")}
+                                      <button onClick={() => addCuota(socio.id)}
                                         className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700">
                                         <Plus className="h-3.5 w-3.5" /> Agregar Cuota
                                       </button>
