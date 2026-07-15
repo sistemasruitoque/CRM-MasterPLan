@@ -582,11 +582,11 @@ export default function PagosPage() {
       yPos += 20
       doc.setFont("helvetica", "normal")
       doc.text("Corporación Ruitoque Golf Club", margen, yPos)
-      yPos += 6
+      yPos += 4
       doc.text("Departamento de Cartera", margen, yPos)
-      yPos += 6
+      yPos += 4
       doc.text("cartera@ruitoquegolfclub.com", margen, yPos)
-      yPos += 6
+      yPos += 4
       doc.text("3183351512", margen, yPos)
       yPos += 12
 
