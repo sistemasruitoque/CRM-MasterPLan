@@ -541,7 +541,7 @@ export default function PagosPage() {
       doc.setFont("helvetica", "normal")
       doc.setFontSize(10)
       doc.text(body1, margen, 98, { align: "justify" as any, maxWidth: pageW - margen * 2 })
-      let yPos = doc.splitTextToSize(body1, pageW - margen * 2).length * 5 + 103
+      let yPos = doc.splitTextToSize(body1, pageW - margen * 2).length * 5 + 101
 
       const bulletX = margen + 5
       doc.setFont("helvetica", "normal")
