@@ -473,7 +473,7 @@ export default function PagosPage() {
   async function exportToPDF(socio: Socio) {
     try {
       const doc = new jsPDF({ format: "letter" })
-      const plan = planesPago[socio.id]
+      const plan = [...(planesPago[socio.id] || [])].sort((a, b) => a.periodo.localeCompare(b.periodo))
       const hoy = new Date()
       const fechaStr = hoy.toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })
       const nomMeses: Record<string, string> = {
