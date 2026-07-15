@@ -552,15 +552,15 @@ export default function PagosPage() {
       yPos += 6
 
       doc.text("• Intereses: " + fmtP(totalInteres), bulletX, yPos)
-      yPos += 12
+      yPos += 3
 
       const body2 = "En el marco del plan de pagos suscrito en el contrato de vinculación, le recordamos que, conforme a las condiciones de este, los retrasos o incumplimientos en las fechas pactadas darán lugar a la liquidación de intereses sobre los saldos en mora, a una tasa equivalente a IBR + 400 puntos básicos E.A."
       doc.text(body2, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
-      yPos += doc.splitTextToSize(body2, pageW - margen * 2).length * 5 + 6
+      yPos += doc.splitTextToSize(body2, pageW - margen * 2).length * 5 + 3
 
       const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la terminación del Contrato de Vinculación a la Corporación Ruitoque Golf Club, de conformidad con la Cláusula Sexta – Causales de terminación: \"(…) Por el no pago del Aporte Social Ajustado\"."
       doc.text(body3, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
-      yPos += doc.splitTextToSize(body3, pageW - margen * 2).length * 5 + 6
+      yPos += doc.splitTextToSize(body3, pageW - margen * 2).length * 5 + 3
 
       const pageH = doc.internal.pageSize.height
       function addPageIfNeeded(y: number, needed: number) {
