@@ -513,8 +513,8 @@ export default function PagosPage() {
       doc.text("Señor(a)", margen, 50)
       doc.setFont("helvetica", "normal")
       doc.setFontSize(10)
-      doc.text(socio.nombre, margen, 53)
-      doc.text("Código No. " + socio.certificado_no, margen, 56)
+      doc.text(socio.nombre, margen, 54)
+      doc.text("Código No. " + socio.certificado_no, margen, 58)
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "bold")
@@ -561,7 +561,7 @@ export default function PagosPage() {
       doc.text(body2, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
       yPos += doc.splitTextToSize(body2, pageW - margen * 2).length * 5 + 3
 
-      const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la terminación del Contrato de Vinculación a la Corporación Ruitoque Golf Club, de conformidad con la Cláusula Sexta – Causales de terminación: \"(…) Por el no pago del Aporte Social Ajustado\"."
+      const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la terminación del Contrato de Vinculación a la CORPORACIÓN RUITOQUE GOLF CLUB, de conformidad con la Cláusula Sexta – Causales de terminación: \"(…) Por el no pago del Aporte Social Ajustado\"."
       doc.text(body3, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
       yPos += doc.splitTextToSize(body3, pageW - margen * 2).length * 5 + 3
 
@@ -581,9 +581,11 @@ export default function PagosPage() {
       doc.text("Cordialmente,", margen, yPos)
       yPos += 20
       doc.setFont("helvetica", "normal")
-      doc.text("Ruitoque Golf Club", margen, yPos)
+      doc.text("Corporación Ruitoque Golf Club", margen, yPos)
       yPos += 6
-      doc.text("Cartera", margen, yPos)
+      doc.text("Departamento de Cartera", margen, yPos)
+      yPos += 6
+      doc.text("cartera@ruitoquegolfclub.com", margen, yPos)
       yPos += 6
       doc.text("3183351512", margen, yPos)
       yPos += 12
