@@ -581,15 +581,6 @@ export default function PagosPage() {
       doc.text("3183351512", margen, yPos)
       yPos += 12
 
-      doc.setDrawColor(200)
-      doc.line(margen, yPos, pageW - margen, yPos)
-      yPos += 6
-
-      doc.setFontSize(11)
-      doc.setFont("helvetica", "bold")
-      doc.text("Plan de Pagos", margen, yPos)
-      yPos += 6
-
       const rows = plan.map((p, i) => {
         const saldo = p.monto_proyectado - p.monto_pagado
         const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
@@ -637,7 +628,14 @@ export default function PagosPage() {
         else tx = x + pad
         doc.text(txt, tx, y + h / 2 + 2, { align: align as any })
       }
-      let cy = addPageIfNeeded(yPos + 4, rowH * (rows.length + 2))
+      let cy = addPageIfNeeded(yPos + 4, 6 + 6 + rowH * (rows.length + 2))
+      doc.setDrawColor(200)
+      doc.line(margen, cy, pageW - margen, cy)
+      cy += 6
+      doc.setFontSize(11)
+      doc.setFont("helvetica", "bold")
+      doc.text("Plan de Pagos", margen, cy)
+      cy += 6
       const headRow = ["#", "Período", "Proyectado", "Pagado", "Saldo", "Días", "Int. Mora"]
       headRow.forEach((h, i) => drawCell(leftX + colW.slice(0, i).reduce((s, w) => s + w, 0), cy, colW[i], rowH, h, { bg: headBg, bold: true, align: "center", size: 8, textColor: [255, 255, 255] }))
       cy += rowH
