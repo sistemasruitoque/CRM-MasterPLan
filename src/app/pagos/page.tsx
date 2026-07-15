@@ -513,8 +513,8 @@ export default function PagosPage() {
       doc.text("Señor(a)", margen, 50)
       doc.setFont("helvetica", "normal")
       doc.setFontSize(10)
-      doc.text(socio.nombre, margen, 57)
-      doc.text("Código No. " + socio.certificado_no, margen, 64)
+      doc.text(socio.nombre, margen, 53)
+      doc.text("Código No. " + socio.certificado_no, margen, 56)
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "bold")
