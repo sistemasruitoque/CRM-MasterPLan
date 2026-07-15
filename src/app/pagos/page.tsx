@@ -738,7 +738,7 @@ export default function PagosPage() {
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {filtered.map((socio) => {
-                const plan = planesPago[socio.id] || []
+                const plan = [...(planesPago[socio.id] || [])].sort((a, b) => a.periodo.localeCompare(b.periodo))
                 const isExpanded = expanded.has(socio.id)
                 const totalCuotas = plan.length
                 const pagado = plan.reduce((s, p) => s + p.monto_pagado, 0)
