@@ -505,20 +505,20 @@ export default function PagosPage() {
       }
 
       doc.setTextColor(0)
-      doc.setFontSize(11)
+      doc.setFontSize(10)
       doc.text("Piedecuesta, " + fechaStr, margen, 40)
 
-      doc.setFontSize(13)
+      doc.setFontSize(10)
       doc.setFont("helvetica", "bold")
-      doc.text("Señor(a)", margen, 55)
+      doc.text("Señor(a)", margen, 50)
       doc.setFont("helvetica", "normal")
-      doc.setFontSize(12)
-      doc.text(socio.nombre, margen, 63)
-      doc.text("Código No. " + socio.certificado_no, margen, 71)
+      doc.setFontSize(10)
+      doc.text(socio.nombre, margen, 57)
+      doc.text("Código No. " + socio.certificado_no, margen, 64)
 
-      doc.setFontSize(11)
+      doc.setFontSize(10)
       doc.setFont("helvetica", "bold")
-      doc.text("Asunto: Mora en plan de pagos contrato de vinculación Socio", margen, 84)
+      doc.text("Asunto: Mora en plan de pagos contrato de vinculación Socio", margen, 73)
 
       const vencidas = plan.filter(p => {
         const saldo = p.monto_proyectado - p.monto_pagado
@@ -541,8 +541,8 @@ export default function PagosPage() {
       const body1 = "Con el propósito de mantener actualizada la información de su contrato de vinculación como Socio a la CORPORACIÓN RUITOQUE GOLF CLUB y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su contrato de vinculación registra saldo vencido:"
       doc.setFont("helvetica", "normal")
       doc.setFontSize(10)
-      doc.text(saludo, margen, 98, { align: "justify" as any, maxWidth: pageW - margen * 2 })
-      let yPos = doc.splitTextToSize(saludo, pageW - margen * 2).length * 5 + 101
+      doc.text(saludo, margen, 87, { align: "justify" as any, maxWidth: pageW - margen * 2 })
+      let yPos = doc.splitTextToSize(saludo, pageW - margen * 2).length * 5 + 90
       doc.text(body1, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
       yPos = doc.splitTextToSize(body1, pageW - margen * 2).length * 5 + yPos + 3
 
@@ -564,6 +564,10 @@ export default function PagosPage() {
       const body3 = "Agradecemos su atención a este compromiso y lo invitamos a realizar los pagos correspondientes dentro de las fechas establecidas, contribuyendo así a mantener su cuenta al día y evitar la terminación del Contrato de Vinculación a la Corporación Ruitoque Golf Club, de conformidad con la Cláusula Sexta – Causales de terminación: \"(…) Por el no pago del Aporte Social Ajustado\"."
       doc.text(body3, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
       yPos += doc.splitTextToSize(body3, pageW - margen * 2).length * 5 + 3
+
+      const body4 = "Nuestro interés es seguir acompañándolo y brindándole el mejor servicio. Por ello, en caso de requerir información adicional, estaremos atentos a atenderle."
+      doc.text(body4, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
+      yPos += doc.splitTextToSize(body4, pageW - margen * 2).length * 5 + 3
 
       const pageH = doc.internal.pageSize.height
       function addPageIfNeeded(y: number, needed: number) {
