@@ -537,11 +537,14 @@ export default function PagosPage() {
       }
       const diasMora = maxDias
 
-      const body1 = "Reciba un cordial saludo. Con el propósito de mantener actualizada la información de su contrato de vinculación como Socio a la CORPORACIÓN RUITOQUE GOLF CLUB y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su contrato de vinculación registra saldo vencido:"
+      const saludo = "Reciba un cordial saludo."
+      const body1 = "Con el propósito de mantener actualizada la información de su contrato de vinculación como Socio a la CORPORACIÓN RUITOQUE GOLF CLUB y acompañarlo en el cumplimiento de los compromisos adquiridos con el Club, nos permitimos informarle que, a la fecha, su contrato de vinculación registra saldo vencido:"
       doc.setFont("helvetica", "normal")
       doc.setFontSize(10)
-      doc.text(body1, margen, 98, { align: "justify" as any, maxWidth: pageW - margen * 2 })
-      let yPos = doc.splitTextToSize(body1, pageW - margen * 2).length * 5 + 101
+      doc.text(saludo, margen, 98, { align: "justify" as any, maxWidth: pageW - margen * 2 })
+      let yPos = doc.splitTextToSize(saludo, pageW - margen * 2).length * 5 + 101
+      doc.text(body1, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
+      yPos = doc.splitTextToSize(body1, pageW - margen * 2).length * 5 + yPos + 3
 
       const bulletX = margen + 5
       doc.setFont("helvetica", "normal")
