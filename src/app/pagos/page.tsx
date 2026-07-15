@@ -552,7 +552,7 @@ export default function PagosPage() {
       yPos += 6
 
       doc.text("• Intereses: " + fmtP(totalInteres), bulletX, yPos)
-      yPos += 3
+      yPos += 8
 
       const body2 = "En el marco del plan de pagos suscrito en el contrato de vinculación, le recordamos que, conforme a las condiciones de este, los retrasos o incumplimientos en las fechas pactadas darán lugar a la liquidación de intereses sobre los saldos en mora, a una tasa equivalente a IBR + 400 puntos básicos E.A."
       doc.text(body2, margen, yPos, { align: "justify" as any, maxWidth: pageW - margen * 2 })
