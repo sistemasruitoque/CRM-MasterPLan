@@ -430,14 +430,14 @@ export default function PagosPage() {
     })
   }
 
-  function deleteCuota(socioId: string, p: PlanPago) {
+  async function deleteCuota(socioId: string, p: PlanPago) {
     setPlanesPago((prev) => {
       const next = { ...prev, [socioId]: (prev[socioId] || []).filter(pp => pp.id !== p.id) }
       planesPagoRef.current = next
       return next
     })
-    supabase.from("planes_pago").delete().eq("socio_id", socioId).eq("periodo", p.periodo).then()
-    savePlan(socioId, true)
+    const { error } = await supabase.from("planes_pago").delete().eq("socio_id", socioId).eq("periodo", p.periodo)
+    if (error) console.error("Error al eliminar cuota:", error)
   }
 
   const filtered = socios.filter((s) => {
