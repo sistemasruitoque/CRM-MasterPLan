@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Home, CreditCard, AlertTriangle, Users, FileBarChart, LogOut, User } from "lucide-react"
+import { Home, CreditCard, AlertTriangle, Users, FileBarChart, LogOut, User, Shield } from "lucide-react"
 import { useEffect, useState } from "react"
 
 const links = [
@@ -12,6 +12,7 @@ const links = [
   { href: "/mora", label: "Mora", icon: AlertTriangle },
   { href: "/socios", label: "Socios", icon: Users },
   { href: "/reportes", label: "Reportes", icon: FileBarChart },
+  { href: "/auditoria", label: "Auditoría", icon: Shield },
 ]
 
 export function NavBar() {

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency } from "@/lib/utils"
+import { registrarAuditoria } from "@/lib/auditoria"
 import { Search, Plus, Filter, ChevronDown, Building2, UserCheck, Edit3 } from "lucide-react"
 import type { Socio } from "@/types"
 
@@ -94,6 +95,7 @@ export default function SociosPage() {
           responsable: form.responsable,
         }).eq("id", editingSocio.id)
         if (res.error) { alert("Error: " + res.error.message); return }
+        registrarAuditoria({ tabla: "socios", registro_id: editingSocio.id, accion: "editar", datos_anteriores: { certificado_no: editingSocio.certificado_no, nombre: editingSocio.nombre, aporte: editingSocio.aporte, valor_final: editingSocio.valor_final }, datos_nuevos: { certificado_no: form.certificado_no, nombre: form.nombre, aporte: form.aporte, valor_final: form.valor_final } })
         setShowForm(false)
         setEditingSocio(null)
         loadSocios()
@@ -122,7 +124,9 @@ export default function SociosPage() {
         } as any).select()
         if (error) { alert("Error: " + error.message); return }
         if (newSocio && (newSocio as any[])[0]) {
-          router.push("/pagos/nuevo?socio_id=" + (newSocio as any[])[0].id)
+          const s = (newSocio as any[])[0]
+          registrarAuditoria({ tabla: "socios", registro_id: s.id, accion: "crear", datos_nuevos: { certificado_no: s.certificado_no, nombre: s.nombre, aporte: s.aporte, valor_final: s.valor_final } })
+          router.push("/pagos/nuevo?socio_id=" + s.id)
         }
       }
     } catch {

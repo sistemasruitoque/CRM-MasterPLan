@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
+import { registrarAuditoria } from "@/lib/auditoria"
 import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos, diasEntre, hoyStr } from "@/lib/utils"
 import { Search, ChevronDown, ChevronRight, DollarSign, CheckCircle2, Clock, AlertCircle, FileDown, Plus, Save, Trash2, MessageSquare } from "lucide-react"
 import { jsPDF } from "jspdf"
@@ -319,6 +320,10 @@ export default function PagosPage() {
       return { ...p, interes_mora: (p.interes_mora || 0) + moraHoy, interes_mora_fecha: hoy }
     })
     if (!changed) { savePlan(socioId, false); return }
+    if (changed) {
+      const changedRows = updatedPlan.filter((p, i) => p.interes_mora !== plan[i].interes_mora)
+      changedRows.forEach(p => registrarAuditoria({ tabla: "planes_pago", registro_id: p.id, accion: "acumular_interes", datos_anteriores: { interes_mora: plan.find(pp => pp.id === p.id)?.interes_mora }, datos_nuevos: { interes_mora: p.interes_mora, interes_mora_fecha: hoy } }))
+    }
     setPlanesPago((prev) => {
       const next = { ...prev, [socioId]: updatedPlan }
       planesPagoRef.current = next
@@ -336,6 +341,7 @@ export default function PagosPage() {
     const nuevoMora = (p.interes_mora || 0) + moraHoy
     const elUsuarioTocoMora = editingMoraId === p.id
     const moraVal = elUsuarioTocoMora ? (editMora === "" ? 0 : Number(editMora)) : nuevoMora
+    registrarAuditoria({ tabla: "planes_pago", registro_id: p.id, accion: "editar_pagado", datos_anteriores: { monto_pagado: p.monto_pagado, interes_mora: p.interes_mora }, datos_nuevos: { monto_pagado: pagadoVal, interes_mora: moraVal } })
     setPlanesPago((prev) => {
       const next = { ...prev, [socioId]: (prev[socioId] || []).map((pp) =>
         pp.id === p.id
@@ -406,6 +412,7 @@ export default function PagosPage() {
     const input = prompt("Ingrese el período (YYYY-MM):")
     if (!input) return
     if (!/^\d{4}-\d{2}$/.test(input)) { alert("Formato inválido. Use YYYY-MM, ej: 2026-08"); return }
+    registrarAuditoria({ tabla: "planes_pago", registro_id: `${socioId}-${input}`, accion: "agregar_cuota", datos_nuevos: { socio_id: socioId, periodo: input } })
     setPlanesPago((prev) => {
       const plan = prev[socioId] || []
       if (plan.some(p => p.periodo === input)) { alert("Ese período ya existe"); return prev }
@@ -431,6 +438,7 @@ export default function PagosPage() {
   }
 
   async function deleteCuota(socioId: string, p: PlanPago) {
+    registrarAuditoria({ tabla: "planes_pago", registro_id: p.id, accion: "eliminar", datos_anteriores: { socio_id: socioId, periodo: p.periodo, monto_proyectado: p.monto_proyectado, monto_pagado: p.monto_pagado, observacion: p.observacion } })
     setPlanesPago((prev) => {
       const next = { ...prev, [socioId]: (prev[socioId] || []).filter(pp => pp.id !== p.id) }
       planesPagoRef.current = next
