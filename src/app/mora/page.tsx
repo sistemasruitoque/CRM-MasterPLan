@@ -217,6 +217,7 @@ export default function MoraPage() {
                 <th className="px-4 py-3 font-medium">No.</th>
                 <th className="px-4 py-3 font-medium">Nombre</th>
                 <th className="px-4 py-3 font-medium">Categor&iacute;a</th>
+                <th className="px-4 py-3 font-medium text-right">Valor Acci&oacute;n</th>
                 <th className="px-4 py-3 font-medium text-right">Debe Tener Pagado</th>
                 <th className="px-4 py-3 font-medium text-right">Ha Pagado</th>
                 <th className="px-4 py-3 font-medium text-right">Mora</th>
@@ -241,7 +242,9 @@ export default function MoraPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-medium text-zinc-900">
-                    {formatCurrency(socio.debeTenerPagado)}
+                    {formatCurrency(socio.valor_final)}
+                  </td>
+                  <td className="px-4 py-3 text-right font-medium text-zinc-900">
                   </td>
                   <td className="px-4 py-3 text-right font-medium text-emerald-600">
                     {formatCurrency(socio.haPagado)}
@@ -262,7 +265,7 @@ export default function MoraPage() {
               ))}
               {sociosMora.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-zinc-400">
+                  <td colSpan={9} className="px-4 py-12 text-center text-zinc-400">
                     <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-emerald-400" />
                     <p className="font-medium">No hay socios en mora</p>
                     <p className="text-sm">Todos los socios est&aacute;n al d&iacute;a con sus pagos</p>
@@ -273,6 +276,7 @@ export default function MoraPage() {
             <tfoot>
               <tr className="bg-zinc-50 font-medium text-zinc-900">
                 <td colSpan={3} className="px-4 py-3 text-right">Totales:</td>
+                <td className="px-4 py-3 text-right">{formatCurrency(filtered.reduce((s, p) => s + p.valor_final, 0))}</td>
                 <td className="px-4 py-3 text-right">{formatCurrency(totalDebe)}</td>
                 <td className="px-4 py-3 text-right text-emerald-600">{formatCurrency(totalPagado)}</td>
                 <td className="px-4 py-3 text-right text-red-600">{formatCurrency(totalMora)}</td>
