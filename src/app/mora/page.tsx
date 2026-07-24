@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { formatCurrency, normalizePeriod, currentPeriod, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos } from "@/lib/utils"
@@ -23,6 +23,8 @@ export default function MoraPage() {
   const [sociosAlDia, setSociosAlDia] = useState(0)
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const [modalPlan, setModalPlan] = useState<{ socio: SocioMora; plan: PlanPago[] } | null>(null)
+  const groupedRef = useRef<Record<string, PlanPago[]>>({})
   const [ibr, setIbr] = useState<number>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("ibr-rate")
@@ -62,6 +64,7 @@ export default function MoraPage() {
         if (!grouped[p.socio_id]) grouped[p.socio_id] = []
         grouped[p.socio_id].push(p)
       }
+      groupedRef.current = grouped
       for (const socio of sociosData) {
         if (!grouped[socio.id] && pactadoMap.has(socio.certificado_no)) {
           const schedules = pactadoMap.get(socio.certificado_no)!
@@ -257,10 +260,10 @@ export default function MoraPage() {
                     {socio.intereses > 0 ? formatCurrency(socio.intereses) : "-"}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600">
+                    <button onClick={() => setModalPlan({ socio, plan: groupedRef.current[socio.id] || [] })} className="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-800 hover:underline">
                       <AlertTriangle className="h-3.5 w-3.5" />
                       En Mora
-                    </span>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -288,6 +291,65 @@ export default function MoraPage() {
           </table>
         </div>
       </div>
+
+      {modalPlan && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setModalPlan(null)}>
+          <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b">
+              <div>
+                <h2 className="text-lg font-bold">Plan de Pagos</h2>
+                <p className="text-sm text-zinc-500">{modalPlan.socio.nombre} &middot; Cert. No. {modalPlan.socio.certificado_no}</p>
+              </div>
+              <button onClick={() => setModalPlan(null)} className="text-zinc-400 hover:text-zinc-600 text-xl">&times;</button>
+            </div>
+            <div className="p-4 overflow-x-auto">
+              {modalPlan.plan.length === 0 ? (
+                <p className="text-zinc-400 text-center py-8">No hay plan de pagos registrado</p>
+              ) : (
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-zinc-50 text-left text-zinc-600">
+                      <th className="px-3 py-2 font-medium">#</th>
+                      <th className="px-3 py-2 font-medium">Per&iacute;odo</th>
+                      <th className="px-3 py-2 font-medium text-right">Proyectado</th>
+                      <th className="px-3 py-2 font-medium text-right">Pagado</th>
+                      <th className="px-3 py-2 font-medium text-right">Saldo</th>
+                      <th className="px-3 py-2 font-medium text-right">Int. Mora</th>
+                      <th className="px-3 py-2 font-medium">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {modalPlan.plan
+                      .slice()
+                      .sort((a, b) => a.periodo.localeCompare(b.periodo))
+                      .map((p, i) => {
+                        const saldo = p.monto_proyectado - p.monto_pagado
+                        const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
+                        const mora = calcularInteresMora(saldo, dias, ibr)
+                        const vencida = dias > 0 && saldo > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
+                        return (
+                          <tr key={p.id} className={`hover:bg-zinc-50 ${vencida ? "bg-red-50" : ""}`}>
+                            <td className="px-3 py-2">{i + 1}</td>
+                            <td className="px-3 py-2 font-medium">{p.periodo}</td>
+                            <td className="px-3 py-2 text-right">{formatCurrency(p.monto_proyectado)}</td>
+                            <td className="px-3 py-2 text-right">{formatCurrency(p.monto_pagado)}</td>
+                            <td className={`px-3 py-2 text-right font-medium ${saldo > 0 ? "text-red-600" : "text-emerald-600"}`}>{formatCurrency(saldo)}</td>
+                            <td className="px-3 py-2 text-right">{mora > 0 ? formatCurrency(mora) : "-"}</td>
+                            <td className="px-3 py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.estado === "pagado" ? "bg-emerald-100 text-emerald-700" : p.estado === "exonerado" ? "bg-blue-100 text-blue-700" : vencida ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                                {p.estado === "pagado" ? "Pagado" : p.estado === "exonerado" ? "Exonerado" : vencida ? "Vencido" : "Pendiente"}
+                              </span>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
