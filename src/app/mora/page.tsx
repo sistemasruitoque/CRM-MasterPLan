@@ -344,6 +344,19 @@ export default function MoraPage() {
                         )
                       })}
                   </tbody>
+                  <tfoot>
+                    <tr className="bg-zinc-50 font-medium text-zinc-900">
+                      <td colSpan={5} className="px-3 py-2 text-right">Total Intereses:</td>
+                      <td className="px-3 py-2 text-right text-orange-600">
+                        {formatCurrency(modalPlan.plan.reduce((s, p) => {
+                          const saldo = p.monto_proyectado - p.monto_pagado
+                          const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
+                          return s + calcularInteresMora(saldo, dias, ibr)
+                        }, 0))}
+                      </td>
+                      <td />
+                    </tr>
+                  </tfoot>
                 </table>
               )}
             </div>
