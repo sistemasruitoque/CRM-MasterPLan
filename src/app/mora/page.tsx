@@ -245,6 +245,7 @@ export default function MoraPage() {
                     {formatCurrency(socio.valor_final)}
                   </td>
                   <td className="px-4 py-3 text-right font-medium text-zinc-900">
+                    {formatCurrency(socio.debeTenerPagado)}
                   </td>
                   <td className="px-4 py-3 text-right font-medium text-emerald-600">
                     {formatCurrency(socio.haPagado)}
