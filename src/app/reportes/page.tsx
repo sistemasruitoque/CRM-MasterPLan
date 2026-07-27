@@ -67,10 +67,15 @@ export default function ReportesPage() {
           if (saldo <= 0) continue
 
           let fechaVen: Date
+          const [y, m] = cuota.periodo.split("-").map(Number)
           if (cuota.fecha_vencimiento) {
-            fechaVen = new Date(cuota.fecha_vencimiento)
+            const fv = new Date(cuota.fecha_vencimiento)
+            if (fv.getMonth() === m - 1 && fv.getFullYear() === y) {
+              fechaVen = fv
+            } else {
+              fechaVen = new Date(y, m, 0)
+            }
           } else {
-            const [y, m] = cuota.periodo.split("-").map(Number)
             fechaVen = new Date(y, m, 0)
           }
 

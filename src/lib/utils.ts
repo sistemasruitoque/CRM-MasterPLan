@@ -19,10 +19,15 @@ export function formatCurrency(n: number): string {
 export function diasVencidos(periodo: string, fechaVen?: string | null): number {
   const today = new Date()
   let cuotaDate: Date
+  const [y, m] = periodo.split("-").map(Number)
   if (fechaVen) {
-    cuotaDate = new Date(fechaVen + "T00:00:00")
+    const fv = new Date(fechaVen + "T00:00:00")
+    if (fv.getMonth() === m - 1 && fv.getFullYear() === y) {
+      cuotaDate = fv
+    } else {
+      cuotaDate = new Date(y, m, 0)
+    }
   } else {
-    const [y, m] = periodo.split("-").map(Number)
     cuotaDate = new Date(y, m, 0)
   }
   if (cuotaDate > today) return 0
