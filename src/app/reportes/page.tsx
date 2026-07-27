@@ -3,13 +3,23 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency } from "@/lib/utils"
-import { Download, FileText, BarChart3 } from "lucide-react"
+import { formatCurrency, fetchAllPlanesPago, normalizePeriod, currentPeriod, distributePagos, calcularInteresMora, diasVencidos } from "@/lib/utils"
+import { Download, FileText, BarChart3, Calendar, AlertTriangle, CheckCircle2 } from "lucide-react"
+import type { Socio, PlanPago, Pago } from "@/types"
+
+interface CuotaPorVencer {
+  socio: Socio
+  cuota: PlanPago
+  fechaVencimiento: string
+  semana: number
+}
 
 export default function ReportesPage() {
   const router = useRouter()
-  const [socios, setSocios] = useState<any[]>([])
-  const [tipoReporte, setTipoReporte] = useState("cartera")
+  const [socios, setSocios] = useState<Socio[]>([])
+  const [cuotasPorVencer, setCuotasPorVencer] = useState<CuotaPorVencer[]>([])
+  const [loading, setLoading] = useState(true)
+  const [diasRango, setDiasRango] = useState(30)
 
   useEffect(() => {
     if (typeof window !== "undefined" && !localStorage.getItem("club-auth")) {
@@ -18,41 +28,115 @@ export default function ReportesPage() {
     loadData()
   }, [])
 
+  useEffect(() => {
+    loadData()
+  }, [diasRango])
+
   async function loadData() {
+    setLoading(true)
     try {
-      const { data } = await supabase.from("socios").select("*")
-      if (data) setSocios(data)
+      const [sociosRes, planesRes, pagosRes] = await Promise.all([
+        supabase.from("socios").select("*"),
+        fetchAllPlanesPago(supabase),
+        supabase.from("pagos").select("*"),
+      ])
+
+      const sociosData: Socio[] = sociosRes.data || []
+      const planesData: PlanPago[] = planesRes || []
+      const pagosData: Pago[] = pagosRes.data || []
+      setSocios(sociosData)
+
+      const grouped: Record<string, PlanPago[]> = {}
+      for (const p of planesData) {
+        if (!grouped[p.socio_id]) grouped[p.socio_id] = []
+        grouped[p.socio_id].push(p)
+      }
+      for (const socio of sociosData) {
+        if (!grouped[socio.id]) {
+          grouped[socio.id] = []
+        }
+        grouped[socio.id] = distributePagos(grouped[socio.id], pagosData, socio.id)
+      }
+
+      const hoy = new Date()
+      const fechaLimite = new Date()
+      fechaLimite.setDate(hoy.getDate() + diasRango)
+
+      const result: CuotaPorVencer[] = []
+
+      for (const socio of sociosData) {
+        const plan = grouped[socio.id] || []
+        for (const cuota of plan) {
+          if (cuota.estado === "pagado" || cuota.estado === "exonerado") continue
+          const saldo = cuota.monto_proyectado - cuota.monto_pagado
+          if (saldo <= 0) continue
+
+          let fechaVen: Date
+          if (cuota.fecha_vencimiento) {
+            fechaVen = new Date(cuota.fecha_vencimiento)
+          } else {
+            const [y, m] = cuota.periodo.split("-").map(Number)
+            fechaVen = new Date(y, m, 0)
+          }
+
+          if (fechaVen >= hoy && fechaVen <= fechaLimite) {
+            const semana = Math.ceil(fechaVen.getDate() / 7)
+            result.push({
+              socio,
+              cuota,
+              fechaVencimiento: fechaVen.toISOString().split("T")[0],
+              semana,
+            })
+          }
+        }
+      }
+
+      result.sort((a, b) => a.fechaVencimiento.localeCompare(b.fechaVencimiento))
+      setCuotasPorVencer(result)
     } catch { /* demo */ }
+    setLoading(false)
   }
 
-  function exportCSV() {
-    const headers = ["No.", "Cédula", "Nombre", "Categoría", "Estado", "Aporte", "Referido", "Valor Final"]
-    const rows = socios.map((s: any) => [
-      s.certificado_no, s.cedula, s.nombre, s.categoria, s.estatus,
-      s.aporte, s.referido, s.valor_final,
-    ])
-    const csv = [headers.join(","), ...rows.map((r: any[]) => r.join(","))].join("\n")
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+  const semanas = [1, 2, 3, 4, 5]
+  const semanaLabels: Record<number, string> = {
+    1: "Sem 1 (día 1-7)",
+    2: "Sem 2 (día 8-14)",
+    3: "Sem 3 (día 15-21)",
+    4: "Sem 4 (día 22-28)",
+    5: "Sem 5 (día 29-31)",
+  }
+
+  function getSemanaData(semana: number) {
+    return cuotasPorVencer.filter(c => c.semana === semana)
+  }
+
+  function totalSemana(semana: number) {
+    return getSemanaData(semana).reduce((s, c) => s + (c.cuota.monto_proyectado - c.cuota.monto_pagado), 0)
+  }
+
+  const totalGeneral = cuotasPorVencer.reduce((s, c) => s + (c.cuota.monto_proyectado - c.cuota.monto_pagado), 0)
+  const totalIntereses = cuotasPorVencer.reduce((s, c) => {
+    const saldo = c.cuota.monto_proyectado - c.cuota.monto_pagado
+    const dias = diasVencidos(c.cuota.periodo, c.cuota.fecha_vencimiento)
+    return s + calcularInteresMora(saldo, dias, 9.53)
+  }, 0)
+
+  function exportExcel() {
+    const bom = "\uFEFF"
+    const sep = ";"
+    const rows = [["Semana", "Codigo Socio", "Nombre", "Categoría", "Período", "Vence", "Saldo", "Valor Acción"].join(sep)]
+    for (const c of cuotasPorVencer) {
+      const saldo = c.cuota.monto_proyectado - c.cuota.monto_pagado
+      rows.push([semanaLabels[c.semana], c.socio.certificado_no, `"${c.socio.nombre}"`, c.socio.categoria, c.cuota.periodo, c.fechaVencimiento, saldo, c.socio.valor_final].join(sep))
+    }
+    const blob = new Blob([bom + rows.join("\n")], { type: "text/csv;charset=utf-8" })
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = "socios.csv"
+    a.download = "cuotas_por_vencer.csv"
     a.click()
     URL.revokeObjectURL(url)
   }
-
-  const categorias = ["Fundador", "Fase I", "Fase II"]
-  const fallbackCantidad = [77, 29, 13]
-  const porCategoria = categorias.map((cat) => {
-    const items = socios.filter((s: any) => s.categoria === cat)
-    return {
-      categoria: cat,
-      cantidad: items.length || fallbackCantidad[categorias.indexOf(cat)],
-      total: items.reduce((s: number, p: any) => s + p.valor_final, 0) || 0,
-    }
-  })
-
-  const totalGeneral = porCategoria.reduce((s, p) => s + p.total, 0)
 
   return (
     <div className="p-6">
@@ -61,81 +145,127 @@ export default function ReportesPage() {
           <h1 className="text-2xl font-bold text-zinc-900">Reportes</h1>
           <p className="text-zinc-500 text-sm mt-1">Análisis y exportación de datos</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={exportCSV}
-            className="flex items-center gap-2 bg-white border border-zinc-300 text-zinc-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-50 transition-colors"
-          >
+        <div className="flex gap-2 items-center">
+          <label className="text-sm text-zinc-500">Rango:</label>
+          <select value={diasRango} onChange={e => setDiasRango(Number(e.target.value))} className="border rounded-lg px-3 py-2 text-sm">
+            <option value={7}>7 días</option>
+            <option value={15}>15 días</option>
+            <option value={30}>30 días</option>
+            <option value={60}>60 días</option>
+            <option value={90}>90 días</option>
+          </select>
+          <button onClick={exportExcel} className="flex items-center gap-2 bg-white border border-zinc-300 text-zinc-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-50 transition-colors">
             <Download className="h-4 w-4" />
-            Exportar CSV
+            Exportar Excel
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-zinc-200 p-5">
-          <h2 className="font-semibold text-zinc-900 mb-4 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-emerald-500" />
-            Cartera por Categoría
-          </h2>
-          <div className="space-y-4">
-            {porCategoria.map((item) => {
-              const pct = totalGeneral > 0 ? Math.round((item.total / totalGeneral) * 100) : 0
-              return (
-                <div key={item.categoria}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="font-medium text-zinc-700">{item.categoria}</span>
-                    <div className="flex gap-4">
-                      <span className="text-zinc-500">{item.cantidad} socios</span>
-                      <span className="font-bold text-zinc-900">{formatCurrency(item.total)}</span>
-                      <span className="text-zinc-400 w-10 text-right">{pct}%</span>
-                    </div>
-                  </div>
-                  <div className="w-full bg-zinc-100 rounded-full h-2.5">
-                    <div
-                      className={`h-2.5 rounded-full ${
-                        item.categoria === "Fundador" ? "bg-purple-500" :
-                        item.categoria === "Fase I" ? "bg-blue-500" :
-                        "bg-amber-500"
-                      }`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              )
-            })}
-            <div className="flex justify-between pt-3 border-t border-zinc-200 font-bold text-zinc-900">
-              <span>Total General</span>
-              <span>{formatCurrency(totalGeneral)}</span>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
+          <div className="flex items-center gap-2 mb-1">
+            <Calendar className="h-4 w-4 text-amber-600" />
+            <span className="text-sm font-medium text-amber-700">Cuotas por Vencer</span>
           </div>
+          <p className="text-2xl font-bold text-amber-900">{cuotasPorVencer.length}</p>
         </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-200 p-5">
-          <h2 className="font-semibold text-zinc-900 mb-4 flex items-center gap-2">
-            <FileText className="h-5 w-5 text-emerald-500" />
-            Resumen Rápido
-          </h2>
-          <div className="space-y-3">
-            <div className="flex justify-between py-2 border-b border-zinc-100">
-              <span className="text-zinc-600">Total Socios</span>
-              <span className="font-bold text-zinc-900">{socios.length || 119}</span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-zinc-100">
-              <span className="text-zinc-600">Valor Promedio</span>
-              <span className="font-bold text-zinc-900">{formatCurrency(totalGeneral > 0 ? Math.round(totalGeneral / (socios.length || 119)) : 112033267)}</span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-zinc-100">
-              <span className="text-zinc-600">Socios Firmados</span>
-              <span className="font-bold text-emerald-600">{socios.filter((s: any) => s.estatus === "Firmado").length || 115}</span>
-            </div>
-            <div className="flex justify-between py-2">
-              <span className="text-zinc-600">Por Firmar</span>
-              <span className="font-bold text-amber-600">{socios.filter((s: any) => s.estatus !== "Firmado").length || 21}</span>
-            </div>
+        <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+          <div className="flex items-center gap-2 mb-1">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <span className="text-sm font-medium text-red-700">Saldo Total</span>
           </div>
+          <p className="text-2xl font-bold text-red-900">{formatCurrency(totalGeneral)}</p>
+        </div>
+        <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
+          <div className="flex items-center gap-2 mb-1">
+            <AlertTriangle className="h-4 w-4 text-orange-600" />
+            <span className="text-sm font-medium text-orange-700">Intereses Estimados</span>
+          </div>
+          <p className="text-2xl font-bold text-orange-900">{formatCurrency(totalIntereses)}</p>
+        </div>
+        <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+          <div className="flex items-center gap-2 mb-1">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <span className="text-sm font-medium text-emerald-700">Socios Afectados</span>
+          </div>
+          <p className="text-2xl font-bold text-emerald-900">{new Set(cuotasPorVencer.map(c => c.socio.id)).size}</p>
         </div>
       </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
+        </div>
+      ) : cuotasPorVencer.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-sm border border-zinc-200 p-12 text-center">
+          <CheckCircle2 className="h-10 w-10 mx-auto mb-3 text-emerald-400" />
+          <p className="font-medium text-zinc-700">No hay cuotas por vencer en los próximos {diasRango} días</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {semanas.map(sem => {
+            const data = getSemanaData(sem)
+            if (data.length === 0) return null
+            return (
+              <div key={sem} className="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-3 bg-zinc-50 border-b border-zinc-200">
+                  <h3 className="font-semibold text-zinc-800 flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-emerald-500" />
+                    {semanaLabels[sem]}
+                  </h3>
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="text-zinc-500">{data.length} cuotas</span>
+                    <span className="font-bold text-zinc-900">{formatCurrency(totalSemana(sem))}</span>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-zinc-500 text-xs border-b border-zinc-100">
+                        <th className="px-5 py-2 font-medium">No.</th>
+                        <th className="px-5 py-2 font-medium">Nombre</th>
+                        <th className="px-5 py-2 font-medium">Categoría</th>
+                        <th className="px-5 py-2 font-medium">Período</th>
+                        <th className="px-5 py-2 font-medium">Vence</th>
+                        <th className="px-5 py-2 font-medium text-right">Saldo</th>
+                        <th className="px-5 py-2 font-medium text-right">Valor Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-50">
+                      {data.map((c, i) => {
+                        const saldo = c.cuota.monto_proyectado - c.cuota.monto_pagado
+                        return (
+                          <tr key={i} className="hover:bg-zinc-50">
+                            <td className="px-5 py-2 font-medium text-zinc-900">{c.socio.certificado_no}</td>
+                            <td className="px-5 py-2 text-zinc-700">{c.socio.nombre}</td>
+                            <td className="px-5 py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${c.socio.categoria === "Fundador" ? "bg-purple-100 text-purple-700" : c.socio.categoria === "Fase I" ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"}`}>
+                                {c.socio.categoria}
+                              </span>
+                            </td>
+                            <td className="px-5 py-2 text-zinc-700">{c.cuota.periodo}</td>
+                            <td className="px-5 py-2 text-zinc-700">{c.fechaVencimiento}</td>
+                            <td className="px-5 py-2 text-right font-medium text-red-600">{formatCurrency(saldo)}</td>
+                            <td className="px-5 py-2 text-right text-zinc-700">{formatCurrency(c.socio.valor_final)}</td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )
+          })}
+
+          <div className="bg-zinc-50 rounded-xl border border-zinc-200 px-5 py-3 flex items-center justify-between">
+            <span className="font-semibold text-zinc-800">Total General ({diasRango} días)</span>
+            <div className="flex items-center gap-6 text-sm">
+              <span className="text-zinc-500">{cuotasPorVencer.length} cuotas</span>
+              <span className="font-bold text-red-600">{formatCurrency(totalGeneral)}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
