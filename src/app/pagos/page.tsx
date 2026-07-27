@@ -460,14 +460,25 @@ export default function PagosPage() {
   function exportToExcel() {
     const bom = "\uFEFF"
     const sep = ";"
-    const rows = [["No.", "Socio", "Categoría", "Valor Final", "Cuotas", "Proyectado", "Pagado", "Saldo"].join(sep)]
+    const rows = [["Codigo Socio", "Documento", "Nombre", "Valor Accion", "Total Vencido", "Int Mora", "Dias de Mora"].join(sep)]
     for (const socio of filtered) {
       const plan = planesPago[socio.id] || []
-      const totalCuotas = plan.length
-      const pagado = plan.reduce((s, p) => s + p.monto_pagado, 0)
-      const proyectado = plan.reduce((s, p) => s + p.monto_proyectado, 0)
-      const saldo = proyectado - pagado
-      rows.push([socio.certificado_no, `"${socio.nombre}"`, socio.categoria, socio.valor_final, totalCuotas, proyectado, pagado, saldo].join(sep))
+      const vencidas = plan.filter(p => {
+        const saldo = p.monto_proyectado - p.monto_pagado
+        return diasVencidos(p.periodo, p.fecha_vencimiento) > 0 && saldo > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
+      })
+      const totalVencido = vencidas.reduce((s, p) => s + (p.monto_proyectado - p.monto_pagado), 0)
+      const intMora = vencidas.reduce((s, p) => {
+        const saldo = p.monto_proyectado - p.monto_pagado
+        const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
+        return s + calcularInteresMora(saldo, dias, ibr)
+      }, 0)
+      let maxDias = 0
+      for (const p of vencidas) {
+        const d = diasVencidos(p.periodo, p.fecha_vencimiento)
+        if (d > maxDias) maxDias = d
+      }
+      rows.push([socio.certificado_no, socio.cedula || "", `"${socio.nombre}"`, socio.valor_final, totalVencido, intMora, maxDias].join(sep))
     }
     const blob = new Blob([bom + rows.join("\n")], { type: "text/csv;charset=utf-8" })
     const url = URL.createObjectURL(blob)
