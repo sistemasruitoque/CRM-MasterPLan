@@ -97,12 +97,12 @@ export default function MoraPage() {
 
         const vencidas = socioPlanes.filter(p => normalizePeriod(p.periodo) < nowPeriod)
         const debeTenerPagado = vencidas.reduce((s, p) => s + p.monto_proyectado, 0)
+        const haPagadoVencidas = vencidas.reduce((s, p) => s + p.monto_pagado, 0)
         const haPagado = socioPlanes.reduce((s, p) => s + p.monto_pagado, 0)
-        const mora = Math.max(0, debeTenerPagado - haPagado)
+        const mora = Math.max(0, debeTenerPagado - haPagadoVencidas)
         const intereses = vencidas.reduce((s, p) => {
-          const acumulado = p.interes_mora || 0
-          if (acumulado > 0) return s + acumulado
           const saldo = p.monto_proyectado - p.monto_pagado
+          if (saldo <= 0) return s
           const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
           return s + calcularInteresMora(saldo, dias, ibr)
         }, 0)
@@ -325,7 +325,7 @@ export default function MoraPage() {
                       .map((p, i) => {
                         const saldo = p.monto_proyectado - p.monto_pagado
                         const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
-                        const mora = calcularInteresMora(saldo, dias, ibr)
+                        const interesMora = saldo > 0 && dias > 0 ? calcularInteresMora(saldo, dias, ibr) : 0
                         const vencida = dias > 0 && saldo > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
                         return (
                           <tr key={p.id} className={`hover:bg-zinc-50 ${vencida ? "bg-red-50" : ""}`}>
@@ -334,7 +334,7 @@ export default function MoraPage() {
                             <td className="px-3 py-2 text-right">{formatCurrency(p.monto_proyectado)}</td>
                             <td className="px-3 py-2 text-right">{formatCurrency(p.monto_pagado)}</td>
                             <td className={`px-3 py-2 text-right font-medium ${saldo > 0 ? "text-red-600" : "text-emerald-600"}`}>{formatCurrency(saldo)}</td>
-                            <td className="px-3 py-2 text-right">{mora > 0 ? formatCurrency(mora) : "-"}</td>
+                            <td className="px-3 py-2 text-right">{interesMora > 0 ? formatCurrency(interesMora) : "-"}</td>
                             <td className="px-3 py-2">
                               <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.estado === "pagado" ? "bg-emerald-100 text-emerald-700" : p.estado === "exonerado" ? "bg-blue-100 text-blue-700" : vencida ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
                                 {p.estado === "pagado" ? "Pagado" : p.estado === "exonerado" ? "Exonerado" : vencida ? "Vencido" : "Pendiente"}
@@ -350,6 +350,7 @@ export default function MoraPage() {
                       <td className="px-3 py-2 text-right text-orange-600">
                         {formatCurrency(modalPlan.plan.reduce((s, p) => {
                           const saldo = p.monto_proyectado - p.monto_pagado
+                          if (saldo <= 0) return s
                           const dias = diasVencidos(p.periodo, p.fecha_vencimiento)
                           return s + calcularInteresMora(saldo, dias, ibr)
                         }, 0))}
