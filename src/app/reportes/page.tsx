@@ -19,7 +19,6 @@ export default function ReportesPage() {
   const [socios, setSocios] = useState<Socio[]>([])
   const [cuotasPorVencer, setCuotasPorVencer] = useState<CuotaPorVencer[]>([])
   const [loading, setLoading] = useState(true)
-  const [diasRango, setDiasRango] = useState(30)
 
   useEffect(() => {
     if (typeof window !== "undefined" && !localStorage.getItem("club-auth")) {
@@ -27,10 +26,6 @@ export default function ReportesPage() {
     }
     loadData()
   }, [])
-
-  useEffect(() => {
-    loadData()
-  }, [diasRango])
 
   async function loadData() {
     setLoading(true)
@@ -59,8 +54,8 @@ export default function ReportesPage() {
       }
 
       const hoy = new Date()
-      const fechaLimite = new Date()
-      fechaLimite.setDate(hoy.getDate() + diasRango)
+      const mesActual = hoy.getMonth()
+      const anioActual = hoy.getFullYear()
 
       const result: CuotaPorVencer[] = []
 
@@ -79,7 +74,7 @@ export default function ReportesPage() {
             fechaVen = new Date(y, m, 0)
           }
 
-          if (fechaVen >= hoy && fechaVen <= fechaLimite) {
+          if (fechaVen.getMonth() === mesActual && fechaVen.getFullYear() === anioActual) {
             const semana = Math.ceil(fechaVen.getDate() / 7)
             result.push({
               socio,
@@ -146,14 +141,6 @@ export default function ReportesPage() {
           <p className="text-zinc-500 text-sm mt-1">Análisis y exportación de datos</p>
         </div>
         <div className="flex gap-2 items-center">
-          <label className="text-sm text-zinc-500">Rango:</label>
-          <select value={diasRango} onChange={e => setDiasRango(Number(e.target.value))} className="border rounded-lg px-3 py-2 text-sm">
-            <option value={7}>7 días</option>
-            <option value={15}>15 días</option>
-            <option value={30}>30 días</option>
-            <option value={60}>60 días</option>
-            <option value={90}>90 días</option>
-          </select>
           <button onClick={exportExcel} className="flex items-center gap-2 bg-white border border-zinc-300 text-zinc-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-50 transition-colors">
             <Download className="h-4 w-4" />
             Exportar Excel
@@ -199,7 +186,7 @@ export default function ReportesPage() {
       ) : cuotasPorVencer.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-zinc-200 p-12 text-center">
           <CheckCircle2 className="h-10 w-10 mx-auto mb-3 text-emerald-400" />
-          <p className="font-medium text-zinc-700">No hay cuotas por vencer en los próximos {diasRango} días</p>
+          <p className="font-medium text-zinc-700">No hay cuotas por vencer este mes</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -258,7 +245,7 @@ export default function ReportesPage() {
           })}
 
           <div className="bg-zinc-50 rounded-xl border border-zinc-200 px-5 py-3 flex items-center justify-between">
-            <span className="font-semibold text-zinc-800">Total General ({diasRango} días)</span>
+            <span className="font-semibold text-zinc-800">Total General - Mes Actual</span>
             <div className="flex items-center gap-6 text-sm">
               <span className="text-zinc-500">{cuotasPorVencer.length} cuotas</span>
               <span className="font-bold text-red-600">{formatCurrency(totalGeneral)}</span>
