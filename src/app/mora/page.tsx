@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { formatCurrency, normalizePeriod, currentPeriod, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos } from "@/lib/utils"
+import { formatCurrency, distributePagos, fetchAllPlanesPago, calcularInteresMora, diasVencidos } from "@/lib/utils"
 import { AlertTriangle, Clock, CheckCircle2, Search } from "lucide-react"
 import type { Socio, PlanPago, Pago } from "@/types"
 import pactadoPlanes from "@/../data/pago_pactado_planes.json"
@@ -57,8 +57,6 @@ export default function MoraPage() {
       const planesData: PlanPago[] = planesRes || []
       const pagosData: Pago[] = pagosRes.data || []
 
-      const nowPeriod = currentPeriod()
-
       const grouped: Record<string, PlanPago[]> = {}
       for (const p of planesData) {
         if (!grouped[p.socio_id]) grouped[p.socio_id] = []
@@ -95,7 +93,10 @@ export default function MoraPage() {
         const socioPlanes = grouped[socio.id] || []
         if (socioPlanes.length === 0) continue
 
-        const vencidas = socioPlanes.filter(p => normalizePeriod(p.periodo) < nowPeriod)
+        const vencidas = socioPlanes.filter(p => {
+          const saldo = p.monto_proyectado - p.monto_pagado
+          return diasVencidos(p.periodo, p.fecha_vencimiento) > 0 && saldo > 0 && p.estado !== "pagado" && p.estado !== "exonerado"
+        })
         const debeTenerPagado = vencidas.reduce((s, p) => s + p.monto_proyectado, 0)
         const haPagadoVencidas = vencidas.reduce((s, p) => s + p.monto_pagado, 0)
         const haPagado = socioPlanes.reduce((s, p) => s + p.monto_pagado, 0)
