@@ -138,6 +138,22 @@ export default function ReportesPage() {
     URL.revokeObjectURL(url)
   }
 
+  function exportSociosReport() {
+    const bom = "\uFEFF"
+    const sep = ";"
+    const rows = [["Accion", "Documento", "Nombre", "Categoria", "Estado", "Aporte", "Referido", "Valor Final"].join(sep)]
+    for (const s of socios) {
+      rows.push([s.certificado_no, s.cedula, `"${s.nombre}"`, s.categoria, s.estatus, s.aporte, s.referido, s.valor_final].join(sep))
+    }
+    const blob = new Blob([bom + rows.join("\n")], { type: "text/csv;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "reporte_socios.csv"
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -149,6 +165,10 @@ export default function ReportesPage() {
           <button onClick={exportExcel} className="flex items-center gap-2 bg-white border border-zinc-300 text-zinc-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-50 transition-colors">
             <Download className="h-4 w-4" />
             Exportar Excel
+          </button>
+          <button onClick={exportSociosReport} className="flex items-center gap-2 bg-white border border-zinc-300 text-zinc-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-50 transition-colors">
+            <FileText className="h-4 w-4" />
+            Reporte
           </button>
         </div>
       </div>
